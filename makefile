@@ -6,6 +6,6 @@ help:
 push:
 	@git add .
 	@git commit -m "$(COMMIT_MSG)"
-	@git push -u origin Eric-Branch
+	@git push -u origin Eric-branch
 
 p: push
