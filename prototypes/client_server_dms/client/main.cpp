@@ -3,19 +3,20 @@
 
 #include <QCoreApplication>
 #include <QHostAddress>
+#include <iostream>
 
-#include "client.h"
+#include "Client.h"
 
 int main(int argc, char * argv[])
 {
     QCoreApplication app(argc, argv);
 
+    oom::Client client;
     QHostAddress host = QHostAddress::LocalHost;
     int port = 1234;
     
-    oom::Client client;
     client.connectToServer(host,port);
-
+    client.login("eric","123");
     
     return app.exec();
 }

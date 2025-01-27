@@ -1,6 +1,6 @@
 CONFIG += console
 TEMPLATE = app
-TARGET = simple_server
+TARGET = a.out
 QT += core network
 HEADERS += server.h
 SOURCES += main.cpp \

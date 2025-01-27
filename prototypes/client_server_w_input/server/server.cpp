@@ -33,6 +33,7 @@ namespace oom
         {
             QByteArray data = clientSocket->readAll();
             qDebug() << "Recieved from client:" << data;
+            clientSocket->write("Recieved");
         };
         connect(clientSocket, &QTcpSocket::readyRead, this, fn);
     }
