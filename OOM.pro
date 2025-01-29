@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui uitools
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -9,17 +9,29 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    baseuser.cpp \
+    devuser.cpp \
     main.cpp \
     login.cpp \
-    profile.cpp
+    privatechat.cpp \
+    profile.cpp \
+    register.cpp \
+    user.cpp
 
 HEADERS += \
+    baseuser.h \
+    devuser.h \
     login.h \
-    profile.h
+    privatechat.h \
+    profile.h \
+    register.h \
+    user.h
 
 FORMS += \
     login.ui \
-    profile.ui
+    privatechat.ui \
+    profile.ui \
+    register.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

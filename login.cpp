@@ -1,9 +1,12 @@
 #include "login.h"
 #include "ui_login.h"
 #include "profile.h"
+#include "register.h"
+#include <QTimer>
 
 Login::Login(QWidget *parent)
     : QMainWindow(parent)
+    , currentStatus(Client::LoggedOut)
     , ui(new Ui::Login)
     , authenticated(false)
 {
@@ -19,13 +22,31 @@ Login::~Login()
     delete ui;
 }
 
-void Login::on_registerButton_clicked()
-{
-    // In the future, this will send data to server/database to register an account.
-    //ui->registerNotImplementedLabel->setEnabled(true);
-    ui->registerNotImplementedLabel->setText("Not Implemented yet!");
+constexpr bool Login::getStatus(Client currentStatus, Client otherStatus) {
+    return currentStatus == otherStatus;
 }
 
+void Login::update()
+{
+    QTimer::singleShot(2000, []() {
+#ifdef QT_DEBUG
+        qDebug() << "test";
+#endif
+    });
+    if (getStatus(currentStatus, Client::LoggedOut))
+    {
+        ui->authFailedLabel->setText("UPDATING");
+    }
+}
+
+void Login::on_registerButton_clicked()
+{
+    qDebug("registerButton clicked, redirecting...");
+    Register *r = new Register();
+    connect(r, &Register::showLogin, this, &Login::show);
+    r->show();
+    this->hide();
+}
 
 void Login::on_loginButton_clicked()
 {
@@ -43,17 +64,18 @@ void Login::on_loginButton_clicked()
     //TODO: username/password authentication
     authenticated = true;
 
+    update();
+
     if (authenticated && !usernameEmpty && !passwordEmpty) {
         //             nullptr because we don't want the login screen to be the parent ui
         //             the next screen might become parent of everything else TBD :)
+
         Profile *p = new Profile(nullptr, username);
         p->show();
         this->close();
     } else {
+        update();
         ui->passwordTextbox->clear();
-        ui->authFailedLabel->setText("Authentication failed! Username or password incorrect!");
+        //ui->authFailedLabel->setText("Authentication failed! Username or password incorrect!");
     }
-
-
 }
-

@@ -1,0 +1,15 @@
+release/baseuser.o
+release/devuser.o
+release/main.o
+release/login.o
+release/privatechat.o
+release/profile.o
+release/register.o
+release/user.o
+release/moc_baseuser.o
+release/moc_devuser.o
+release/moc_login.o
+release/moc_privatechat.o
+release/moc_profile.o
+release/moc_register.o
+release/moc_user.o

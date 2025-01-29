@@ -303,7 +303,10 @@ Makefile: ../../OOM.pro C:/Qt/6.8.1/mingw_64/mkspecs/win32-g++/qmake.conf C:/Qt/
 		C:/Qt/6.8.1/mingw_64/mkspecs/features/yacc.prf \
 		C:/Qt/6.8.1/mingw_64/mkspecs/features/lex.prf \
 		../../OOM.pro \
+		C:/Qt/6.8.1/mingw_64/lib/Qt6UiTools.prl \
+		C:/Qt/6.8.1/mingw_64/lib/Qt6OpenGLWidgets.prl \
 		C:/Qt/6.8.1/mingw_64/lib/Qt6Widgets.prl \
+		C:/Qt/6.8.1/mingw_64/lib/Qt6OpenGL.prl \
 		C:/Qt/6.8.1/mingw_64/lib/Qt6Gui.prl \
 		C:/Qt/6.8.1/mingw_64/lib/Qt6Core.prl \
 		C:/Qt/6.8.1/mingw_64/lib/Qt6EntryPoint.prl \
@@ -542,7 +545,10 @@ C:/Qt/6.8.1/mingw_64/mkspecs/features/exceptions.prf:
 C:/Qt/6.8.1/mingw_64/mkspecs/features/yacc.prf:
 C:/Qt/6.8.1/mingw_64/mkspecs/features/lex.prf:
 ../../OOM.pro:
+C:/Qt/6.8.1/mingw_64/lib/Qt6UiTools.prl:
+C:/Qt/6.8.1/mingw_64/lib/Qt6OpenGLWidgets.prl:
 C:/Qt/6.8.1/mingw_64/lib/Qt6Widgets.prl:
+C:/Qt/6.8.1/mingw_64/lib/Qt6OpenGL.prl:
 C:/Qt/6.8.1/mingw_64/lib/Qt6Gui.prl:
 C:/Qt/6.8.1/mingw_64/lib/Qt6Core.prl:
 C:/Qt/6.8.1/mingw_64/lib/Qt6EntryPoint.prl:

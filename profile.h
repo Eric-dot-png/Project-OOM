@@ -3,9 +3,9 @@
 
 #include <QWidget>
 
-namespace Ui {
-class Profile;
-}
+QT_BEGIN_NAMESPACE
+namespace Ui { class Profile; }
+QT_END_NAMESPACE
 
 class Profile : public QWidget
 {
