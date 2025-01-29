@@ -1,17 +1,28 @@
-// file : main.cpp
-// name : eric garcia
-
 #include <iostream>
+#include <QtCore>
+#include <QtSql>
 
-#include <QCoreApplication>
+#include "dbHandler.h"
 
-#include "Server.h"
-
-int main(int argc, char * argv[])
+int main(int argc, char ** argv)
 {
     QCoreApplication app(argc, argv);
+    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
+    db.setHostName("localhost");
+    db.setDatabaseName("DSDB");
+    db.setUserName("root"); //Change to your credentials
+    db.setPassword("root"); //Change to your credentials
+    db.open();
     
-    oom::Server myserver(1234);
-    
+    dbHandler x;
+    Person jdoe("jdoe", "abc", "jdoe@gmail.com");
+    bool valid = x.availUsername(jdoe);
+    if(valid)
+        std::cout << x.newUser(jdoe) << std::endl;
+    else
+        std::cout << "Already Used!\n";
+
+    db.close();
     return app.exec();
 }
+
