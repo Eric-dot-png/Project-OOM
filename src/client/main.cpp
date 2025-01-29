@@ -1,21 +1,11 @@
-// file : main.cpp
-// name : eric garcia
+#include "login.h"
 
-#include <QCoreApplication>
-#include <QHostAddress>
+#include <QApplication>
 
-#include "client.h"
-
-int main(int argc, char * argv[])
+int main(int argc, char *argv[])
 {
-    QCoreApplication app(argc, argv);
-
-    QHostAddress host = QHostAddress::LocalHost;
-    int port = 1234;
-    
-    oom::Client client;
-    client.connectToServer(host,port);
-
-    
-    return app.exec();
+    QApplication a(argc, argv);
+    Login w;
+    w.show();
+    return a.exec();
 }
