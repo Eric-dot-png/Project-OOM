@@ -22,6 +22,13 @@ namespace oom
             LoginRequest,
             LoginAccept,
             LoginDenied,
+            CreateAccountRequest,
+            CreateAccountAccept,
+            CreateAccountDenied,
+            MessageRequest,
+            MessageAccept,
+            MessageDenied,
+            MessageForward,
             SIZE
         };
         

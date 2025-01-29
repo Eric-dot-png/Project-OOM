@@ -13,7 +13,7 @@ namespace oom
             qDebug() << "Connected to Server";
             state = ClientState::Connected;
         });
-
+        
         connect(socket, &QTcpSocket::disconnected, this, [&](){
             qDebug() << "Disconnected from Server";
             state = ClientState::Disconnected;
@@ -57,14 +57,37 @@ namespace oom
     
     void Client::login(const QString& user, const QString& pwd)
     {
-        qDebug() << "Attempting Login...";
-        socket->write(ProtocolManager::constructMsg(
-                          ProtocolManager::LoginRequest, {user, pwd})
-            );
-        
-        state = ClientState::LoggingIn;
+        if (state == ClientState::Connected)
+        {
+            qDebug() << "Attempting Login...";
+            socket->write(ProtocolManager::constructMsg(
+                              ProtocolManager::LoginRequest, {user, pwd})
+                );
+            state = ClientState::LoggingIn;
+        }
+        else
+        {
+            qDebug() << "Can't Login. Current State:" << state;
+        }
     }
 
+    void Client::createAccount(const QString& user, const QString& pwd)
+    {
+        if (state == ClientState::Connected)
+        {
+            qDebug() << "Attempting Create Account...";
+            socket->write(ProtocolManager::constructMsg(
+                              ProtocolManager::CreateAccountRequest,
+                              {user, pwd})
+                );
+            state = ClientState::CreatingAccount;
+        }
+        else
+        {
+            qDebug() << "Can't Create Account. Current State:" << state;
+        }
+    }
+    
     void Client::onReply()
     {
         QString data = socket->readAll();
@@ -72,7 +95,7 @@ namespace oom
 
         ProtocolManager::MessageType t = ProtocolManager::classify(data);
         QString msg = ProtocolManager::contents(data);
-
+        
         switch(state)
         {
             case ClientState::LoggingIn:
@@ -88,6 +111,37 @@ namespace oom
                     case ProtocolManager::LoginDenied:
                     {
                         qDebug() << "Login Failed!";
+                        state = ClientState::Connected;
+                        break;
+                    }
+                    default:
+                    {
+                        qDebug() << "State Transition Failure:"
+                                 << "\nCurrent State:" << state
+                                 << "\n  Attempting transition to:" << t;
+                        state = ClientState::Connected;
+                        break;
+                    }
+                }
+                break;
+            }
+            case ClientState::CreatingAccount:
+            {
+                switch(t)
+                {
+                    case ProtocolManager::CreateAccountAccept:
+                    {
+                        QStringList ms = msg.split(' ');
+                        state = ClientState::Connected;
+                        qDebug() << "Account with username" << ms[0]
+                                 << "created!";
+                        login(ms[0],ms[1]); // potentially change?
+                        break;
+                    }
+                    case ProtocolManager::CreateAccountDenied:
+                    {
+                        qDebug() << "Account Creation Failed!";
+                        state = ClientState::Connected;
                         break;
                     }
                     default:

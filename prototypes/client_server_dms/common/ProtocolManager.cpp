@@ -28,18 +28,38 @@ namespace oom
         
         switch(t)
         {
-            case LoginRequest:
-                if (argc == 2)
-                    return (p + argv[0] + " " + argv[1]).toUtf8();
-                else
-                    throw(ProtocolError());
-            case LoginAccept:
-                if (argc == 0)
+            case MessageRequest:
+            {
+                if (argc == 3)
+                {
+                    QString delim = "";
+                    for (const QString& arg : argv)
+                    {
+                        p += delim + arg;
+                        delim = " ";
+                    }
                     return p.toUtf8();
-                else
-                    throw(ProtocolError());
-            default:
-                throw(ProtocolError());
+                }
+                else throw(ProtocolError());
+                break;
+            }
+                
+            case CreateAccountRequest: // same for now
+            case CreateAccountAccept: // same for now
+            case LoginRequest:
+            {
+                if (argc == 2) return (p + argv[0] + " " + argv[1]).toUtf8();
+                else throw(ProtocolError());
+            }
+            case CreateAccountDenied: // same for now
+            case LoginDenied: // same for now
+            case LoginAccept:
+            {
+                if (argc == 0) return p.toUtf8();
+                else throw(ProtocolError());
+            }
+            
+            default: throw(ProtocolError());
         }
     }
 };
