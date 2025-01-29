@@ -61,7 +61,7 @@ int main(int argc, char * argv[])
         {
             QString x(input); x.remove(0,1);
             QStringList xs = x.split(' ');
-            client.createAccount(xs[0],xs[1]);
+            client.createAccount(xs[0],xs[1],"");
         }
 
     });

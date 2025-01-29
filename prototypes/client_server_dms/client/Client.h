@@ -37,7 +37,8 @@ namespace oom
         void disconnect();
         
         void login(const QString& usr, const QString& pwd);
-        void createAccount(const QString& usr, const QString& pwd);
+        void createAccount(const QString& usr, const QString& pwd,
+                           const QString& email);
         
     private slots:
         void onReply();
