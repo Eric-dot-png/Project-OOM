@@ -31,7 +31,11 @@ namespace oom
             QString data = clientSocket->readAll();
             qDebug() << "Recieved" << data << "from" << clientSocket;
             
+<<<<<<< HEAD:prototypes/client_server_dms/server/Server.cpp
             ProtocolManager::Protocol t = ProtocolManager::classify(data);
+=======
+            ProtocolManager::MessageType t = ProtocolManager::classify(data);
+>>>>>>> main:src/server/Server.cpp
             QString msg = ProtocolManager::contents(data);
             
             switch(t)
@@ -61,7 +65,10 @@ namespace oom
                     QStringList ms = msg.split(' ');
                     QString usr = ms[0];
                     QString pwd = ms[1];
+<<<<<<< HEAD:prototypes/client_server_dms/server/Server.cpp
                     QString email = ms[1];
+=======
+>>>>>>> main:src/server/Server.cpp
 
                     QByteArray x;
                     if (dbContains(usr,pwd) || !valid(usr,pwd))
@@ -72,7 +79,11 @@ namespace oom
                     }
                     else
                     {
+<<<<<<< HEAD:prototypes/client_server_dms/server/Server.cpp
                         createAccount(usr,pwd,email);
+=======
+                        createAccount(usr,pwd);
+>>>>>>> main:src/server/Server.cpp
                         x = ProtocolManager::constructMsg(
                             ProtocolManager::CreateAccountAccept, {usr,pwd}
                             );
@@ -126,8 +137,12 @@ namespace oom
         
     }
 
+<<<<<<< HEAD:prototypes/client_server_dms/server/Server.cpp
     void Server::createAccount(const QString& usr, const QString& pwd,
                                const QString& email)
+=======
+    void Server::createAccount(const QString& usr, const QString& pwd)
+>>>>>>> main:src/server/Server.cpp
     {
         std::string path = "db.txt";
         std::ofstream database(path, std::ios::app);
