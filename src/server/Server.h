@@ -4,39 +4,38 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include <iostream>
-
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QHostAddress>
 #include <QObject>
 #include <QDebug>
 
-// server commands:
-//
-// Create user 'mkusr [user]'
-// Remove User 'rmusr [user]'
-// 
+// adhawk stuff for db
+#include <fstream>
+#include <string>
+
+#include "ProtocolManager.h"
+
 namespace oom
 {
     class Server : public QObject
     {
-        Q_OBJECT // mandatory macro???
-        
+        Q_OBJECT 
     public:
-        // port is the port that the listener will be listening on
-        // parent is simply following the convention of the QObject class
         Server(int port, QObject * parent=NULL);
         ~Server();
                  
     private slots:
-        // this is the function that is called when listener
-        // hears something
         void onNewConnection();        
     private:
+        bool valid(const QString& usr, const QString& pwd) const;
+        bool dbContains(const QString& usr, const QString& pwd) const;
+        void createAccount(const QString& usr, const QString& pwd);
+        
         int port_;
         QTcpServer * listener_;
 
     };
 }
+
 #endif

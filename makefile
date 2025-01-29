@@ -4,8 +4,8 @@ help:
 	@echo "run 'make push' to push all changes to github"
 
 push:
+	@git checkout Eric-Branch
 	@git add .
 	@git commit -m "$(COMMIT_MSG)"
-	@git push -u origin main
+	@git push -u origin Eric-Branch
 
-p: push
