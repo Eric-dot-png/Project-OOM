@@ -71,23 +71,14 @@ namespace oom
         }
     }
 
-<<<<<<< HEAD:prototypes/client_server_dms/client/Client.cpp
-    void Client::createAccount(const QString& user, const QString& pwd,
-                               const QString& email)
-=======
     void Client::createAccount(const QString& user, const QString& pwd)
->>>>>>> main:src/client/Client.cpp
     {
         if (state == ClientState::Connected)
         {
             qDebug() << "Attempting Create Account...";
             socket->write(ProtocolManager::constructMsg(
                               ProtocolManager::CreateAccountRequest,
-<<<<<<< HEAD:prototypes/client_server_dms/client/Client.cpp
-                              {user, pwd, email})
-=======
                               {user, pwd})
->>>>>>> main:src/client/Client.cpp
                 );
             state = ClientState::CreatingAccount;
         }
@@ -102,11 +93,7 @@ namespace oom
         QString data = socket->readAll();
         qDebug() << "Recieved" << data << "from server.";
 
-<<<<<<< HEAD:prototypes/client_server_dms/client/Client.cpp
-        ProtocolManager::Protocol t = ProtocolManager::classify(data);
-=======
         ProtocolManager::MessageType t = ProtocolManager::classify(data);
->>>>>>> main:src/client/Client.cpp
         QString msg = ProtocolManager::contents(data);
         
         switch(state)

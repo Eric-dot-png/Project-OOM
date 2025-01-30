@@ -37,12 +37,7 @@ namespace oom
         void disconnect();
         
         void login(const QString& usr, const QString& pwd);
-<<<<<<< HEAD:prototypes/client_server_dms/client/Client.h
-        void createAccount(const QString& usr, const QString& pwd,
-                           const QString& email);
-=======
         void createAccount(const QString& usr, const QString& pwd);
->>>>>>> main:src/client/Client.h
         
     private slots:
         void onReply();
