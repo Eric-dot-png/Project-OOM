@@ -37,7 +37,7 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = a.out1.0.0
-DISTDIR = /home/student/OOM_Project/src/client/.tmp/a.out1.0.0
+DISTDIR = /home/student/OOM-project/Project-OOM/src/client/.tmp/a.out1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1
 LIBS          = $(SUBLIBS) /usr/lib64/libQt5Widgets.so /usr/lib64/libQt5Gui.so /usr/lib64/libQt5Network.so /usr/lib64/libQt5Core.so -lGL -lpthread   
@@ -793,44 +793,44 @@ moc_Client.cpp: Client.h \
 		../common/ProtocolManager.h \
 		moc_predefs.h \
 		/../lib64/qt5/bin/moc
-	/../lib64/qt5/bin/moc $(DEFINES) --include /home/student/OOM_Project/src/client/moc_predefs.h -I/../lib64/qt5/mkspecs/linux-g++ -I/home/student/OOM_Project/src/client -I/home/student/OOM_Project/src/common -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/c++/14/x86_64-redhat-linux -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-redhat-linux/14/include -I/usr/local/include -I/usr/include Client.h -o moc_Client.cpp
+	/../lib64/qt5/bin/moc $(DEFINES) --include /home/student/OOM-project/Project-OOM/src/client/moc_predefs.h -I/../lib64/qt5/mkspecs/linux-g++ -I/home/student/OOM-project/Project-OOM/src/client -I/home/student/OOM-project/Project-OOM/src/common -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/c++/14/x86_64-redhat-linux -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-redhat-linux/14/include -I/usr/local/include -I/usr/include Client.h -o moc_Client.cpp
 
 moc_baseuser.cpp: baseuser.h \
 		moc_predefs.h \
 		/../lib64/qt5/bin/moc
-	/../lib64/qt5/bin/moc $(DEFINES) --include /home/student/OOM_Project/src/client/moc_predefs.h -I/../lib64/qt5/mkspecs/linux-g++ -I/home/student/OOM_Project/src/client -I/home/student/OOM_Project/src/common -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/c++/14/x86_64-redhat-linux -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-redhat-linux/14/include -I/usr/local/include -I/usr/include baseuser.h -o moc_baseuser.cpp
+	/../lib64/qt5/bin/moc $(DEFINES) --include /home/student/OOM-project/Project-OOM/src/client/moc_predefs.h -I/../lib64/qt5/mkspecs/linux-g++ -I/home/student/OOM-project/Project-OOM/src/client -I/home/student/OOM-project/Project-OOM/src/common -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/c++/14/x86_64-redhat-linux -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-redhat-linux/14/include -I/usr/local/include -I/usr/include baseuser.h -o moc_baseuser.cpp
 
 moc_devuser.cpp: devuser.h \
 		baseuser.h \
 		moc_predefs.h \
 		/../lib64/qt5/bin/moc
-	/../lib64/qt5/bin/moc $(DEFINES) --include /home/student/OOM_Project/src/client/moc_predefs.h -I/../lib64/qt5/mkspecs/linux-g++ -I/home/student/OOM_Project/src/client -I/home/student/OOM_Project/src/common -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/c++/14/x86_64-redhat-linux -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-redhat-linux/14/include -I/usr/local/include -I/usr/include devuser.h -o moc_devuser.cpp
+	/../lib64/qt5/bin/moc $(DEFINES) --include /home/student/OOM-project/Project-OOM/src/client/moc_predefs.h -I/../lib64/qt5/mkspecs/linux-g++ -I/home/student/OOM-project/Project-OOM/src/client -I/home/student/OOM-project/Project-OOM/src/common -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/c++/14/x86_64-redhat-linux -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-redhat-linux/14/include -I/usr/local/include -I/usr/include devuser.h -o moc_devuser.cpp
 
 moc_login.cpp: login.h \
 		moc_predefs.h \
 		/../lib64/qt5/bin/moc
-	/../lib64/qt5/bin/moc $(DEFINES) --include /home/student/OOM_Project/src/client/moc_predefs.h -I/../lib64/qt5/mkspecs/linux-g++ -I/home/student/OOM_Project/src/client -I/home/student/OOM_Project/src/common -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/c++/14/x86_64-redhat-linux -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-redhat-linux/14/include -I/usr/local/include -I/usr/include login.h -o moc_login.cpp
+	/../lib64/qt5/bin/moc $(DEFINES) --include /home/student/OOM-project/Project-OOM/src/client/moc_predefs.h -I/../lib64/qt5/mkspecs/linux-g++ -I/home/student/OOM-project/Project-OOM/src/client -I/home/student/OOM-project/Project-OOM/src/common -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/c++/14/x86_64-redhat-linux -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-redhat-linux/14/include -I/usr/local/include -I/usr/include login.h -o moc_login.cpp
 
 moc_privatechat.cpp: privatechat.h \
 		moc_predefs.h \
 		/../lib64/qt5/bin/moc
-	/../lib64/qt5/bin/moc $(DEFINES) --include /home/student/OOM_Project/src/client/moc_predefs.h -I/../lib64/qt5/mkspecs/linux-g++ -I/home/student/OOM_Project/src/client -I/home/student/OOM_Project/src/common -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/c++/14/x86_64-redhat-linux -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-redhat-linux/14/include -I/usr/local/include -I/usr/include privatechat.h -o moc_privatechat.cpp
+	/../lib64/qt5/bin/moc $(DEFINES) --include /home/student/OOM-project/Project-OOM/src/client/moc_predefs.h -I/../lib64/qt5/mkspecs/linux-g++ -I/home/student/OOM-project/Project-OOM/src/client -I/home/student/OOM-project/Project-OOM/src/common -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/c++/14/x86_64-redhat-linux -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-redhat-linux/14/include -I/usr/local/include -I/usr/include privatechat.h -o moc_privatechat.cpp
 
 moc_profile.cpp: profile.h \
 		moc_predefs.h \
 		/../lib64/qt5/bin/moc
-	/../lib64/qt5/bin/moc $(DEFINES) --include /home/student/OOM_Project/src/client/moc_predefs.h -I/../lib64/qt5/mkspecs/linux-g++ -I/home/student/OOM_Project/src/client -I/home/student/OOM_Project/src/common -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/c++/14/x86_64-redhat-linux -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-redhat-linux/14/include -I/usr/local/include -I/usr/include profile.h -o moc_profile.cpp
+	/../lib64/qt5/bin/moc $(DEFINES) --include /home/student/OOM-project/Project-OOM/src/client/moc_predefs.h -I/../lib64/qt5/mkspecs/linux-g++ -I/home/student/OOM-project/Project-OOM/src/client -I/home/student/OOM-project/Project-OOM/src/common -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/c++/14/x86_64-redhat-linux -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-redhat-linux/14/include -I/usr/local/include -I/usr/include profile.h -o moc_profile.cpp
 
 moc_register.cpp: register.h \
 		moc_predefs.h \
 		/../lib64/qt5/bin/moc
-	/../lib64/qt5/bin/moc $(DEFINES) --include /home/student/OOM_Project/src/client/moc_predefs.h -I/../lib64/qt5/mkspecs/linux-g++ -I/home/student/OOM_Project/src/client -I/home/student/OOM_Project/src/common -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/c++/14/x86_64-redhat-linux -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-redhat-linux/14/include -I/usr/local/include -I/usr/include register.h -o moc_register.cpp
+	/../lib64/qt5/bin/moc $(DEFINES) --include /home/student/OOM-project/Project-OOM/src/client/moc_predefs.h -I/../lib64/qt5/mkspecs/linux-g++ -I/home/student/OOM-project/Project-OOM/src/client -I/home/student/OOM-project/Project-OOM/src/common -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/c++/14/x86_64-redhat-linux -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-redhat-linux/14/include -I/usr/local/include -I/usr/include register.h -o moc_register.cpp
 
 moc_user.cpp: user.h \
 		baseuser.h \
 		moc_predefs.h \
 		/../lib64/qt5/bin/moc
-	/../lib64/qt5/bin/moc $(DEFINES) --include /home/student/OOM_Project/src/client/moc_predefs.h -I/../lib64/qt5/mkspecs/linux-g++ -I/home/student/OOM_Project/src/client -I/home/student/OOM_Project/src/common -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/c++/14/x86_64-redhat-linux -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-redhat-linux/14/include -I/usr/local/include -I/usr/include user.h -o moc_user.cpp
+	/../lib64/qt5/bin/moc $(DEFINES) --include /home/student/OOM-project/Project-OOM/src/client/moc_predefs.h -I/../lib64/qt5/mkspecs/linux-g++ -I/home/student/OOM-project/Project-OOM/src/client -I/home/student/OOM-project/Project-OOM/src/common -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/c++/14/x86_64-redhat-linux -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-redhat-linux/14/include -I/usr/local/include -I/usr/include user.h -o moc_user.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
