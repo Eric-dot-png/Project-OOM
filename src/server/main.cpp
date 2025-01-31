@@ -1,18 +1,18 @@
+// file : main.cpp
+
 #include <iostream>
 #include <QtCore>
 
 #include "Server.h"
 #include "dbHandler.h"
+#include <mysql.h>
 
-int main()
+int main(int argc, char* argv[])
 {
-    Person jdoe("jdoe", "abc", "jdoe@gmail.com");
-    bool valid = x.availUsername(jdoe);
-    if(valid)
-        std::cout << x.newUser(jdoe) << std::endl;
-    else
-        std::cout << "Already Used!\n";
-
-    return 0;
+    QCoreApplication app(argc, argv);
+    int port = 1234; // port for server to listen on
+    oom::Server s(port);
+    
+    return app.exec();
 }
 

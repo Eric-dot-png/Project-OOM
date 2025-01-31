@@ -27,8 +27,8 @@ public:
     {
         return email_;
     }
-
-    QString get_permissions() const
+    
+    bool get_permissions() const
     {
         return per_;
     }

@@ -50,35 +50,48 @@ namespace oom
                     else
                     {
                         x = ProtocolManager::serialize(
-                            ProtocolManager::LoginDenied, {});
+                            ProtocolManager::LoginDenied,
+                            {"account with login information does not exist"}
+                            );
                     }
                     clientSocket->write(x);
                     break;
-                }
+                } // end of LoginRequest
                 case ProtocolManager::CreateAccountRequest:
                 {
                     QString usr = m["Username"].toString();
                     QString pwd = m["Password"].toString();
                     QString email = m["Email"].toString();
                     User u(usr, pwd, email);
-                    if (!db.availUsername(u) || !valid(usr,pwd))
+                    if (!db.availUsername(u)) 
                     {
                         x = ProtocolManager::serialize(
-                            ProtocolManager::CreateAccountDenied, {}
-                            );
+                            ProtocolManager::CreateAccountDenied,
+                            {"username already Exists."} );
+                    }
+                    else if (!valid(usr,pwd))
+                    {
+                        x = ProtocolManager::serialize(
+                            ProtocolManager::CreateAccountDenied,
+                            {"username or password not valid"} );
                     }
                     else
                     {
-                        bool success = newUser(u);
+                        bool success = db.newUser(u);
                         if(success)
+                        {
                             x = ProtocolManager::serialize(
                                 ProtocolManager::CreateAccountAccept,
-                                {usr,pwd}
-                                );
+                                {usr,pwd} );
+                        }
                         else
-                            // Hi Beth here, what do if can't create User for
-                            // some reason?
-                    }
+                        {
+                            x = ProtocolManager::serialize(
+                                ProtocolManager::CreateAccountDenied,
+                                {"Unknown Error, Could not create account."}
+                                );
+                        }
+                    } // end of CreateAccountRequest
                     clientSocket->write(x);
                     break;
                 }
@@ -89,7 +102,7 @@ namespace oom
                 }
             }
         });
-    } // end of fn
+    }
 
     bool Server::valid(const QString& usr, const QString& pwd) const
     {
