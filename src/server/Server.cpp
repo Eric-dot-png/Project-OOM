@@ -28,25 +28,15 @@ namespace oom
         connect(clientSocket, &QTcpSocket::readyRead, this, [this,
                                                              clientSocket]()
         {
-            QString data = clientSocket->readAll();
+            QByteArray data = clientSocket->readAll();
             qDebug() << "Recieved" << data << "from" << clientSocket;
+
+            QJsonObject m = ProtocolManager::deserialize(data);
             
-<<<<<<< HEAD:prototypes/client_server_dms/server/Server.cpp
-            ProtocolManager::Protocol t = ProtocolManager::classify(data);
-=======
-            ProtocolManager::MessageType t = ProtocolManager::classify(data);
->>>>>>> main:src/server/Server.cpp
-            QString msg = ProtocolManager::contents(data);
-            
-            switch(t)
+            switch(m["Type"].toInt())
             {
                 case ProtocolManager::LoginRequest:
                 {
-                    QStringList ms = msg.split(' ');
-                    QString usr = ms[0];
-                    QString pwd = ms[1];
-
-                    QByteArray x;
                     if (dbContains(usr,pwd))
                     {
                         x = ProtocolManager::constructMsg(

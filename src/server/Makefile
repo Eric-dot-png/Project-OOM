@@ -37,7 +37,7 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = a.out1.0.0
-DISTDIR = /home/student/OOM_Project/prototypes/client_server_dms/server/.tmp/a.out1.0.0
+DISTDIR = /home/student/OOM_Project/src/server/.tmp/a.out1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1
 LIBS          = $(SUBLIBS) /usr/lib64/libQt5Gui.so /usr/lib64/libQt5Network.so /usr/lib64/libQt5Core.so -lGL -lpthread   
@@ -747,7 +747,7 @@ moc_Server.cpp: Server.h \
 		../common/ProtocolManager.h \
 		moc_predefs.h \
 		/../lib64/qt5/bin/moc
-	/../lib64/qt5/bin/moc $(DEFINES) --include /home/student/OOM_Project/prototypes/client_server_dms/server/moc_predefs.h -I/../lib64/qt5/mkspecs/linux-g++ -I/home/student/OOM_Project/prototypes/client_server_dms/server -I/home/student/OOM_Project/prototypes/client_server_dms/common -I/usr/include/qt5 -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/c++/14/x86_64-redhat-linux -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-redhat-linux/14/include -I/usr/local/include -I/usr/include Server.h -o moc_Server.cpp
+	/../lib64/qt5/bin/moc $(DEFINES) --include /home/student/OOM_Project/src/server/moc_predefs.h -I/../lib64/qt5/mkspecs/linux-g++ -I/home/student/OOM_Project/src/server -I/home/student/OOM_Project/src/common -I/usr/include/qt5 -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/c++/14/x86_64-redhat-linux -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-redhat-linux/14/include -I/usr/local/include -I/usr/include Server.h -o moc_Server.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -763,8 +763,7 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean
 
 ####### Compile
 
-main.o: main.cpp Server.h \
-		../common/ProtocolManager.h
+main.o: main.cpp dbHandler.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
 Server.o: Server.cpp Server.h \

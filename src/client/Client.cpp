@@ -60,7 +60,7 @@ namespace oom
         if (state == ClientState::Connected)
         {
             qDebug() << "Attempting Login...";
-            socket->write(ProtocolManager::constructMsg(
+            socket->write(ProtocolManager::serialize(
                               ProtocolManager::LoginRequest, {user, pwd})
                 );
             state = ClientState::LoggingIn;
@@ -70,15 +70,16 @@ namespace oom
             qDebug() << "Can't Login. Current State:" << state;
         }
     }
-
-    void Client::createAccount(const QString& user, const QString& pwd)
+    
+    void Client::createAccount(const QString& user, const QString& pwd,
+                               const QString& email)
     {
         if (state == ClientState::Connected)
         {
             qDebug() << "Attempting Create Account...";
-            socket->write(ProtocolManager::constructMsg(
+            socket->write(ProtocolManager::serialize(
                               ProtocolManager::CreateAccountRequest,
-                              {user, pwd})
+                              {user, pwd, email})
                 );
             state = ClientState::CreatingAccount;
         }
@@ -90,17 +91,16 @@ namespace oom
     
     void Client::onReply()
     {
-        QString data = socket->readAll();
+        QByteArray data = socket->readAll();
         qDebug() << "Recieved" << data << "from server.";
 
-        ProtocolManager::MessageType t = ProtocolManager::classify(data);
-        QString msg = ProtocolManager::contents(data);
+        QJsonObject m = ProtocolManager::deserialize(data);
         
         switch(state)
         {
             case ClientState::LoggingIn:
             {
-                switch(t)
+                switch(m["Type"].toInt())
                 {
                     case ProtocolManager::LoginAccept:
                     {
@@ -118,7 +118,8 @@ namespace oom
                     {
                         qDebug() << "State Transition Failure:"
                                  << "\nCurrent State:" << state
-                                 << "\n  Attempting transition to:" << t;
+                                 << "\n  Attempting transition to:"
+                                 << m["Type"].toInt();
                         state = ClientState::Connected;
                         break;
                     }
@@ -127,15 +128,16 @@ namespace oom
             }
             case ClientState::CreatingAccount:
             {
-                switch(t)
+                switch(m["Type"].toInt())
                 {
                     case ProtocolManager::CreateAccountAccept:
                     {
-                        QStringList ms = msg.split(' ');
                         state = ClientState::Connected;
-                        qDebug() << "Account with username" << ms[0]
+                        qDebug() << "Account with username"
+                                 << m["Username"].toString()
                                  << "created!";
-                        login(ms[0],ms[1]); // potentially change?
+                        login(m["Username"].toString(),
+                              m["Password"].toString());
                         break;
                     }
                     case ProtocolManager::CreateAccountDenied:
@@ -148,7 +150,8 @@ namespace oom
                     {
                         qDebug() << "State Transition Failure:"
                                  << "\nCurrent State:" << state
-                                 << "\n  Attempting transition to:" << t;
+                                 << "\n  Attempting transition to:"
+                                 << m["Type"].toInt();
                         break;
                     }
                 }
