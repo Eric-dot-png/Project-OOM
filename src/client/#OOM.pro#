@@ -14,7 +14,9 @@ SOURCES += \
     devuser.cpp \
     main.cpp \
     login.cpp \
-    mainwindow.cpp \
+    privatechat.cpp \
+    profile.cpp \
+    register.cpp \
     user.cpp
     
 HEADERS += \
@@ -23,12 +25,15 @@ HEADERS += \
     baseuser.h \
     devuser.h \
     login.h \
-    mainwindow.h \
+    privatechat.h \
+    profile.h \
+    register.h \
     user.h
 
 FORMS += \
     login.ui \
-    mainwindow.ui \
+    privatechat.ui \
+    profile.ui \
     register.ui
 
 TARGET = ./a.out

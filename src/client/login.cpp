@@ -1,81 +1,128 @@
+//Name: Alex Franke
+//File: login.cpp
+//OOM project
+
+
 #include "login.h"
-#include "ui_login.h"
-#include "profile.h"
-#include "register.h"
-#include <QTimer>
+#include <QDebug>
+#include <QVBoxLayout>
 
-Login::Login(QWidget *parent)
-    : QMainWindow(parent)
-    , currentStatus(Client::LoggedOut)
-    , ui(new Ui::Login)
-    , authenticated(false)
-{
-    ui->setupUi(this);
-    QWidget::setTabOrder(ui->usernameTextbox, ui->passwordTextbox);
-    QWidget::setTabOrder(ui->passwordTextbox, ui->loginButton);
-    QWidget::setTabOrder(ui->loginButton, ui->registerButton);
-    QWidget::setTabOrder(ui->registerButton, ui->usernameTextbox);
+Login::Login(QWidget *parent) : QWidget(parent) {
+    qDebug() << "Initializing login...";
+
+
+    loginStackedWidget = new QStackedWidget(this);
+
+
+    loginWidget = new QWidget(this);
+    loginUi.setupUi(loginWidget);
+
+
+    registerWidget = new QWidget(this);
+    registerUi.setupUi(registerWidget);
+
+    loginStackedWidget->addWidget(loginWidget);
+    loginStackedWidget->addWidget(registerWidget);
+
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    mainLayout->addWidget(loginStackedWidget);
+    setLayout(mainLayout);
+
+    qDebug() << "StackedWidget set up successfully";
+
+
+    QPushButton *registerButton = loginWidget->findChild<QPushButton*>("registerButton");
+    QPushButton *loginButton = loginWidget->findChild<QPushButton*>("loginButton");
+
+
+    QPushButton *createAccountButton = registerWidget->findChild<QPushButton*>("createAccountButton");
+    QPushButton *backToLoginButton = registerWidget->findChild<QPushButton*>("backToLoginButton");
+
+
+    if (registerButton) {
+        connect(registerButton, &QPushButton::clicked, this, &Login::on_registerButton_clicked);
+    } else {
+        qDebug() << "Error: registerButton not found!";
+    }
+
+    if (loginButton) {
+        connect(loginButton, &QPushButton::clicked, this, &Login::on_loginButton_clicked);
+    } else {
+        qDebug() << "Error: loginButton not found!";
+    }
+
+    if (createAccountButton) {
+        connect(createAccountButton, &QPushButton::clicked, this, &Login::on_createAccountButton_clicked);
+    } else {
+        qDebug() << "Error: createAccountButton not found!";
+    }
+
+    if (backToLoginButton) {
+        connect(backToLoginButton, &QPushButton::clicked, this, &Login::on_backToLoginButton_clicked);
+    } else {
+        qDebug() << "Error: backToLoginButton not found!";
+    }
+
+
+    //Login form tab order
+    QWidget::setTabOrder(loginUi.usernameTextbox, loginUi.passwordTextbox);
+    QWidget::setTabOrder(loginUi.passwordTextbox, loginUi.loginButton);
+    QWidget::setTabOrder(loginUi.loginButton, loginUi.registerButton);
+    QWidget::setTabOrder(loginUi.registerButton, loginUi.usernameTextbox);
+
+    //Register form tab order
+    //usr->pwd->email->regButton
+    QWidget::setTabOrder(registerUi.usrnameEdit, registerUi.passwordEdit);
+    QWidget::setTabOrder(registerUi.passwordEdit, registerUi.emailEdit);
+    QWidget::setTabOrder(registerUi.emailEdit, registerUi.createAccountButton);
+    QWidget::setTabOrder(registerUi.createAccountButton, registerUi.backToLoginButton);
+    QWidget::setTabOrder(registerUi.backToLoginButton, registerUi.usrnameEdit);
 }
 
-Login::~Login()
-{
-    delete ui;
+Login::~Login() {
+
+    /*
+
+    Anything that is a child of QT of any sort, do not delete it
+    You can see below that I had these which are all children
+    of Qt in some way and it causes the program to crash when
+    exiting because Qt automatically deletes everything you make
+
+    If you uncomment the 3 below statements the run/close the program
+    it will segmentation fault
+
+    */
+
+    // delete loginStackedWidget;
+    // delete loginWidget;
+    // delete registerWidget;
 }
 
-constexpr bool Login::getStatus(Client currentStatus, Client otherStatus) {
-    return currentStatus == otherStatus;
+void Login::on_registerButton_clicked() {
+    qDebug() << "Switching to register.ui ...";
+    loginStackedWidget->setCurrentWidget(registerWidget);
 }
 
-void Login::update()
-{
-    QTimer::singleShot(2000, []() {
-#ifdef QT_DEBUG
-        qDebug() << "test";
-#endif
-    });
-    if (getStatus(currentStatus, Client::LoggedOut))
-    {
-        ui->authFailedLabel->setText("UPDATING");
+void Login::on_backToLoginButton_clicked() {
+    qDebug() << "Switching to login.ui ...";
+    loginStackedWidget->setCurrentWidget(loginWidget);
+}
+
+void Login::on_loginButton_clicked() {
+    qDebug() << "Attempting login...";
+
+    bool auth = true;
+    if (auth) {
+        emit loginSuccessful();
     }
 }
 
-void Login::on_registerButton_clicked()
-{
-    qDebug("registerButton clicked, redirecting...");
-    Register * r = new Register();
-    connect(r, &Register::showLogin, this, &Login::show);
-    r->show();
-    this->hide();
-}
+void Login::on_createAccountButton_clicked() {
+    qDebug() << "Creating account...";
 
-void Login::on_loginButton_clicked()
-{
-    QString *username = new QString(ui->usernameTextbox->text());
-    QString *password = new QString(ui->passwordTextbox->text());
-
-    bool usernameEmpty = false;
-    bool passwordEmpty = false;
-
-    ui->passwordTextbox->text() == "" ? passwordEmpty = true : passwordEmpty = false;
-    ui->usernameTextbox->text() == "" ? usernameEmpty = true : usernameEmpty = false;
-
-    ui->passwordTextbox->clear();
-
-    //TODO: username/password authentication
-    authenticated = true;
-
-    update();
-
-    if (authenticated && !usernameEmpty && !passwordEmpty) {
-        //             nullptr because we don't want the login screen to be the parent ui
-        //             the next screen might become parent of everything else TBD :)
-
-        Profile *p = new Profile(nullptr, username);
-        p->show();
-        this->close();
-    } else {
-        update();
-        ui->passwordTextbox->clear();
-        //ui->authFailedLabel->setText("Authentication failed! Username or password incorrect!");
+    bool regSuccess = true;
+    if (regSuccess) {
+        loginStackedWidget->setCurrentWidget(loginWidget);
+        qDebug() << "Account created. Returning to login.";
     }
 }

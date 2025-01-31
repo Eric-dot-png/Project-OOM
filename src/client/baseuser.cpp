@@ -1,3 +1,8 @@
+//Name: Alex Franke
+//File: baseuser.cpp
+//OOM project
+
+
 #include "baseuser.h"
 
 BaseUser::BaseUser(QObject *parent)

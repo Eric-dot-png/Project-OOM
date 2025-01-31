@@ -1,3 +1,8 @@
+//Name: Alex Franke
+//File: devuser.h
+//OOM project
+
+
 #ifndef DEVUSER_H
 #define DEVUSER_H
 

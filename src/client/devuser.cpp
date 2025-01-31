@@ -1,3 +1,8 @@
+//Name: Alex Franke
+//File: devuser.cpp
+//OOM project
+
+
 #include "devuser.h"
 
 DevUser::DevUser(QObject *parent)

@@ -1,41 +1,38 @@
+//Name: Alex Franke
+//File: login.h
+//OOM project
+
+
 #ifndef LOGIN_H
 #define LOGIN_H
 
-#include <QMainWindow>
+#include <QWidget>
+#include <QStackedWidget>
+#include "ui_login.h"
+#include "ui_register.h"
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class Login; }
-QT_END_NAMESPACE
-
-enum class Client {
-    LoggedOut,
-    LoggingIn,
-    LoggedIn
-};
-
-class Login : public QMainWindow
-{
+class Login : public QWidget {
     Q_OBJECT
 
 public:
-    Login(QWidget *parent = nullptr);
+    explicit Login(QWidget *parent = nullptr);
     ~Login();
 
-    constexpr bool getStatus(Client currentStatus, Client otherStatus);
-
-    void update();
-
 signals:
-
+    void loginSuccessful();
 
 private slots:
     void on_registerButton_clicked();
     void on_loginButton_clicked();
+    void on_createAccountButton_clicked();
+    void on_backToLoginButton_clicked();
 
 private:
-    Client currentStatus;
-    Ui::Login *ui;
-    bool authenticated;
-
+    Ui::Login loginUi;
+    Ui::Register registerUi;
+    QStackedWidget *loginStackedWidget;
+    QWidget *loginWidget;
+    QWidget *registerWidget;
 };
+
 #endif // LOGIN_H

@@ -1,3 +1,7 @@
+//Name: Alex Franke
+//File: baseuser.h
+//OOM project
+
 #ifndef BASEUSER_H
 #define BASEUSER_H
 

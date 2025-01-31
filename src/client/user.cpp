@@ -1,3 +1,8 @@
+//Name: Alex Franke
+//File: user.cpp
+//OOM project
+
+
 #include "user.h"
 
 User::User(QObject *parent)
