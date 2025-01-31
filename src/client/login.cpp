@@ -42,7 +42,7 @@ void Login::update()
 void Login::on_registerButton_clicked()
 {
     qDebug("registerButton clicked, redirecting...");
-    Register *r = new Register();
+    Register * r = new Register();
     connect(r, &Register::showLogin, this, &Login::show);
     r->show();
     this->hide();

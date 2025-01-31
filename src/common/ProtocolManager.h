@@ -34,12 +34,6 @@ namespace oom
             SIZE
         };
         
-        // static MessageType classify(const QString& msg);
-        // static QString contents(const QString& msg);
-        
-        // static QByteArray constructMsg(MessageType t,
-        //                                const std::vector<QString>& argv);
-
         static QByteArray serialize(MessageType t, const QStringList& argv);
         static QJsonObject deserialize(const QByteArray& data);
     };
