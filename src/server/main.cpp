@@ -2,6 +2,7 @@
 #include <QtCore>
 #include <QtSql>
 
+#include "Server.h"
 #include "dbHandler.h"
 
 int main(int argc, char ** argv)

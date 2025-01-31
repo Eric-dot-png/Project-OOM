@@ -32,19 +32,23 @@ namespace oom
             qDebug() << "Recieved" << data << "from" << clientSocket;
 
             QJsonObject m = ProtocolManager::deserialize(data);
-            
+
+            QByteArray x;
             switch(m["Type"].toInt())
             {
                 case ProtocolManager::LoginRequest:
                 {
+                    QString usr = m["Username"].toString();
+                    QString pwd = m["Password"].toString();
+                    
                     if (dbContains(usr,pwd))
                     {
-                        x = ProtocolManager::constructMsg(
+                        x = ProtocolManager::serialize(
                             ProtocolManager::LoginAccept,{});
                     }
                     else
                     {
-                        x = ProtocolManager::constructMsg(
+                        x = ProtocolManager::serialize(
                             ProtocolManager::LoginDenied, {});
                     }
                     clientSocket->write(x);
@@ -52,29 +56,18 @@ namespace oom
                 }
                 case ProtocolManager::CreateAccountRequest:
                 {
-                    QStringList ms = msg.split(' ');
-                    QString usr = ms[0];
-                    QString pwd = ms[1];
-<<<<<<< HEAD:prototypes/client_server_dms/server/Server.cpp
-                    QString email = ms[1];
-=======
->>>>>>> main:src/server/Server.cpp
-
-                    QByteArray x;
+                    QString usr = m["Username"].toString();
+                    QString pwd = m["Password"].toString();
+                    QString email = m["Email"].toString();
                     if (dbContains(usr,pwd) || !valid(usr,pwd))
                     {
-                        x = ProtocolManager::constructMsg(
+                        x = ProtocolManager::serialize(
                             ProtocolManager::CreateAccountDenied, {}
                             );
                     }
                     else
                     {
-<<<<<<< HEAD:prototypes/client_server_dms/server/Server.cpp
-                        createAccount(usr,pwd,email);
-=======
-                        createAccount(usr,pwd);
->>>>>>> main:src/server/Server.cpp
-                        x = ProtocolManager::constructMsg(
+                        x = ProtocolManager::serialize(
                             ProtocolManager::CreateAccountAccept, {usr,pwd}
                             );
                     }
@@ -83,7 +76,8 @@ namespace oom
                 }
                 default:
                 {
-                    qDebug() << "Protocol" << t << "not handled";
+                    qDebug() << "Protocol" << m["Type"].toString()
+                             << "not handled";
                 }
             }
         });
@@ -127,12 +121,8 @@ namespace oom
         
     }
 
-<<<<<<< HEAD:prototypes/client_server_dms/server/Server.cpp
     void Server::createAccount(const QString& usr, const QString& pwd,
                                const QString& email)
-=======
-    void Server::createAccount(const QString& usr, const QString& pwd)
->>>>>>> main:src/server/Server.cpp
     {
         std::string path = "db.txt";
         std::ofstream database(path, std::ios::app);
