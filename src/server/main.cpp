@@ -4,8 +4,6 @@
 #include "Server.h"
 #include "dbHandler.h"
 
-static dbHandler db;
-
 int main()
 {
     Person jdoe("jdoe", "abc", "jdoe@gmail.com");

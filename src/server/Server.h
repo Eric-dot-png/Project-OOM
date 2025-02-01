@@ -12,6 +12,7 @@
 
 #include "ProtocolManager.h"
 #include "User.h"
+#include "dbHandler.h"
 
 namespace oom
 {
@@ -29,6 +30,7 @@ namespace oom
         
         int port_;
         QTcpServer * listener_;
+        dbHandler db;
     };
 }
 
