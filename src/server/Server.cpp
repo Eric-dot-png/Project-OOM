@@ -2,6 +2,7 @@
 // name : eric garcia
 
 #include "Server.h"
+#include "dbHandler.h"
 
 namespace oom
 {
@@ -40,8 +41,8 @@ namespace oom
                 {
                     QString usr = m["Username"].toString();
                     QString pwd = m["Password"].toString();
-                    
-                    if (dbContains(usr,pwd))
+                    User u(usr, pwd);
+                    if (db.loginValidate(u))
                     {
                         x = ProtocolManager::serialize(
                             ProtocolManager::LoginAccept,{});
@@ -59,7 +60,8 @@ namespace oom
                     QString usr = m["Username"].toString();
                     QString pwd = m["Password"].toString();
                     QString email = m["Email"].toString();
-                    if (dbContains(usr,pwd) || !valid(usr,pwd))
+                    User u(usr, pwd, email);
+                    if (!db.availUsername(u) || !valid(usr,pwd))
                     {
                         x = ProtocolManager::serialize(
                             ProtocolManager::CreateAccountDenied, {}
@@ -67,9 +69,15 @@ namespace oom
                     }
                     else
                     {
-                        x = ProtocolManager::serialize(
-                            ProtocolManager::CreateAccountAccept, {usr,pwd}
-                            );
+                        bool success = newUser(u);
+                        if(success)
+                            x = ProtocolManager::serialize(
+                                ProtocolManager::CreateAccountAccept,
+                                {usr,pwd}
+                                );
+                        else
+                            // Hi Beth here, what do if can't create User for
+                            // some reason?
                     }
                     clientSocket->write(x);
                     break;
@@ -93,41 +101,5 @@ namespace oom
             return true && s.size() != 0;
         };
         return f(usr) && f(pwd);
-    }
-    
-    bool Server::dbContains(const QString& usr, const QString& pwd) const
-    {
-        std::string path = "db.txt";
-        std::ifstream database(path);
-        
-        if (!database)
-        {
-            qDebug() << "Database could not be opened!?!?!";
-            return false;
-        }
-        else
-        {
-            std::string line;
-            while (std::getline(database,line))
-            {
-                QString str = QString::fromStdString(line);
-                QStringList ss = str.split(' ');
-                if (ss[0] == usr && ss[1] == pwd)
-                    return true;
-            }
-            return false;
-        }
-        database.close();
-        
-    }
-
-    void Server::createAccount(const QString& usr, const QString& pwd,
-                               const QString& email)
-    {
-        std::string path = "db.txt";
-        std::ofstream database(path, std::ios::app);
-        database << usr.toStdString() << ' ' << pwd.toStdString()
-                 << std::endl;
-        database.close();
     }
 };

@@ -5,21 +5,7 @@
 #include <stdio.h>
 #include <mysql.h>
 
-class Person
-{
-public:
-    Person(const QString & u,
-           const QString & pass,
-           const QString & e,
-           bool per=0)
-        : u_(u), pass_(pass), email_(e), per_(per)
-    {};
-
-    QString u_;
-    QString pass_;
-    QString email_;
-    bool per_;
-};
+#include "User.h"
 
 class dbHandler
 {
@@ -39,9 +25,9 @@ public:
         mysql_close(connection);
     }
     
-    bool availUsername(const Person &);
-    bool newUser(const Person &);
-
+    bool availUsername(const User &);
+    bool newUser(const User &);
+    bool loginValidate(const User &);
 private:
     MYSQL * connection, mysql;
 };  

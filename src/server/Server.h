@@ -10,11 +10,8 @@
 #include <QObject>
 #include <QDebug>
 
-// adhawk stuff for db
-#include <fstream>
-#include <string>
-
 #include "ProtocolManager.h"
+#include "User.h"
 
 namespace oom
 {
@@ -29,13 +26,9 @@ namespace oom
         void onNewConnection();        
     private:
         bool valid(const QString& usr, const QString& pwd) const;
-        bool dbContains(const QString& usr, const QString& pwd) const;
-        void createAccount(const QString& usr, const QString& pwd,
-                           const QString& email);
-
+        
         int port_;
         QTcpServer * listener_;
-
     };
 }
 

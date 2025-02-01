@@ -4,9 +4,10 @@
 #include "Server.h"
 #include "dbHandler.h"
 
+static dbHandler db;
+
 int main()
 {
-    dbHandler x;
     Person jdoe("jdoe", "abc", "jdoe@gmail.com");
     bool valid = x.availUsername(jdoe);
     if(valid)
