@@ -55,13 +55,14 @@ namespace oom
         }
     }
     
-    void Client::login(const QString& user, const QString& pwd)
+    void Client::login(const User & u)
     {
         if (state == ClientState::Connected)
         {
             qDebug() << "Attempting Login...";
             socket->write(ProtocolManager::serialize(
-                              ProtocolManager::LoginRequest, {user, pwd})
+                              ProtocolManager::LoginRequest,
+                              {u.get_username(), u.get_password()})
                 );
             state = ClientState::LoggingIn;
         }
@@ -71,15 +72,15 @@ namespace oom
         }
     }
     
-    void Client::createAccount(const QString& user, const QString& pwd,
-                               const QString& email)
+    void Client::createAccount(const User & u)
     {
         if (state == ClientState::Connected)
         {
             qDebug() << "Attempting Create Account...";
             socket->write(ProtocolManager::serialize(
                               ProtocolManager::CreateAccountRequest,
-                              {user, pwd, email})
+                              {u.get_username(), u.get_password(),
+                               u.get_email()})
                 );
             state = ClientState::CreatingAccount;
         }
@@ -133,11 +134,12 @@ namespace oom
                     case ProtocolManager::CreateAccountAccept:
                     {
                         state = ClientState::Connected;
+                        User u(QString(m["Username"].toString()),
+                               QString(m["Password"].toString()));
                         qDebug() << "Account with username"
-                                 << m["Username"].toString()
+                                 << u.get_username()
                                  << "created!";
-                        login(m["Username"].toString(),
-                              m["Password"].toString());
+                        login(u);
                         break;
                     }
                     case ProtocolManager::CreateAccountDenied:

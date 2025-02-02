@@ -10,6 +10,7 @@
 #include <QDebug>
 
 #include "ProtocolManager.h"
+#include "User.h"
 
 namespace oom
 {
@@ -36,9 +37,8 @@ namespace oom
         void connectToServer(const QHostAddress& host, int port);
         void disconnect();
         
-        void login(const QString& usr, const QString& pwd);
-        void createAccount(const QString& usr, const QString& pwd,
-                           const QString& email);
+        void login(const User &);
+        void createAccount(const User &);
     private slots:
         void onReply();
         

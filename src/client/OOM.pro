@@ -20,6 +20,7 @@ SOURCES += \
 HEADERS += \
     Client.h \
     ../common/ProtocolManager.h \
+    ../common/User.h \
     baseuser.h \
     devuser.h \
     login.h \
