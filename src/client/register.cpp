@@ -16,6 +16,7 @@ Register::Register(oom::Client *client, QWidget *parent)
 
 Register::~Register() {
     delete registerUi;
+    delete client;
 }
 
 void Register::handleRegister() {

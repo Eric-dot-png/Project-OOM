@@ -13,6 +13,7 @@ SOURCES += \
     applicationhandler.cpp \
     main.cpp \
     login.cpp \
+    privatemessages.cpp \
     register.cpp
     
 HEADERS += \
@@ -21,10 +22,12 @@ HEADERS += \
     ../common/User.h \
     applicationhandler.h \
     login.h \
+    privatemessages.h \
     register.h
 
 FORMS += \
     login.ui \
+    privatemessages.ui \
     register.ui
 
 TARGET = ./a.out

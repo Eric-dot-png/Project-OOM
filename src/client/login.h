@@ -14,7 +14,6 @@ class Login : public QWidget {
     Q_OBJECT
 
 public:
-    // ADD CLIENT TO ALL WIDGETS
     explicit Login(oom::Client *client, QWidget *parent = nullptr);
     ~Login();
 

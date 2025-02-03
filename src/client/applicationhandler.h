@@ -8,8 +8,11 @@
 #include <QTimer>
 #include <QWidget>
 #include <QStackedWidget>
+
+//Widgets
 #include "login.h"
 #include "register.h"
+#include "privatemessages.h"
 
 #include "Client.h"
 
@@ -27,6 +30,7 @@ private:
     QStackedWidget *stackedWidget;
     Login *LoginWidget;
     Register *RegisterWidget;
+    PrivateMessages *PrivateMessagesWidget;
 };
 
 #endif // APPLICATIONHANDLER_H

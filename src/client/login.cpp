@@ -19,10 +19,16 @@ Login::Login(oom::Client *client, QWidget *parent)
 
 Login::~Login() {
     delete loginUi;
+    delete client;
 }
 
 void Login::handleLogin() {
-    qDebug() << "Login successful.";
+
+    //DELETE AFTER TESTING OR LOGIN WORKS!
+    emit loginSuccess();
+    //--------------------------------
+
+
     QString usr = loginUi->usernameTextbox->text();
     QString pwd = loginUi->passwordTextbox->text();
     
