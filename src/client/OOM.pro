@@ -10,26 +10,21 @@ CONFIG += c++17 + console
 SOURCES += \
     Client.cpp \
     ../common/ProtocolManager.cpp \
-    baseuser.cpp \
-    devuser.cpp \
+    applicationhandler.cpp \
     main.cpp \
     login.cpp \
-    mainwindow.cpp \
-    user.cpp
+    register.cpp
     
 HEADERS += \
     Client.h \
     ../common/ProtocolManager.h \
     ../common/User.h \
-    baseuser.h \
-    devuser.h \
+    applicationhandler.h \
     login.h \
-    mainwindow.h \
-    user.h
+    register.h
 
 FORMS += \
     login.ui \
-    mainwindow.ui \
     register.ui
 
 TARGET = ./a.out

@@ -7,32 +7,28 @@
 #define LOGIN_H
 
 #include <QWidget>
-#include <QStackedWidget>
 #include "ui_login.h"
-#include "ui_register.h"
+#include "Client.h"
 
 class Login : public QWidget {
     Q_OBJECT
 
 public:
-    explicit Login(QWidget *parent = nullptr);
+    // ADD CLIENT TO ALL WIDGETS
+    explicit Login(oom::Client *client, QWidget *parent = nullptr);
     ~Login();
 
 signals:
-    void loginSuccessful();
+    void loginSuccess();
+    void registerRequested();
 
 private slots:
-    void on_registerButton_clicked();
-    void on_loginButton_clicked();
-    void on_createAccountButton_clicked();
-    void on_backToLoginButton_clicked();
+    void handleLogin();
+    void goToRegister();
 
 private:
-    Ui::Login loginUi;
-    Ui::Register registerUi;
-    QStackedWidget *loginStackedWidget;
-    QWidget *loginWidget;
-    QWidget *registerWidget;
+    oom::Client *client;
+    Ui::Login *loginUi;
 };
 
 #endif // LOGIN_H

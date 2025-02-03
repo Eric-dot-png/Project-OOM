@@ -4,25 +4,17 @@
 //File: main.cpp
 //OOM project
 
-#include "login.h"
-#include "mainwindow.h"
+#include "applicationhandler.h"
+#include "Client.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    Login loginWindow;
-    MainWindow mainWindow;
-
-    loginWindow.resize(800, 600);
-    loginWindow.show();
-
-    QObject::connect(&loginWindow, &Login::loginSuccessful, [&]() {
-        QSize loginSize = loginWindow.size();
-        mainWindow.resize(loginSize);
-        loginWindow.close();
-        mainWindow.show();
-    });
+    oom::Client *c = new oom::Client;
+    ApplicationHandler oomApp(c);
+    oomApp.resize(800, 600);
+    oomApp.show();
 
     return a.exec();
 }
