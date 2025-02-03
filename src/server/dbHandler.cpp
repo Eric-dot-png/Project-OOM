@@ -44,7 +44,7 @@ bool dbHandler::newUser(const User & p)
         + p.get_password().toStdString() + "', '"
         + p.get_email().toStdString() + "', ";
     q += (p.get_permissions()? "1" : "0");
-    q += ")";
+    q += ", '" + timer + "', " + valcode + ")";
     if(mysql_query(connection, q.c_str()))
     {
         qDebug() << "first false" << mysql_error(connection);
