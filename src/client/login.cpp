@@ -22,8 +22,7 @@ Login::~Login() {
 }
 
 void Login::handleLogin() {
-    qDebug() << "Login successful.";
-    QString usr = loginUi->passwordTextbox->text();
+    QString usr = loginUi->usernameTextbox->text();
     QString pwd = loginUi->passwordTextbox->text();
     
     User u(usr,pwd);

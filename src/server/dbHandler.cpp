@@ -47,7 +47,7 @@ bool dbHandler::loginValidate(const User & p)
     if(mysql_query(connection, q.c_str()))
         return 0;
     result = mysql_store_result(connection);
-    bool success = mysql_fetch_row(result) == NULL;
+    bool success = mysql_fetch_row(result) != NULL;
     mysql_free_result(result);
     return success;
 }
