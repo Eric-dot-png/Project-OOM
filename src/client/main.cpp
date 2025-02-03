@@ -16,5 +16,8 @@ int main(int argc, char *argv[])
     oomApp.resize(800, 600);
     oomApp.show();
 
-    return a.exec();
+    int out = a.exec();
+    delete c;
+    
+    return out;
 }

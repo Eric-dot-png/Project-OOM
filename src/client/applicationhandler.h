@@ -21,6 +21,8 @@ public:
     explicit ApplicationHandler(oom::Client *client, QWidget *parent = nullptr);
     void switchToWidget(int index);
 
+    ~ApplicationHandler();
+    
 private:
     oom::Client *client;
     QStackedWidget *stackedWidget;

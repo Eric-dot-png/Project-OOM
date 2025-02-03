@@ -11,6 +11,9 @@
 ApplicationHandler::ApplicationHandler(oom::Client *client, QWidget *parent)
     : client(client), QWidget(parent)
 {
+    int port = 1234; // replace LocalHost and Port when ready
+    c->connectToServer(QHostAddress::LocalHost, port);
+    
     stackedWidget = new QStackedWidget;
 
     LoginWidget = new Login(client, this);
@@ -36,7 +39,18 @@ ApplicationHandler::ApplicationHandler(oom::Client *client, QWidget *parent)
     connect(RegisterWidget, &Register::backToLogin, this, [=]() {
         switchToWidget(0);
     });
+    
+}
 
+ApplicationHandler::~ApplicationHandler()
+{
+    while (stackedWidget->count() > 0)
+    {
+        QWidget * widget = stackedWidget->widget(0);
+        stackedWidget->removeWidget(widget);
+        delete widget;
+    }
+    delete stackedWidget;
 }
 
 void ApplicationHandler::switchToWidget(int index){
