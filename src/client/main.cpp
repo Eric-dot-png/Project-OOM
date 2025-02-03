@@ -7,10 +7,20 @@
 #include "applicationhandler.h"
 #include "Client.h"
 #include <QApplication>
+#include <QDebug>
+
+void customMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    if (!QString(context.category).startsWith("qt")) {
+        QTextStream(stdout) << msg << Qt::endl;
+    }
+}
 
 int main(int argc, char *argv[])
 {
-    //QLoggingCategory::setFilterRules("*.debug=true");
+
+    qInstallMessageHandler(customMessageHandler);
+    QLoggingCategory::setFilterRules("*.debug=true");
 
     QApplication a(argc, argv);
     oom::Client *c = new oom::Client;

@@ -2,4 +2,6 @@
 moc_*
 a.out
 Makefile
+makefile
 .qmake.stash
+OOM.pro.user

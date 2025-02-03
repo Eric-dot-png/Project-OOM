@@ -19,6 +19,9 @@ private slots:
     void handleBack();
     void handleRegister();
 
+    //void usernameUnavailable();
+    //void invalidEmail();
+
 private:
     Ui::Register *registerUi;
     oom::Client *client;

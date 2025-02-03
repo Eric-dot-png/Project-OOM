@@ -12,11 +12,11 @@ Register::Register(oom::Client *client, QWidget *parent)
 
     connect(registerUi->backToLoginButton, &QPushButton::clicked, this, &Register::handleBack);
     connect(registerUi->createAccountButton, &QPushButton::clicked, this, &Register::handleRegister);
+    //connect(client, oom::Client::connectToServer, this, &Register::usernameUnavailable)
 }
 
 Register::~Register() {
     delete registerUi;
-    delete client;
 }
 
 void Register::handleRegister() {

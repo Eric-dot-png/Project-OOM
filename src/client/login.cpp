@@ -19,13 +19,12 @@ Login::Login(oom::Client *client, QWidget *parent)
 
 Login::~Login() {
     delete loginUi;
-    delete client;
 }
 
 void Login::handleLogin() {
 
     //DELETE AFTER TESTING OR LOGIN WORKS!
-    emit loginSuccess();
+    //emit loginSuccess();
     //--------------------------------
 
 
