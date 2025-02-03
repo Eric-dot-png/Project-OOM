@@ -23,13 +23,13 @@ void Register::handleRegister() {
     QString u = registerUi->usrnameEdit->text();
     QString p = registerUi->passwordEdit->text();
     QString e = registerUi->emailEdit->text();
-
+    
     registerUi->testLabel->setText(u);
 
-    User * user = new User(u, p, e);
-    client->createAccount(*user);
+    User user(u, p, e);
+    client->createAccount(user);
 
-
+    
 }
 
 void Register::handleBack() {

@@ -23,10 +23,11 @@ Login::~Login() {
 
 void Login::handleLogin() {
     qDebug() << "Login successful.";
-
-
-
-    emit loginSuccess();
+    QString usr = loginUi->passwordTextbox->text();
+    QString pwd = loginUi->passwordTextbox->text();
+    
+    User u(usr,pwd);
+    client->login(u);
 }
 
 void Login::goToRegister() {

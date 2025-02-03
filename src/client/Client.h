@@ -39,6 +39,12 @@ namespace oom
         
         void login(const User &);
         void createAccount(const User &);
+
+    signals:
+        void connectedToServer();
+        void loginSuccess();
+        void accountCreated();
+                                        
     private slots:
         void onReply();
         

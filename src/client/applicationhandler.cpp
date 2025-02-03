@@ -38,7 +38,20 @@ ApplicationHandler::ApplicationHandler(oom::Client *client, QWidget *parent)
     connect(RegisterWidget, &Register::backToLogin, this, [=]() {
         switchToWidget(0);
     });
-    
+
+    connect(client, &oom::Client::connectedToServer, this, [=]() {
+        qDebug() << "clientside connectedToServer";
+    });
+
+    connect(client, &oom::Client::accountCreated, this, [=]() {
+        qDebug() << "clientside accountCreated";
+        switchToWidget(0);
+    });
+
+    connect(client, &oom::Client::loginSuccess, this, [=]() {
+        qDebug() << "clientside loggedin";
+        
+    });
 }
 
 void ApplicationHandler::switchToWidget(int index){

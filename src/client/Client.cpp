@@ -12,6 +12,7 @@ namespace oom
         connect(socket, &QTcpSocket::connected, this, [&](){
             qDebug() << "Connected to Server";
             state = ClientState::Connected;
+            emit connectedToServer();
         });
         
         connect(socket, &QTcpSocket::disconnected, this, [&](){
@@ -107,6 +108,7 @@ namespace oom
                     {
                         qDebug() << "Login Success!";
                         state = ClientState::LoggedIn;
+                        emit loginSuccess();
                         break;
                     }
                     case ProtocolManager::LoginDenied:
@@ -134,12 +136,13 @@ namespace oom
                     case ProtocolManager::CreateAccountAccept:
                     {
                         state = ClientState::Connected;
-                        User u(QString(m["Username"].toString()),
-                               QString(m["Password"].toString()));
+                        User u(m["Username"].toString(),
+                               m["Password"].toString());
                         qDebug() << "Account with username"
                                  << u.get_username()
                                  << "created!";
-                        login(u);
+                        //login(u);
+                        emit accountCreated();
                         break;
                     }
                     case ProtocolManager::CreateAccountDenied:

@@ -5,6 +5,7 @@
 #ifndef APPLICATIONHANDLER_H
 #define APPLICATIONHANDLER_H
 
+#include <QTimer>
 #include <QWidget>
 #include <QStackedWidget>
 #include "login.h"
@@ -20,9 +21,6 @@ class ApplicationHandler : public QWidget
 public:
     explicit ApplicationHandler(oom::Client *client, QWidget *parent = nullptr);
     void switchToWidget(int index);
-
-private slots:
-    
     
 private:
     oom::Client *client;
