@@ -6,6 +6,7 @@
 #include "login.h"
 #include "ui_login.h"
 #include <QDebug>
+#include <iostream>
 
 Login::Login(oom::Client *client, QWidget *parent)
     : client(client), QWidget(parent), loginUi(new Ui::Login)
@@ -22,6 +23,9 @@ Login::~Login() {
 
 void Login::handleLogin() {
     qDebug() << "Login successful.";
+
+
+
     emit loginSuccess();
 }
 

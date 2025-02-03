@@ -17,6 +17,7 @@ signals:
 
 private slots:
     void handleBack();
+    void handleRegister();
 
 private:
     Ui::Register *registerUi;

@@ -127,7 +127,7 @@
     <string>Email</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_4">
+  <widget class="QLabel" name="testLabel">
    <property name="geometry">
     <rect>
      <x>470</x>

@@ -27,7 +27,7 @@ public:
     QLabel *label;
     QLabel *label_2;
     QLabel *label_3;
-    QLabel *label_4;
+    QLabel *testLabel;
     QPushButton *createAccountButton;
     QPushButton *backToLoginButton;
 
@@ -72,11 +72,11 @@ public:
         label_3->setGeometry(QRect(170, 230, 63, 20));
         sizePolicy.setHeightForWidth(label_3->sizePolicy().hasHeightForWidth());
         label_3->setSizePolicy(sizePolicy);
-        label_4 = new QLabel(Register);
-        label_4->setObjectName("label_4");
-        label_4->setGeometry(QRect(470, 170, 63, 20));
-        sizePolicy.setHeightForWidth(label_4->sizePolicy().hasHeightForWidth());
-        label_4->setSizePolicy(sizePolicy);
+        testLabel = new QLabel(Register);
+        testLabel->setObjectName("testLabel");
+        testLabel->setGeometry(QRect(470, 170, 63, 20));
+        sizePolicy.setHeightForWidth(testLabel->sizePolicy().hasHeightForWidth());
+        testLabel->setSizePolicy(sizePolicy);
         createAccountButton = new QPushButton(Register);
         createAccountButton->setObjectName("createAccountButton");
         createAccountButton->setGeometry(QRect(290, 290, 83, 29));
@@ -102,7 +102,7 @@ public:
         label->setText(QCoreApplication::translate("Register", "Username", nullptr));
         label_2->setText(QCoreApplication::translate("Register", "Password", nullptr));
         label_3->setText(QCoreApplication::translate("Register", "Email", nullptr));
-        label_4->setText(QCoreApplication::translate("Register", "TextLabel", nullptr));
+        testLabel->setText(QCoreApplication::translate("Register", "TextLabel", nullptr));
         createAccountButton->setText(QCoreApplication::translate("Register", "Register", nullptr));
         backToLoginButton->setText(QCoreApplication::translate("Register", "Back", nullptr));
     } // retranslateUi
