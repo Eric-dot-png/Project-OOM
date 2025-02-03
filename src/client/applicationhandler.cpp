@@ -12,7 +12,7 @@ ApplicationHandler::ApplicationHandler(oom::Client *client, QWidget *parent)
     : client(client), QWidget(parent)
 {
     int port = 1234; // replace LocalHost and Port when ready
-    c->connectToServer(QHostAddress::LocalHost, port);
+    client->connectToServer(QHostAddress::LocalHost, port);
     
     stackedWidget = new QStackedWidget;
 
