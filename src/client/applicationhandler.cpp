@@ -7,7 +7,6 @@
  *
 */
 
-
 ApplicationHandler::ApplicationHandler(oom::Client *client, QWidget *parent)
     : client(client), QWidget(parent)
 {
@@ -40,17 +39,6 @@ ApplicationHandler::ApplicationHandler(oom::Client *client, QWidget *parent)
         switchToWidget(0);
     });
     
-}
-
-ApplicationHandler::~ApplicationHandler()
-{
-    while (stackedWidget->count() > 0)
-    {
-        QWidget * widget = stackedWidget->widget(0);
-        stackedWidget->removeWidget(widget);
-        delete widget;
-    }
-    delete stackedWidget;
 }
 
 void ApplicationHandler::switchToWidget(int index){

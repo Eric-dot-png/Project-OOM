@@ -21,7 +21,8 @@ public:
     explicit ApplicationHandler(oom::Client *client, QWidget *parent = nullptr);
     void switchToWidget(int index);
 
-    ~ApplicationHandler();
+private slots:
+    
     
 private:
     oom::Client *client;
