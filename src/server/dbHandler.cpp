@@ -18,6 +18,7 @@ bool dbHandler::availUsername(const User & p)
     result = mysql_store_result(connection);
     bool avail = mysql_fetch_row(result) == NULL;
     if(!avail) return 0;
+    mysql_free_result(result);
     q = "select * from Registration where username='"
         + p.get_username().toStdString() + "'";
     if(mysql_query(connection, q.c_str()))
@@ -25,6 +26,7 @@ bool dbHandler::availUsername(const User & p)
         qDebug() << mysql_error(connection);
         return 0;
     }
+    result = mysql_store_result(connection);
     avail = mysql_fetch_row(result) == NULL;
     mysql_free_result(result);
     return avail;
@@ -38,18 +40,23 @@ bool dbHandler::newUser(const User & p)
     std::string valcode = "";
     for(int i = 0; i < 6; i++)
         valcode += '0' + rand() % 10;
-    std::string q = "insert Registration(username, password, email, permissions, timer, code) values('" + p.get_username().toStdString() + "', '"
+    std::string q = "insert Registration(username, password, email, permissions) values('" + p.get_username().toStdString() + "', '"
         + p.get_password().toStdString() + "', '"
         + p.get_email().toStdString() + "', ";
     q += (p.get_permissions()? "1" : "0");
-    q += ", '" + timer + "', " + valcode + ")";
-    
+    q += ")";
     if(mysql_query(connection, q.c_str()))
+    {
+        qDebug() << "first false" << mysql_error(connection);
         return 0;
+    }
     q = "select * from Registration where username='"
         + p.get_username().toStdString() + "'";
     if(mysql_query(connection, q.c_str()))
+    {
+        qDebug() << "second false";
         return 0;
+    }
     result = mysql_store_result(connection);
     bool success = mysql_fetch_row(result) != NULL;
     mysql_free_result(result);
