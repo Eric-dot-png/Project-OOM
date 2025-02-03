@@ -37,7 +37,7 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = a.out1.0.0
-DISTDIR = /home/student/OOM_Project/src/server/.tmp/a.out1.0.0
+DISTDIR = /home/student/Desktop/Classes/ciss438/DSClone/src/server/.tmp/a.out1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1
 LIBS          = $(SUBLIBS) -L/usr/lib64/mysql -lmysqlclient -lz -lzstd -lssl -lcrypto -lresolv -lm /usr/lib64/libQt5Gui.so /usr/lib64/libQt5Network.so /usr/lib64/libQt5Core.so -lGL -lpthread   
@@ -753,7 +753,7 @@ moc_Server.cpp: Server.h \
 		dbHandler.h \
 		moc_predefs.h \
 		/../lib64/qt5/bin/moc
-	/../lib64/qt5/bin/moc $(DEFINES) --include /home/student/OOM_Project/src/server/moc_predefs.h -I/../lib64/qt5/mkspecs/linux-g++ -I/home/student/OOM_Project/src/server -I/home/student/OOM_Project/src/common -I/usr/include/mysql -I/home/student/OOM_Project/src/server/-m64 -I/usr/include/qt5 -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/c++/14/x86_64-redhat-linux -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-redhat-linux/14/include -I/usr/local/include -I/usr/include Server.h -o moc_Server.cpp
+	/../lib64/qt5/bin/moc $(DEFINES) --include /home/student/Desktop/Classes/ciss438/DSClone/src/server/moc_predefs.h -I/../lib64/qt5/mkspecs/linux-g++ -I/home/student/Desktop/Classes/ciss438/DSClone/src/server -I/home/student/Desktop/Classes/ciss438/DSClone/src/common -I/usr/include/mysql -I/home/student/Desktop/Classes/ciss438/DSClone/src/server/-m64 -I/usr/include/qt5 -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/c++/14/x86_64-redhat-linux -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-redhat-linux/14/include -I/usr/local/include -I/usr/include Server.h -o moc_Server.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:

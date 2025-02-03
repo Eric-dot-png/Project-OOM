@@ -1,7 +1,10 @@
 #include <string>
 #include <iostream>
+#include <cstdlib>
+#include <QDateTime>
 #include "dbHandler.h"
 
+//Returns 1 if select statement where username=desired username is empty
 bool dbHandler::availUsername(const User & p)
 {
     MYSQL_RES * result;
@@ -9,27 +12,42 @@ bool dbHandler::availUsername(const User & p)
     q += p.get_username().toStdString() + "'";
     if(mysql_query(connection, q.c_str()))
     {
-        printf(mysql_error(connection));
+        qDebug() << mysql_error(connection);
         return 0;
     }
     result = mysql_store_result(connection);
     bool avail = mysql_fetch_row(result) == NULL;
+    if(!avail) return 0;
+    q = "select * from Registration where username='"
+        + p.get_username().toStdString() + "'";
+    if(mysql_query(connection, q.c_str()))
+    {
+        qDebug() << mysql_error(connection);
+        return 0;
+    }
+    avail = mysql_fetch_row(result) == NULL;
     mysql_free_result(result);
     return avail;
 }
 
+//Inserts User, and returns 0 if anything goes wrong
 bool dbHandler::newUser(const User & p)
 {
     MYSQL_RES * result;
-    std::string q = "insert User(username, password, email, permissions) values('" + p.get_username().toStdString() + "', '"
+    std::string timer = QDateTime::currentDateTime().addSecs(1800).toString("yyyy-MM-dd hh:mm:ss").toStdString();
+    std::string valcode = "";
+    for(int i = 0; i < 6; i++)
+        valcode += '0' + rand() % 10;
+    std::string q = "insert Registration(username, password, email, permissions, timer, code) values('" + p.get_username().toStdString() + "', '"
         + p.get_password().toStdString() + "', '"
         + p.get_email().toStdString() + "', ";
     q += (p.get_permissions()? "1" : "0");
-    q += ")";
+    q += ", '" + timer + "', " + valcode + ")";
+    
     if(mysql_query(connection, q.c_str()))
         return 0;
-    q = "select * from User where username='" + p.get_username().toStdString()
-        + "'";
+    q = "select * from Registration where username='"
+        + p.get_username().toStdString() + "'";
     if(mysql_query(connection, q.c_str()))
         return 0;
     result = mysql_store_result(connection);
@@ -38,6 +56,7 @@ bool dbHandler::newUser(const User & p)
     return success;
 }
 
+//Returns 1 if user, password pair exists in validated users
 bool dbHandler::loginValidate(const User & p)
 {
     MYSQL_RES * result;

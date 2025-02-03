@@ -14,5 +14,7 @@ int main(int argc, char* argv[])
     oom::Server s(port);
     
     return app.exec();
+    
+    return 0;
 }
 

@@ -24,9 +24,12 @@ public:
     {
         mysql_close(connection);
     }
-    
+
+    //Checks if username is already used
     bool availUsername(const User &);
+    //Adds new user to db, returns 0 if failed
     bool newUser(const User &);
+    //Returns 1 if login credentials match a user
     bool loginValidate(const User &);
 private:
     MYSQL * connection, mysql;
