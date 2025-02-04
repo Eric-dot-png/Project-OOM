@@ -2,7 +2,6 @@
 // name : eric garcia
 
 #include "Client.h"
-
 namespace oom
 {
     Client::Client(QObject * parent)
@@ -19,7 +18,7 @@ namespace oom
             qDebug() << "Disconnected from Server";
             state = ClientState::Disconnected;
         });
-
+        
         connect(socket, &QTcpSocket::readyRead, this, &Client::onReply);
     }
     
@@ -41,7 +40,7 @@ namespace oom
             qDebug() << "Already connected to server.";
         }
     }
-
+    
     void Client::disconnect()
     {
         if (state != ClientState::Disconnected)
@@ -90,12 +89,12 @@ namespace oom
             qDebug() << "Can't Create Account. Current State:" << state;
         }
     }
-    
+
     void Client::onReply()
     {
         QByteArray data = socket->readAll();
         qDebug() << "Recieved" << data << "from server.";
-
+        
         QJsonObject m = ProtocolManager::deserialize(data);
         
         switch(state)

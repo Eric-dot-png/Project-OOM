@@ -1,7 +1,6 @@
 *.o
 moc_*
 a.out
-src/client/Makefile
-src/server/Makefile
+Makefile
 .qmake.stash
-OOM.pro.user
+*.pro.user
