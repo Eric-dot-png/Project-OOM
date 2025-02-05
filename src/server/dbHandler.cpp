@@ -40,7 +40,7 @@ bool dbHandler::newUser(const User & p)
     std::string valcode = "";
     for(int i = 0; i < 6; i++)
         valcode += '0' + rand() % 10;
-    std::string q = "insert Registration(username, password, email, permissions) values('" + p.get_username().toStdString() + "', '"
+    std::string q = "insert Registration(username, password, email, permissions, timer, code) values('" + p.get_username().toStdString() + "', '"
         + p.get_password().toStdString() + "', '"
         + p.get_email().toStdString() + "', ";
     q += (p.get_permissions()? "1" : "0");
