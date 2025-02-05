@@ -77,7 +77,7 @@ namespace oom
                     }
                     else
                     {
-                        bool success = db.newUser(u);
+                        bool success = db.newUser(u, 1);
                         if(success)
                         {
                             x = ProtocolManager::serialize(

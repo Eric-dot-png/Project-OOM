@@ -28,7 +28,7 @@ public:
     //Checks if username is already used
     bool availUsername(const User &);
     //Adds new user to db, returns 0 if failed
-    bool newUser(const User &);
+    bool newUser(const User &, bool autoval = 0);
     //Returns 1 if login credentials match a user
     bool loginValidate(const User &);
 private:

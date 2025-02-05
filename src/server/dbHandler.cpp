@@ -33,29 +33,52 @@ bool dbHandler::availUsername(const User & p)
 }
 
 //Inserts User, and returns 0 if anything goes wrong
-bool dbHandler::newUser(const User & p)
+bool dbHandler::newUser(const User & p, bool autoval)
 {
     MYSQL_RES * result;
-    std::string timer = QDateTime::currentDateTime().addSecs(1800).toString("yyyy-MM-dd hh:mm:ss").toStdString();
-    std::string valcode = "";
-    for(int i = 0; i < 6; i++)
-        valcode += '0' + rand() % 10;
-    std::string q = "insert Registration(username, password, email, permissions, timer, code) values('" + p.get_username().toStdString() + "', '"
-        + p.get_password().toStdString() + "', '"
-        + p.get_email().toStdString() + "', ";
-    q += (p.get_permissions()? "1" : "0");
-    q += ", '" + timer + "', " + valcode + ")";
-    if(mysql_query(connection, q.c_str()))
+    if(autoval)
     {
-        qDebug() << "first false" << mysql_error(connection);
-        return 0;
+        std::string q = "insert User(username, password, email, permissions) values('" + p.get_username().toStdString() + "', '"
+            + p.get_password().toStdString() + "', '"
+            + p.get_email().toStdString() + "', ";
+        q += (p.get_permissions()? "1": "0");
+        q += ")";
+        if(mysql_query(connection, q.c_str()))
+        {
+            qDebug() << "autoval fail " << mysql_error(connection);
+            return 0;
+        }
+        q = "select * from User where username='"
+            + p.get_username().toStdString() + "'";
+        if(mysql_query(connection, q.c_str()))
+        {
+            qDebug() << "new User not in user.. " << mysql_error(connection);
+            return 0;
+        }
     }
-    q = "select * from Registration where username='"
-        + p.get_username().toStdString() + "'";
-    if(mysql_query(connection, q.c_str()))
+    else
     {
-        qDebug() << "second false";
-        return 0;
+        std::string timer = QDateTime::currentDateTime().addSecs(1800).toString("yyyy-MM-dd hh:mm:ss").toStdString();
+        std::string valcode = "";
+        for(int i = 0; i < 6; i++)
+            valcode += '0' + rand() % 10;
+        std::string q = "insert Registration(username, password, email, permissions, timer, code) values('" + p.get_username().toStdString() + "', '"
+            + p.get_password().toStdString() + "', '"
+            + p.get_email().toStdString() + "', ";
+        q += (p.get_permissions()? "1" : "0");
+        q += ", '" + timer + "', " + valcode + ")";
+        if(mysql_query(connection, q.c_str()))
+        {
+            qDebug() << "first false" << mysql_error(connection);
+            return 0;
+        }
+        q = "select * from Registration where username='"
+            + p.get_username().toStdString() + "'";
+        if(mysql_query(connection, q.c_str()))
+        {
+            qDebug() << "second false";
+            return 0;
+        }
     }
     result = mysql_store_result(connection);
     bool success = mysql_fetch_row(result) != NULL;
