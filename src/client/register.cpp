@@ -17,10 +17,15 @@ Register::Register(oom::Client *client, QWidget *parent)
     registerUi->setupUi(this);
     registerUi->testLabel->clear();
 
+
     connect(registerUi->backToLoginButton, &QPushButton::clicked, this, &Register::handleBack);
     connect(registerUi->createAccountButton, &QPushButton::clicked, this, &Register::handleRegister);
     connect(registerUi->showPasswordButton, &QPushButton::clicked, this, &Register::showPassword);
     //connect(client, oom::Client::connectToServer, this, &Register::usernameUnavailable);
+
+
+    //change this to signal from client when account creation fails
+    connect(registerUi->showPasswordButton, &QPushButton::clicked, this, &Register::setBackEnabled);
 }
 
 Register::~Register()
@@ -118,6 +123,7 @@ void Register::handleRegister()
     }
     else
     {
+        registerUi->backToLoginButton->setEnabled(false);
         User user(u, p, e);
         client->createAccount(user);
 
@@ -146,4 +152,15 @@ void Register::showPassword()
         registerUi->passwordEdit->setEchoMode(QLineEdit::Normal);
         registerUi->confirmPasswordEdit->setEchoMode(QLineEdit::Normal);
     }
+}
+
+void Register::setBackEnabled()
+{
+
+    bool e = registerUi->backToLoginButton->isEnabled();
+    if (e)
+        qDebug() << "True";
+    else
+        qDebug() << "False";
+    registerUi->backToLoginButton->setEnabled(!e);
 }

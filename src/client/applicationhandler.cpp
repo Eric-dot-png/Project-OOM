@@ -55,16 +55,19 @@ ApplicationHandler::ApplicationHandler(oom::Client *client, QWidget *parent)
 
     //Goto Login form -> PrivateMessages form
     connect(LoginWidget, &Login::loginSuccess, this, [=]() {
+        qDebug() << "Logged in, going to private messages form...";
         switchToWidget(2);
     });
 
     //Goto Login form -> Register form
     connect(LoginWidget, &Login::registerRequested, this, [=]() {
+        qDebug() << "Going to register form...";
         switchToWidget(1);
     });
 
     //Goto Register form -> Login form using BACK button
     connect(RegisterWidget, &Register::backToLogin, this, [=]() {
+        qDebug() << "Going back to login form...";
         switchToWidget(0);
     });
 

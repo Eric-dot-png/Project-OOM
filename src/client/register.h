@@ -30,6 +30,7 @@ private slots:
     void handleBack();
     void handleRegister();
     void showPassword();
+    void setBackEnabled();
 
     //void usernameUnavailable();
     //void invalidEmail();
