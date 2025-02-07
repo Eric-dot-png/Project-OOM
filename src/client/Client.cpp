@@ -6,7 +6,8 @@ namespace oom
 {
     Client::Client(QObject * parent)
         : QObject(parent), state(ClientState::Disconnected),
-          socket(new QTcpSocket(this))
+          socket(new QTcpSocket(this)),
+          current_user("None","None","None")
     {
         connect(socket, &QTcpSocket::connected, this, [&](){
             qDebug() << "Connected to Server";
@@ -90,6 +91,23 @@ namespace oom
         }
     }
 
+    void Client::submitAuthCode(const QString& code)
+    {
+        if (state == ClientState::AuthenticatingAccount)
+        {
+            qDebug() << "Attempting Authentication...";
+            socket->write(ProtocolManager::serialize(
+                              ProtocolManager::CreateAccountAuthCodeSubmit,
+                              {current_user.get_username(),
+                               current_user.get_password(), code})
+                );
+        }
+        else
+        {
+            qDebug() << "Authenticate Account. Current State:" << state;
+        }
+    }
+    
     void Client::onReply()
     {
         QByteArray data = socket->readAll();
@@ -134,14 +152,15 @@ namespace oom
                 {
                     case ProtocolManager::CreateAccountAccept:
                     {
-                        state = ClientState::Connected;
                         User u(m["Username"].toString(),
                                m["Password"].toString());
                         qDebug() << "Account with username"
                                  << u.get_username()
                                  << "created!";
                         //login(u);
+                        current_user = u;
                         emit accountCreated();
+                        state = ClientState::AuthenticatingAccount;
                         break;
                     }
                     case ProtocolManager::CreateAccountDenied:
@@ -157,6 +176,35 @@ namespace oom
                                  << "\n  Attempting transition to:"
                                  << m["Type"].toInt();
                         break;
+                    }
+                }
+                case ClientState::AuthenticatingAccount:
+                {
+                    switch(m["Type"].toInt())
+                    {
+                        case ProtocolManager::AccountAuthenticated:
+                        {
+                            qDebug() << "Account"
+                                     << current_user.get_username()
+                                     << "Authenticated";
+                            state = ClientState::Connected;
+                            emit accountAuthenticated();
+                            break;
+                        }
+                        case ProtocolManager::AccountNotAuthenticated:
+                        {
+                            qDebug() << "Authentication Failed, wrong code";
+                            emit accountAuthenticationFail();
+                            break;
+                        }
+                        default:
+                        {
+                            qDebug() << "State Transition Failure:"
+                                     << "\nCurrent State:" << state
+                                     << "\n  Attempting transition to:"
+                                     << m["Type"].toInt();
+                            break;
+                        }
                     }
                 }
                 break;

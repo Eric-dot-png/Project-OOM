@@ -18,10 +18,6 @@ void customMessageHandler(QtMsgType type, const QMessageLogContext &context, con
 
 int main(int argc, char *argv[])
 {
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
     qInstallMessageHandler(customMessageHandler);
     QLoggingCategory::setFilterRules("*.debug=true");
     QApplication a(argc, argv);

@@ -67,12 +67,28 @@ namespace oom
                 }
                 else throw(ProtocolError());
             }
+            case AccountNotAuthenticated:
+            case AccountAuthenticated:
             case LoginAccept:
             {
                 if (argc == 0) 
                 {
                     QJsonObject ret({
                         {"Type", t}
+                        });
+                    return QJsonDocument(ret).toJson();
+                }
+                else throw(ProtocolError());
+            }
+            case CreateAccountAuthCodeSubmit:
+            {
+                if (argc == 3)
+                {
+                    QJsonObject ret({
+                            {"Type", t},
+                            {"Username", argv[0]},
+                            {"Password", argv[1]},
+                            {"Code", argv[2]}
                         });
                     return QJsonDocument(ret).toJson();
                 }

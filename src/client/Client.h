@@ -26,7 +26,8 @@ namespace oom
             Connected,
             LoggingIn,
             LoggedIn,
-            CreatingAccount
+            CreatingAccount,
+            AuthenticatingAccount
         };
         
         Client(QObject * parent=NULL);
@@ -39,11 +40,14 @@ namespace oom
         
         void login(const User &);
         void createAccount(const User &);
-
+        void submitAuthCode(const QString&);
+        
     signals:
         void connectedToServer();
         void loginSuccess();
         void accountCreated();
+        void accountAuthenticated();
+        void accountAuthenticationFail();
                                         
     private slots:
         void onReply();
@@ -51,6 +55,7 @@ namespace oom
     private:
         ClientState state;
         QTcpSocket * socket;
+        User current_user;
     };
 };
 
