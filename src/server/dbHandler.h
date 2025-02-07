@@ -39,6 +39,7 @@ public:
     bool loginValidate(const User &);
     //Returns 1 if registration credentials are removed
     bool removeReg(const User &);
+    
 private:
     MYSQL * connection, mysql;
 };  
