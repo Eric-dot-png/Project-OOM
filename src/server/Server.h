@@ -27,6 +27,7 @@ namespace oom
         void onNewConnection();        
     private:
         bool valid(const QString& usr, const QString& pwd) const;
+        bool numeric(const QString &) const;
         
         int port_;
         QTcpServer * listener_;

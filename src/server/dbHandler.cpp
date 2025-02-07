@@ -33,9 +33,8 @@ bool dbHandler::availUsername(const User & p)
 }
 
 //Inserts User, and returns 0 if anything goes wrong
-bool dbHandler::newUser(const User & p, bool autoval)
+QString dbHandler::newUser(const User & p, bool autoval)
 {
-    MYSQL_RES * result;
     if(autoval)
     {
         std::string q = "insert User(username, password, email, permissions) values('" + p.get_username().toStdString() + "', '"
@@ -46,15 +45,16 @@ bool dbHandler::newUser(const User & p, bool autoval)
         if(mysql_query(connection, q.c_str()))
         {
             qDebug() << "autoval fail " << mysql_error(connection);
-            return 0;
+            return "";
         }
         q = "select * from User where username='"
             + p.get_username().toStdString() + "'";
         if(mysql_query(connection, q.c_str()))
         {
             qDebug() << "new User not in user.. " << mysql_error(connection);
-            return 0;
+            return "";
         }
+        return "validated";
     }
     else
     {
@@ -70,20 +70,61 @@ bool dbHandler::newUser(const User & p, bool autoval)
         if(mysql_query(connection, q.c_str()))
         {
             qDebug() << "first false" << mysql_error(connection);
-            return 0;
+            return "";
         }
         q = "select * from Registration where username='"
             + p.get_username().toStdString() + "'";
         if(mysql_query(connection, q.c_str()))
         {
             qDebug() << "second false";
-            return 0;
+            return "";
         }
+        return valcode.c_str();
+    }
+}
+
+//returns 1 if user info moved from registration to user
+bool dbHandler::emailValidate(const User & p, const QString & code)
+{
+    MYSQL_RES * result;
+    MYSQL_ROW row;
+    std::string q = "select * from Registration where username='"
+        + p.get_username().toStdString() + "' and code=" + code.toStdString();
+    if(mysql_query(connection, q.c_str()))
+    {
+        qDebug() << "Uh oh: ";
+        return 0;
     }
     result = mysql_store_result(connection);
-    bool success = mysql_fetch_row(result) != NULL;
-    mysql_free_result(result);
-    return success;
+    row = mysql_fetch_row(result);
+    if(row == NULL)
+    {
+        qDebug() << "Information not in Registration: "
+                 << mysql_error(connection);
+        return 0;
+    }
+    User u(row[0], row[1], row[2], row[3]);
+    q = "start transaction";
+    if(mysql_query(connection, q.c_str()))
+    {
+        qDebug() << "transaction begin failed: " << mysql_error(connection);
+        return 0;
+    }
+    bool regRemoved = removeReg(u);
+    if(!regRemoved)
+    {
+        qDebug() << "Registration deletion failed... ";
+        mysql_query(connection, "rollback");
+        return 0;
+    }
+    QString success = newUser(u, 1);
+    if(success != "")
+    {
+        mysql_query(connection, "commit");
+        return 1;
+    }
+    mysql_query(connection, "rollback");
+    return 0;
 }
 
 //Returns 1 if user, password pair exists in validated users
@@ -99,4 +140,30 @@ bool dbHandler::loginValidate(const User & p)
     bool success = mysql_fetch_row(result) != NULL;
     mysql_free_result(result);
     return success;
+}
+
+//Returns 1 if register row corresponding to user no longer exists
+bool dbHandler::removeReg(const User & u)
+{
+    MYSQL_RES * result;
+    std::string q = "select * from Registration where username='"
+        + u.get_username().toStdString() + "'";
+    if(mysql_query(connection, q.c_str()))
+    {
+        qDebug() << "Ruh roh: " << mysql_error(connection);
+        return 0;
+    }
+    result = mysql_store_result(connection);
+    bool exists = mysql_fetch_row(result) != NULL;
+    mysql_free_result(result);
+    if(!exists)
+        return 1;
+    q = "delete from Registration where username='"
+        + u.get_username().toStdString() + "'";
+    if(mysql_query(connection, q.c_str()))
+    {
+        qDebug() << "Couldn't delete: " << mysql_error(connection);
+        return 0;
+    }
+    return 1;
 }

@@ -1,6 +1,8 @@
 // file : server.cpp
 // name : eric garcia
 
+#include <cstdlib>
+#include <string>
 #include "Server.h"
 #include "dbHandler.h"
 
@@ -57,6 +59,38 @@ namespace oom
                     clientSocket->write(x);
                     break;
                 } // end of LoginRequest
+                case ProtocolManager::CreateAccountAuthCodeSubmit:
+                {
+                    QString usr = m["Username"].toString();
+                    QString pwd = m["Password"].toString();
+                    QString code = m["Code"].toString();
+                    User u(usr, pwd);
+                    if (!numeric(code) || code.length() != 6)
+                    {
+                        x = ProtocolManager::serialize(
+                            ProtocolManager::AccountNotAuthenticated,
+                            {"code not valid"} );
+                    }
+                    else
+                    {
+                        bool success = db.emailValidate(u, code);
+                        if(success)
+                        {
+                            x = ProtocolManager::serialize(
+                                ProtocolManager::AccountAuthenticated,
+                                {} );
+                        }
+                        else
+                        {
+                            x = ProtocolManager::serialize(
+                                ProtocolManager::AccountNotAuthenticated,
+                                {"Unknown Error, Could not authenticate account."}
+                                );
+                        }
+                    } // end of CreateAccountRequest
+                    clientSocket->write(x);
+                    break;
+                }
                 case ProtocolManager::CreateAccountRequest:
                 {
                     QString usr = m["Username"].toString();
@@ -77,12 +111,24 @@ namespace oom
                     }
                     else
                     {
-                        bool success = db.newUser(u, 1);
-                        if(success)
+                        QString code = db.newUser(u);
+                        if(code != "")
                         {
-                            x = ProtocolManager::serialize(
-                                ProtocolManager::CreateAccountAccept,
-                                {usr,pwd} );
+                            std::string emailsyscall = "python3 myemail.py "
+                                + u.get_email().toStdString() + ' '
+                                + code.toStdString();
+                            int email = system(emailsyscall.c_str());
+                            if(email == 0)
+                                x = ProtocolManager::serialize(
+                                    ProtocolManager::CreateAccountAccept,
+                                    {usr,pwd} );
+                            else
+                            {
+                                db.removeReg(u);
+                                x = ProtocolManager::serialize(
+                                    ProtocolManager::CreateAccountDenied,
+                                    {"could not send email"});
+                            }
                         }
                         else
                         {
@@ -91,7 +137,7 @@ namespace oom
                                 {"Unknown Error, Could not create account."}
                                 );
                         }
-                    } // end of CreateAccountRequest
+                    } // end of CreateAccountAuthCodeRequest
                     clientSocket->write(x);
                     break;
                 }
@@ -114,5 +160,13 @@ namespace oom
             return true && s.size() != 0;
         };
         return f(usr) && f(pwd);
+    }
+
+    bool Server::numeric(const QString & s) const
+    {
+        for(const QChar & c : s)
+            if(c < '0' || c > '9')
+                return 0;
+        return 1;
     }
 };

@@ -1,0 +1,20 @@
+
+; <<>> DiG 9.18.28 <<>> smtp.gmail.com
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 9386
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 65494
+;; QUESTION SECTION:
+;smtp.gmail.com.			IN	A
+
+;; ANSWER SECTION:
+smtp.gmail.com.		5	IN	A	142.250.113.108
+
+;; Query time: 50 msec
+;; SERVER: 127.0.0.53#53(127.0.0.53) (UDP)
+;; WHEN: Wed Feb 05 10:00:54 PST 2025
+;; MSG SIZE  rcvd: 59
+
