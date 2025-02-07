@@ -41,12 +41,12 @@ namespace oom
                     QString usr = m["Username"].toString();
                     QString pwd = m["Password"].toString();
                     User u(usr, pwd);
-                    if (db.loginValidate(u))
+                    if (db.loginValidate(u)) // if logged in
                     {
                         x = ProtocolManager::serialize(
                             ProtocolManager::LoginAccept,{});
                     }
-                    else
+                    else // if log in failed
                     {
                         x = ProtocolManager::serialize(
                             ProtocolManager::LoginDenied,
@@ -56,70 +56,66 @@ namespace oom
                     clientSocket->write(x);
                     break;
                 } // end of LoginRequest
+                
                 case ProtocolManager::CreateAccountAuthCodeSubmit:
                 {
                     QString usr = m["Username"].toString();
                     QString pwd = m["Password"].toString();
                     QString code = m["Code"].toString();
                     User u(usr, pwd);
-                    if (!numeric(code) || code.length() != 6)
+                    if (!numeric(code) || code.length() != 6) // if invalid code
                     {
                         x = ProtocolManager::serialize(
                             ProtocolManager::AccountNotAuthenticated,
                             {"code not valid"} );
                     }
-                    else
+                    else // if valid code
                     {
                         bool success = db.emailValidate(u, code);
-                        if(success)
+                        if(success) // if email validated
                         {
                             x = ProtocolManager::serialize(
                                 ProtocolManager::AccountAuthenticated,
                                 {} );
                         }
-                        else
+                        else // if email validation failed
                         {
                             x = ProtocolManager::serialize(
                                 ProtocolManager::AccountNotAuthenticated,
                                 {"Unknown Error, Could not authenticate account."}
                                 );
                         }
-                    } // end of CreateAccountRequest
+                    }
                     clientSocket->write(x);
                     break;
-                }
+                } // end of CreateAccountAuthCodeSubmit
+                    
                 case ProtocolManager::CreateAccountRequest:
                 {
                     QString usr = m["Username"].toString();
                     QString pwd = m["Password"].toString();
                     QString email = m["Email"].toString();
                     User u(usr, pwd, email);
-                    if (!db.availUsername(u)) 
+                    if (!db.availUsername(u)) // if username already used
                     {
                         x = ProtocolManager::serialize(
                             ProtocolManager::CreateAccountDenied,
                             {"username already Exists."} );
                     }
-                    else if (!valid(usr,pwd))
-                    {
-                        x = ProtocolManager::serialize(
-                            ProtocolManager::CreateAccountDenied,
-                            {"username or password not valid"} );
-                    }
-                    else
+                    else // if open account credentials
                     {
                         QString code = db.newUser(u);
-                        if(code != "")
+                        if(code != "") // if new User was created(w/o autoval)
                         {
                             std::string emailsyscall = "python3 myemail.py "
                                 + u.get_email().toStdString() + ' '
                                 + code.toStdString();
                             int email = std::system(emailsyscall.c_str());
-                            if(email == 0)
+                            if(email == 0) // if myemail.py has no issues
                                 x = ProtocolManager::serialize(
                                     ProtocolManager::CreateAccountAccept,
                                     {usr,pwd} );
-                            else
+                            else // if myemail.py runs into issues
                             {
                                 db.removeReg(u);
                                 x = ProtocolManager::serialize(
@@ -127,17 +123,18 @@ namespace oom
                                     {"could not send email"});
                             }
                         }
-                        else
+                        else // if user creation failed
                         {
                             x = ProtocolManager::serialize(
                                 ProtocolManager::CreateAccountDenied,
                                 {"Unknown Error, Could not create account."}
                                 );
                         }
-                    } // end of CreateAccountAuthCodeRequest
+                    } 
                     clientSocket->write(x);
                     break;
-                }
+                } // end of CreateAccountAuthCodeRequest
+                
                 default:
                 {
                     qDebug() << "Protocol" << m["Type"].toString()
@@ -147,19 +144,7 @@ namespace oom
         });
     }
 
-    bool Server::valid(const QString& usr, const QString& pwd) const
-    {
-        auto f = [](const QString& s) {
-            for (const QChar& c : s)
-                if ( !( (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
-                        || (c >= '1' && c <= '9')) )
-                    return false;
-            return true && s.size() != 0;
-        };
-        //return f(usr) && f(pwd);
-        return true;
-    }
-
+    //Returns 1 if all characters in s are 0 <= char <= 9
     bool Server::numeric(const QString & s) const
     {
         for(const QChar & c : s)

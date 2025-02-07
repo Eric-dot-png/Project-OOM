@@ -31,7 +31,7 @@ namespace oom
     private slots:
         void onNewConnection();        
     private:
-        bool valid(const QString& usr, const QString& pwd) const;
+        //Checks if the string is entirely made up of numbers
         bool numeric(const QString &) const;
         
         int port_;
