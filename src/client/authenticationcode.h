@@ -1,3 +1,12 @@
+//Name: Alex Franke
+//File: authenticationcode.h
+//OOM project
+
+/*
+ * Form to accept an authentication code/token to
+ * confirm regristration.
+ */
+
 #ifndef AUTHENTICATIONCODE_H
 #define AUTHENTICATIONCODE_H
 
@@ -15,6 +24,7 @@ public:
 
 private slots:
     void authenticateUser();
+    void authenticationFailed();
 
 private:
     oom::Client *client;

@@ -48,9 +48,11 @@ public:
         loginButton = new QPushButton(Login);
         loginButton->setObjectName(QString::fromUtf8("loginButton"));
         loginButton->setGeometry(QRect(470, 280, 83, 29));
+        loginButton->setCursor(QCursor(Qt::PointingHandCursor));
         registerButton = new QPushButton(Login);
         registerButton->setObjectName(QString::fromUtf8("registerButton"));
         registerButton->setGeometry(QRect(310, 360, 83, 29));
+        registerButton->setCursor(QCursor(Qt::PointingHandCursor));
         registerNotImplementedLabel = new QLabel(Login);
         registerNotImplementedLabel->setObjectName(QString::fromUtf8("registerNotImplementedLabel"));
         registerNotImplementedLabel->setEnabled(false);
@@ -92,6 +94,12 @@ public:
         Login->setWindowTitle(QCoreApplication::translate("Login", "Login", nullptr));
         label->setText(QCoreApplication::translate("Login", "Username:", nullptr));
         label_2->setText(QCoreApplication::translate("Login", "Password:", nullptr));
+#if QT_CONFIG(tooltip)
+        label_3->setToolTip(QString());
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(statustip)
+        label_3->setStatusTip(QString());
+#endif // QT_CONFIG(statustip)
         label_3->setText(QCoreApplication::translate("Login", "Don't have an account? Register now!", nullptr));
         loginButton->setText(QCoreApplication::translate("Login", "Login", nullptr));
         registerButton->setText(QCoreApplication::translate("Login", "Register", nullptr));

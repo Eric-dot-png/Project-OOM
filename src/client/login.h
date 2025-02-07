@@ -2,6 +2,11 @@
 //File: login.h
 //OOM project
 
+/*
+ * Login form.
+ * Allows the user to login if they already have an account,
+ * or will allow the user to press a button to register for an account.
+ */
 
 #ifndef LOGIN_H
 #define LOGIN_H

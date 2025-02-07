@@ -1,3 +1,12 @@
+//Name: Alex Franke
+//File: privatemessages.h
+//OOM project
+
+/*
+ * PrivateMessages Form.
+ * Currently not used.
+ */
+
 #ifndef PRIVATEMESSAGES_H
 #define PRIVATEMESSAGES_H
 
@@ -6,6 +15,12 @@
 #include "Client.h"
 #include "ui_privatemessages.h"
 
+
+/*
+ *  QT does not natively allow pressing enter to submit a textbox.
+ *  This class checks for button press events and if the enter button
+ *  is pressed, it will send a signal to submit messages.
+ */
 class EnterKeyFilter : public QObject {
     Q_OBJECT
 public:

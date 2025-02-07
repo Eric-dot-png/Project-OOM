@@ -48,6 +48,12 @@
      <height>20</height>
     </rect>
    </property>
+   <property name="toolTip">
+    <string comment="TESTING!!!" extracomment="TESTING!!!!"/>
+   </property>
+   <property name="statusTip">
+    <string/>
+   </property>
    <property name="text">
     <string>Don't have an account? Register now!</string>
    </property>
@@ -61,6 +67,9 @@
      <height>29</height>
     </rect>
    </property>
+   <property name="cursor">
+    <cursorShape>PointingHandCursor</cursorShape>
+   </property>
    <property name="text">
     <string>Login</string>
    </property>
@@ -73,6 +82,9 @@
      <width>83</width>
      <height>29</height>
     </rect>
+   </property>
+   <property name="cursor">
+    <cursorShape>PointingHandCursor</cursorShape>
    </property>
    <property name="text">
     <string>Register</string>

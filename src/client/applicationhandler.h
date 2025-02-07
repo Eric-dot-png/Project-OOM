@@ -2,6 +2,15 @@
 //File: applicationhander.h
 //OOM project
 
+/*
+ * Wrapper class for managing widgets.
+ *
+ * This class creates an object of every widget the application
+ * uses and allows for easy transitioning.
+ *
+ * Easily expandable through the connect() function.
+ */
+
 #ifndef APPLICATIONHANDLER_H
 #define APPLICATIONHANDLER_H
 

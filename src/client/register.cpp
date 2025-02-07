@@ -1,3 +1,7 @@
+//Name: Alex Franke
+//File: register.cpp
+//OOM project
+
 #include "register.h"
 #include "User.h"
 #include "Client.h"
@@ -32,7 +36,6 @@ Register::~Register()
 //8 characters, 1 number, 1 "special character", 1 uppercase, 1 lowercase
 bool Register::isValidPassword(const QString &password)
 {
-
     QRegularExpression re("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$");
 
     QRegularExpressionMatch match = re.match(password);
@@ -40,11 +43,11 @@ bool Register::isValidPassword(const QString &password)
 }
 
 //To see if email input is actually an email address.
-//Can add more email domains but i thought gmail and yahoo fine for now
+//Can add more email domains but i thought gmail, yahoo and cougarmail is fine for now
 bool Register::isValidEmail(const QString &email)
 {
     //domain\\.com
-    QRegularExpression re("^[a-zA-Z0-9._%+-]+@(gmail\\.com|yahoo\\.com)$");
+    QRegularExpression re("^[a-zA-Z0-9._%+-]+@(gmail\\.com|yahoo\\.com|cougars\\.ccis\\.com)$");
 
     QRegularExpressionMatch match = re.match(email);
 
@@ -103,8 +106,8 @@ void Register::handleRegister()
     {
         // Hey, Eric here. Its not showing some of this text, lol.
         // how fix?
-        passwordError = "Password must be at least 8 characters,\n"
-                        "contain 1 uppercase letter, 1 lowercase letter,\n"
+        passwordError = "Password must be at least 8 characters, "
+                        "contain 1 uppercase letter, 1 lowercase letter, "
                         "1 digit, and 1 special character.";
     }
 
@@ -118,13 +121,8 @@ void Register::handleRegister()
         User user(u, p, e);
         client->createAccount(user);
 
-
-        /*
-         * if account is created then we
-         * handleBack(); which will clear inputs and labels
-         * then will send user back to login screen
-         * else display error to user to try again
-         */
+        //after registration is accepted, the client will switch from
+        //this form to another.
     }
 }
 

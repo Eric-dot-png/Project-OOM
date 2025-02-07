@@ -24,6 +24,7 @@ public:
     QLineEdit *codeTextbox;
     QLabel *label;
     QPushButton *submitButton;
+    QLabel *authFailedLabel;
 
     void setupUi(QWidget *authenticationCode)
     {
@@ -38,7 +39,16 @@ public:
         label->setGeometry(QRect(130, 140, 131, 18));
         submitButton = new QPushButton(authenticationCode);
         submitButton->setObjectName(QString::fromUtf8("submitButton"));
-        submitButton->setGeometry(QRect(190, 210, 80, 26));
+        submitButton->setGeometry(QRect(180, 210, 80, 26));
+        submitButton->setCursor(QCursor(Qt::PointingHandCursor));
+        authFailedLabel = new QLabel(authenticationCode);
+        authFailedLabel->setObjectName(QString::fromUtf8("authFailedLabel"));
+        authFailedLabel->setGeometry(QRect(280, 140, 161, 71));
+        QFont font;
+        font.setPointSize(12);
+        font.setBold(true);
+        authFailedLabel->setFont(font);
+        authFailedLabel->setWordWrap(true);
 
         retranslateUi(authenticationCode);
 
@@ -50,6 +60,7 @@ public:
         authenticationCode->setWindowTitle(QCoreApplication::translate("authenticationCode", "Form", nullptr));
         label->setText(QCoreApplication::translate("authenticationCode", "Authentication code:", nullptr));
         submitButton->setText(QCoreApplication::translate("authenticationCode", "Submit", nullptr));
+        authFailedLabel->setText(QString());
     } // retranslateUi
 
 };

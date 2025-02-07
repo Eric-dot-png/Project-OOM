@@ -1,3 +1,14 @@
+//Name: Alex Franke
+//File: register.h
+//OOM project
+
+/*
+ * Register form.
+ * This form allows for username, password and email input.
+ * After registering, the form will transition to the
+ * authenticationCode form.
+ */
+
 #ifndef REGISTER_H
 #define REGISTER_H
 

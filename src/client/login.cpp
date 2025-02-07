@@ -13,6 +13,8 @@ Login::Login(oom::Client *client, QWidget *parent)
 
 {
     loginUi->setupUi(this);
+
+    //Connect buttons to the below slots
     connect(loginUi->loginButton, &QPushButton::clicked, this, &Login::handleLogin);
     connect(loginUi->registerButton, &QPushButton::clicked, this, &Login::goToRegister);
 }
@@ -21,13 +23,9 @@ Login::~Login() {
     delete loginUi;
 }
 
+//When login button is clicked, this slot is fired.
+//Gets username and password, sends to client to login.
 void Login::handleLogin() {
-
-    //DELETE AFTER TESTING OR LOGIN WORKS!
-    //emit loginSuccess();
-    //--------------------------------
-
-
     QString usr = loginUi->usernameTextbox->text();
     QString pwd = loginUi->passwordTextbox->text();
     
@@ -35,6 +33,9 @@ void Login::handleLogin() {
     client->login(u);
 }
 
+//When register button is clicked, this will fire the
+//registerRequested() SIGNAL to transition pages.
+//The slot that receives this signal is in applicationHandler.cpp
 void Login::goToRegister() {
     qDebug() << "Navigating to Register Page... ";
     emit registerRequested();
