@@ -11,6 +11,7 @@ SOURCES += \
     Client.cpp \
     ../common/ProtocolManager.cpp \
     applicationhandler.cpp \
+    authenticationcode.cpp \
     main.cpp \
     login.cpp \
     privatemessages.cpp \
@@ -21,11 +22,13 @@ HEADERS += \
     ../common/ProtocolManager.h \
     ../common/User.h \
     applicationhandler.h \
+    authenticationcode.h \
     login.h \
     privatemessages.h \
     register.h
 
 FORMS += \
+    authenticationcode.ui \
     login.ui \
     privatemessages.ui \
     register.ui

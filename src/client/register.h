@@ -23,6 +23,9 @@ private slots:
     //void usernameUnavailable();
     //void invalidEmail();
 
+    //void usernameUnavailable();
+    //void invalidEmail();
+
 private:
     Ui::Register *registerUi;
     oom::Client *client;

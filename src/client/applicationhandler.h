@@ -13,6 +13,7 @@
 #include "login.h"
 #include "register.h"
 #include "privatemessages.h"
+#include "authenticationcode.h"
 
 #include "Client.h"
 
@@ -31,6 +32,7 @@ private:
     Login *LoginWidget;
     Register *RegisterWidget;
     PrivateMessages *PrivateMessagesWidget;
+    authenticationCode *AuthenticationWidget;
 };
 
 #endif // APPLICATIONHANDLER_H

@@ -18,11 +18,13 @@ ApplicationHandler::ApplicationHandler(oom::Client *client, QWidget *parent)
     LoginWidget = new Login(client, this);
     RegisterWidget = new Register(client, this);
     PrivateMessagesWidget = new PrivateMessages(client, this);
+    AuthenticationWidget = new authenticationCode(client, this);
 
-
-    stackedWidget->addWidget(LoginWidget);
-    stackedWidget->addWidget(RegisterWidget);
-    stackedWidget->addWidget(PrivateMessagesWidget);
+                                                    //index
+    stackedWidget->addWidget(LoginWidget);           // 0
+    stackedWidget->addWidget(RegisterWidget);        // 1
+    stackedWidget->addWidget(PrivateMessagesWidget); // 2
+    stackedWidget->addWidget(AuthenticationWidget);  // 3
 
     stackedWidget->setCurrentIndex(0); // login page
 
@@ -53,7 +55,7 @@ ApplicationHandler::ApplicationHandler(oom::Client *client, QWidget *parent)
 
     connect(client, &oom::Client::accountCreated, this, [=]() {
         qDebug() << "clientside accountCreated";
-        switchToWidget(0);
+        switchToWidget(3);
     });
 
     //Also Goto Login form -> PrivateMessages

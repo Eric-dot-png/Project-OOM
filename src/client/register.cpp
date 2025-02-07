@@ -15,8 +15,12 @@ Register::Register(oom::Client *client, QWidget *parent)
 
     connect(registerUi->backToLoginButton, &QPushButton::clicked, this, &Register::handleBack);
     connect(registerUi->createAccountButton, &QPushButton::clicked, this, &Register::handleRegister);
+<<<<<<< Updated upstream
     connect(registerUi->showPasswordButton, &QPushButton::clicked, this, &Register::showPassword);
     //connect(client, oom::Client::connectToServer, this, &Register::usernameUnavailable);
+=======
+    //connect(client, oom::Client::connectToServer, this, &Register::usernameUnavailable)
+>>>>>>> Stashed changes
 }
 
 Register::~Register()
@@ -116,7 +120,6 @@ void Register::handleRegister()
         User user(u, p, e);
         client->createAccount(user);
 
-        //handleBack();
 
         /*
          * if account is created then we
@@ -134,6 +137,8 @@ void Register::handleBack()
     resetForm(true);
     emit backToLogin();
 }
+
+
 
 //Show/hide password button
 void Register::showPassword()
