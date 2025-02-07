@@ -1,7 +1,3 @@
-#include <string>
-#include <iostream>
-#include <cstdlib>
-#include <QDateTime>
 #include "dbHandler.h"
 
 //Returns 1 if select statement where username=desired username is empty
@@ -17,8 +13,8 @@ bool dbHandler::availUsername(const User & p)
     }
     result = mysql_store_result(connection);
     bool avail = mysql_fetch_row(result) == NULL;
-    if(!avail) return 0;
     mysql_free_result(result);
+    if(!avail) return 0;
     q = "select * from Registration where username='"
         + p.get_username().toStdString() + "'";
     if(mysql_query(connection, q.c_str()))
@@ -35,6 +31,7 @@ bool dbHandler::availUsername(const User & p)
 //Inserts User, and returns 0 if anything goes wrong
 QString dbHandler::newUser(const User & p, bool autoval)
 {
+    MYSQL_RES * result;
     if(autoval)
     {
         std::string q = "insert User(username, password, email, permissions) values('" + p.get_username().toStdString() + "', '"
@@ -54,6 +51,8 @@ QString dbHandler::newUser(const User & p, bool autoval)
             qDebug() << "new User not in user.. " << mysql_error(connection);
             return "";
         }
+        result = mysql_store_result(connection);
+        mysql_free_result(result);
         return "validated";
     }
     else
@@ -79,6 +78,9 @@ QString dbHandler::newUser(const User & p, bool autoval)
             qDebug() << "second false";
             return "";
         }
+        result = mysql_store_result(connection);
+        mysql_free_result(result);
+        
         return valcode.c_str();
     }
 }
@@ -89,10 +91,11 @@ bool dbHandler::emailValidate(const User & p, const QString & code)
     MYSQL_RES * result;
     MYSQL_ROW row;
     std::string q = "select * from Registration where username='"
-        + p.get_username().toStdString() + "' and code=" + code.toStdString();
+        + p.get_username().toStdString() + "' and code='" + code.toStdString()
+        + "'";
     if(mysql_query(connection, q.c_str()))
     {
-        qDebug() << "Uh oh: ";
+        qDebug() << "Uh oh:" << mysql_error(connection);
         return 0;
     }
     result = mysql_store_result(connection);
@@ -103,7 +106,7 @@ bool dbHandler::emailValidate(const User & p, const QString & code)
                  << mysql_error(connection);
         return 0;
     }
-    User u(row[0], row[1], row[2], row[3]);
+    User u(row[0], row[1], row[2], row[3] == "1");
     q = "start transaction";
     if(mysql_query(connection, q.c_str()))
     {
@@ -123,8 +126,11 @@ bool dbHandler::emailValidate(const User & p, const QString & code)
         mysql_query(connection, "commit");
         return 1;
     }
-    mysql_query(connection, "rollback");
-    return 0;
+    else
+    {
+        mysql_query(connection, "rollback");
+        return 0;
+    }
 }
 
 //Returns 1 if user, password pair exists in validated users

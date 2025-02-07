@@ -101,6 +101,8 @@ void Register::handleRegister()
     }
     else if (!isValidPassword(p))
     {
+        // Hey, Eric here. Its not showing some of this text, lol.
+        // how fix?
         passwordError = "Password must be at least 8 characters,\n"
                         "contain 1 uppercase letter, 1 lowercase letter,\n"
                         "1 digit, and 1 special character.";

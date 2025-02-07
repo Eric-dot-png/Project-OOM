@@ -4,11 +4,16 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#include <cstdlib>
+#include <string>
+
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QHostAddress>
 #include <QObject>
 #include <QDebug>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 
 #include "ProtocolManager.h"
 #include "User.h"

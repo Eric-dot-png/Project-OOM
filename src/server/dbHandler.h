@@ -4,6 +4,10 @@
 #include <QtCore>
 #include <stdio.h>
 #include <mysql.h>
+#include <string>
+#include <iostream>
+#include <cstdlib>
+#include <QDateTime>
 
 #include "User.h"
 

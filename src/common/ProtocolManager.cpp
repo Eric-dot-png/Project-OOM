@@ -54,6 +54,7 @@ namespace oom
                 
                 else throw(ProtocolError());
             }
+            case AccountNotAuthenticated:
             case CreateAccountDenied: 
             case LoginDenied: 
             {
@@ -67,7 +68,6 @@ namespace oom
                 }
                 else throw(ProtocolError());
             }
-            case AccountNotAuthenticated:
             case AccountAuthenticated:
             case LoginAccept:
             {

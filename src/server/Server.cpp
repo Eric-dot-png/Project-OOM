@@ -1,10 +1,7 @@
 // file : server.cpp
 // name : eric garcia
 
-#include <cstdlib>
-#include <string>
 #include "Server.h"
-#include "dbHandler.h"
 
 namespace oom
 {
@@ -117,7 +114,7 @@ namespace oom
                             std::string emailsyscall = "python3 myemail.py "
                                 + u.get_email().toStdString() + ' '
                                 + code.toStdString();
-                            int email = system(emailsyscall.c_str());
+                            int email = std::system(emailsyscall.c_str());
                             if(email == 0)
                                 x = ProtocolManager::serialize(
                                     ProtocolManager::CreateAccountAccept,
@@ -159,7 +156,8 @@ namespace oom
                     return false;
             return true && s.size() != 0;
         };
-        return f(usr) && f(pwd);
+        //return f(usr) && f(pwd);
+        return true;
     }
 
     bool Server::numeric(const QString & s) const

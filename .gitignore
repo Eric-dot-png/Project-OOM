@@ -4,3 +4,5 @@ a.out
 Makefile
 .qmake.stash
 *.pro.user
+google_app_password.py
+__pycache__/
