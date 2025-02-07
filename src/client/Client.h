@@ -53,6 +53,10 @@ namespace oom
         void onReply();
         
     private:
+        void handleLoginState(const QJsonObject& m);
+        void handleCreatingAccountState(const QJsonObject& m);
+        void handleAuthenticatingAccountState(const QJsonObject& m);
+        
         ClientState state;
         QTcpSocket * socket;
         User current_user;
