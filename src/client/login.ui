@@ -161,6 +161,12 @@
   <zorder>authFailedLabel</zorder>
   <zorder>passwordTextbox</zorder>
  </widget>
+ <tabstops>
+  <tabstop>usernameTextbox</tabstop>
+  <tabstop>passwordTextbox</tabstop>
+  <tabstop>loginButton</tabstop>
+  <tabstop>registerButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

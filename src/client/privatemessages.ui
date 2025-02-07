@@ -73,6 +73,12 @@
    </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>textEdit</tabstop>
+  <tabstop>friendCombobox</tabstop>
+  <tabstop>serverCombobox</tabstop>
+  <tabstop>textBrowser</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

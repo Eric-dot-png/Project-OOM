@@ -58,7 +58,7 @@
    <property name="geometry">
     <rect>
      <x>250</x>
-     <y>220</y>
+     <y>260</y>
      <width>113</width>
      <height>28</height>
     </rect>
@@ -112,7 +112,7 @@
    <property name="geometry">
     <rect>
      <x>170</x>
-     <y>230</y>
+     <y>270</y>
      <width>63</width>
      <height>20</height>
     </rect>
@@ -130,8 +130,8 @@
   <widget class="QLabel" name="testLabel">
    <property name="geometry">
     <rect>
-     <x>470</x>
-     <y>170</y>
+     <x>800</x>
+     <y>40</y>
      <width>63</width>
      <height>20</height>
     </rect>
@@ -143,14 +143,14 @@
     </sizepolicy>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string>Test label</string>
    </property>
   </widget>
   <widget class="QPushButton" name="createAccountButton">
    <property name="geometry">
     <rect>
      <x>290</x>
-     <y>290</y>
+     <y>330</y>
      <width>83</width>
      <height>29</height>
     </rect>
@@ -172,7 +172,7 @@
    <property name="geometry">
     <rect>
      <x>170</x>
-     <y>290</y>
+     <y>330</y>
      <width>83</width>
      <height>29</height>
     </rect>
@@ -187,7 +187,107 @@
     <string>Back</string>
    </property>
   </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>200</y>
+     <width>58</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Confirm password</string>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="confirmPasswordEdit">
+   <property name="geometry">
+    <rect>
+     <x>250</x>
+     <y>220</y>
+     <width>113</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="echoMode">
+    <enum>QLineEdit::EchoMode::Password</enum>
+   </property>
+  </widget>
+  <widget class="QLabel" name="emailConfirmLabel">
+   <property name="geometry">
+    <rect>
+     <x>380</x>
+     <y>260</y>
+     <width>91</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="passwordMatchLabel">
+   <property name="geometry">
+    <rect>
+     <x>430</x>
+     <y>180</y>
+     <width>231</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="showPasswordButton">
+   <property name="geometry">
+    <rect>
+     <x>370</x>
+     <y>170</y>
+     <width>41</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Show</string>
+   </property>
+  </widget>
  </widget>
+ <tabstops>
+  <tabstop>usrnameEdit</tabstop>
+  <tabstop>passwordEdit</tabstop>
+  <tabstop>confirmPasswordEdit</tabstop>
+  <tabstop>emailEdit</tabstop>
+  <tabstop>createAccountButton</tabstop>
+  <tabstop>backToLoginButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

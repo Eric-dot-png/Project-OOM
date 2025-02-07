@@ -18,6 +18,7 @@ signals:
 private slots:
     void handleBack();
     void handleRegister();
+    void showPassword();
 
     //void usernameUnavailable();
     //void invalidEmail();
@@ -25,6 +26,10 @@ private slots:
 private:
     Ui::Register *registerUi;
     oom::Client *client;
+
+    bool isValidEmail(const QString &);
+    bool isValidPassword(const QString &);
+    void resetForm(bool fullForm);
 };
 
 #endif // REGISTER_H
