@@ -3,6 +3,16 @@
 
 #include "Server.h"
 
+// Password encrytion basically
+// make sure the password is encrypted EVERY TIME a User object is created
+QString pwdHash(const QString & s)
+{
+    QString newS = s;
+    for(int i = 0; i < 10; i++)
+        newS = QString::number(qHash(newS));
+    return newS;
+}
+
 namespace oom
 {
     Server::Server(int port, QObject * parent)
@@ -40,6 +50,7 @@ namespace oom
                 {
                     QString usr = m["Username"].toString();
                     QString pwd = m["Password"].toString();
+                    pwd = pwdHash(pwd);
                     User u(usr, pwd);
                     if (db.loginValidate(u)) // if logged in
                     {
@@ -62,6 +73,7 @@ namespace oom
                     QString usr = m["Username"].toString();
                     QString pwd = m["Password"].toString();
                     QString code = m["Code"].toString();
+                    pwd = pwdHash(pwd);
                     User u(usr, pwd);
                     if (!numeric(code) || code.length() != 6) // if invalid code
                     {
@@ -95,6 +107,7 @@ namespace oom
                     QString usr = m["Username"].toString();
                     QString pwd = m["Password"].toString();
                     QString email = m["Email"].toString();
+                    pwd = pwdHash(pwd);
                     User u(usr, pwd, email);
                     if (!db.availUsername(u)) // if username already used
                     {

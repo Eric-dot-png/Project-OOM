@@ -10,10 +10,10 @@ from email import encoders # 2021/3/17: python 3
 import datetime
 from google_app_password import google_app_password
 
-def sendgmail(to_='yliow@ccis.edu',
+def sendgmail(to_,
               from_='projectoomooad@gmail.com',
               subject='ProjectOOM Validation Code',
-              text='this is a test',
+              text='',
               html='',
               attach=None, # list of paths or path or None
               google_app_password=google_app_password

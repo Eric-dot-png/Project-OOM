@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <QtCore>
-
+#include <ctime>
 
 #include "Server.h"
 #include "dbHandler.h"
@@ -17,6 +17,7 @@ void customMessageHandler(QtMsgType type, const QMessageLogContext &context, con
 
 int main(int argc, char* argv[])
 {
+    srand(time(NULL));
     qInstallMessageHandler(customMessageHandler);
     QLoggingCategory::setFilterRules("*.debug=true");
     QCoreApplication app(argc, argv);
