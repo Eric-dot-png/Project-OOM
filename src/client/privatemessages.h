@@ -14,6 +14,7 @@
 #include <QKeyEvent>
 #include "Client.h"
 #include "ui_privatemessages.h"
+#include "message.h"
 
 
 /*
@@ -52,6 +53,9 @@ public:
 
 private slots:
     void onEnterKeyPressed();
+
+    //Takes the json file and parses it
+    void loadPage();
     /*
     void sendMessage();
     void changeFriend();
@@ -65,6 +69,8 @@ private:
     Ui::PrivateMessages *ui;
     oom::Client *client;
     EnterKeyFilter *enterFilter;
+
+    //void unpackJson();
 };
 
 #endif // PRIVATEMESSAGES_H

@@ -2,6 +2,11 @@
 //File: privateMessages.cpp
 //OOM Project
 
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
+
 #include "privatemessages.h"
 #include "ui_privatemessages.h"
 
@@ -15,6 +20,7 @@ PrivateMessages::PrivateMessages(oom::Client *client, QWidget *parent)
     ui->textEdit->installEventFilter(enterFilter);
 
     connect(enterFilter, &EnterKeyFilter::enterPressed, this, &PrivateMessages::onEnterKeyPressed);
+
 }
 
 PrivateMessages::~PrivateMessages()
@@ -27,4 +33,50 @@ void PrivateMessages::onEnterKeyPressed()
     qDebug() << "Sending message: " << ui->textEdit->toPlainText();
     ui->textBrowser->append(ui->textEdit->toMarkdown());
     ui->textEdit->clear();
+    loadPage();
+}
+
+void PrivateMessages::loadPage()
+{
+    //deserialize?
+    QFile jsonFile("test.json");
+
+    if (!jsonFile.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qDebug() << "Failed to open file:" << "test.json";
+        return;
+    }
+
+    QByteArray jsonData = jsonFile.readAll();
+    jsonFile.close();
+
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+
+    if (!doc.isArray())
+    {
+        qDebug() << "JSON format is incorrect!";
+        return;
+    }
+
+
+
+    QJsonArray jsonArray = doc.array();
+
+    for (const QJsonValue &value : jsonArray)
+    {
+        if (!value.isObject()) continue;
+
+        QJsonObject obj = value.toObject();
+        QString to = obj["To"].toString();
+        QString from = obj["From"].toString();
+        QString msg = obj["Message"].toString();
+
+
+        //Gotta figure this out
+        //Have to make new User objects for 'from' and 'to'.
+        //Or have to use existing objects but idk how to "find" them
+        //Message message(from, to, msg);
+
+        qDebug() << "To:" << to << "| From:" << from <<"| Msg:" << msg;
+    }
 }
