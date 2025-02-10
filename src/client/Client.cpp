@@ -7,7 +7,7 @@ namespace oom
     Client::Client(QObject * parent)
         : QObject(parent), state(ClientState::Disconnected),
           socket(new QTcpSocket(this)),
-          current_user("None","None","None")
+          current_user("None","None","None") // for now this is guest user
     {
         connect(socket, &QTcpSocket::connected, this, [&](){
             qDebug() << "Connected to Server";
@@ -18,6 +18,7 @@ namespace oom
         connect(socket, &QTcpSocket::disconnected, this, [&](){
             qDebug() << "Disconnected from Server";
             state = ClientState::Disconnected;
+            emit disconnectedFromServer();
         });
         
         connect(socket, &QTcpSocket::readyRead, this, &Client::onReply);
@@ -101,6 +102,7 @@ namespace oom
                               {current_user.get_username(),
                                current_user.get_password(), code})
                 );
+            state = ClientState::Connected;
         }
         else
         {
@@ -148,6 +150,7 @@ namespace oom
             {
                 qDebug() << "Login Success!";
                 state = ClientState::LoggedIn;
+                // need to set current user here???
                 emit loginSuccess();
                 break;
             }

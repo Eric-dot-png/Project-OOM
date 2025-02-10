@@ -28,8 +28,8 @@ namespace oom
         Server(int port, QObject * parent=NULL);
         ~Server();
                  
-    private slots:
-        void onNewConnection();        
+    private slots: // these are functions that are connected to signals
+        void onNewConnection(); // handles client requests 
     private:
         //Checks if the string is entirely made up of numbers
         bool numeric(const QString &) const;

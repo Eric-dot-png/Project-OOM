@@ -8,29 +8,19 @@ namespace oom
     QByteArray ProtocolManager::serialize(MessageType t,
                                           const QStringList& argv)
     {
+        // NOTE : the switch case below has certain cases
+        //        overlap because they behave the same. I.e.
+        //        the protocols require the same arguments
+        
         int argc = argv.size();
-        switch(t)
+        switch(t) // what type of message you want to make?
         {
-            case MessageRequest:
-            {
-                if (argc == 3)
-                {
-                    QJsonObject ret({
-                        {"Type", t},
-                        {"To", argv[0]},
-                        {"From", argv[1]},
-                        {"Message", argv[2]}
-                        });
-                    return QJsonDocument(ret).toJson();
-                }
-                else throw(ProtocolError());
-            }
             case CreateAccountRequest:
             {
                 if (argc == 3)
                 {
                     QJsonObject ret({
-                        {"Type", t},
+                        {"Type", t}, 
                         {"Username", argv[0]},
                         {"Password", argv[1]},
                         {"Email", argv[2]}
@@ -39,9 +29,13 @@ namespace oom
                 }
                 else throw(ProtocolError());
             }
-            case CreateAccountAccept:
+            case CreateAccountAccept: 
             case LoginRequest:
             {
+                // in the case of CreateAccountAccept:
+                //    meant to include username and password because
+                //    when sent from server to client, client
+                //    needs access to the account
                 if (argc == 2)
                 {
                     QJsonObject ret({
@@ -71,7 +65,7 @@ namespace oom
             case AccountAuthenticated:
             case LoginAccept:
             {
-                if (argc == 0) 
+                if (argc == 0) // no argument is needed
                 {
                     QJsonObject ret({
                         {"Type", t}
@@ -100,6 +94,7 @@ namespace oom
 
     QJsonObject ProtocolManager::deserialize(const QByteArray& data)
     {
+        // QByteArray -> JsonDocument -> JsonObject
         QJsonDocument doc = QJsonDocument::fromJson(data);
         return doc.object();
     }

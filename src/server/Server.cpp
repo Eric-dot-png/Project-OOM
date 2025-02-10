@@ -34,16 +34,18 @@ namespace oom
     
     void Server::onNewConnection()
     {
+        
         QTcpSocket * clientSocket = listener_->nextPendingConnection();
         connect(clientSocket, &QTcpSocket::readyRead, this, [this,
                                                              clientSocket]()
         {
+            // lambda function to handle client requests
             QByteArray data = clientSocket->readAll();
             qDebug() << "Recieved" << data << "from" << clientSocket;
 
             QJsonObject m = ProtocolManager::deserialize(data);
 
-            QByteArray x;
+            QByteArray x; // message to send back
             switch(m["Type"].toInt())
             {
                 case ProtocolManager::LoginRequest:
