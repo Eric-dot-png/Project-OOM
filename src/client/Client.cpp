@@ -102,7 +102,6 @@ namespace oom
                               {current_user.get_username(),
                                current_user.get_password(), code})
                 );
-            state = ClientState::Connected;
         }
         else
         {
