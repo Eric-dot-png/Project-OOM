@@ -41,7 +41,8 @@ ApplicationHandler::ApplicationHandler(oom::Client *client, QWidget *parent)
     layout->addWidget(stackedWidget);
     setLayout(layout);
 
-    /* signal/slot connection
+    /* signal/slot connection explanation
+     *
      * connect(
      *         object sending a signal,
      *         signal from object,
@@ -56,19 +57,19 @@ ApplicationHandler::ApplicationHandler(oom::Client *client, QWidget *parent)
     //Goto Login form -> PrivateMessages form
     connect(LoginWidget, &Login::loginSuccess, this, [=]() {
         qDebug() << "Logged in, going to private messages form...";
-        switchToWidget(2);
+        switchToWidget(stackedWidget->indexOf(PrivateMessagesWidget));
     });
 
     //Goto Login form -> Register form
     connect(LoginWidget, &Login::registerRequested, this, [=]() {
         qDebug() << "Going to register form...";
-        switchToWidget(1);
+        switchToWidget(stackedWidget->indexOf(RegisterWidget));
     });
 
     //Goto Register form -> Login form using BACK button
     connect(RegisterWidget, &Register::backToLogin, this, [=]() {
         qDebug() << "Going back to login form...";
-        switchToWidget(0);
+        switchToWidget(stackedWidget->indexOf(LoginWidget));
     });
 
     //Connect client to server
@@ -79,19 +80,19 @@ ApplicationHandler::ApplicationHandler(oom::Client *client, QWidget *parent)
     //Once account is created, move to authentication code form
     connect(client, &oom::Client::accountCreated, this, [=]() {
         qDebug() << "clientside accountCreated";
-        switchToWidget(3);
+        switchToWidget(stackedWidget->indexOf(AuthenticationWidget));
     });
 
     //After authentication code is validated, move to privateMessages
     connect(client, &oom::Client::accountAuthenticated, this, [=]() {
         qDebug() << "Clientside account authenticated, moving to privateMessages.";
-        switchToWidget(2);
+        switchToWidget(stackedWidget->indexOf(PrivateMessagesWidget));
     });
 
     //Also Goto Login form -> PrivateMessages
     connect(client, &oom::Client::loginSuccess, this, [=]() {
         qDebug() << "clientside loggedin";
-        switchToWidget(2);
+        switchToWidget(stackedWidget->indexOf(PrivateMessagesWidget));
     });
 }
 
