@@ -28,11 +28,23 @@ PrivateMessages::~PrivateMessages()
     delete ui;
 }
 
+QString PrivateMessages::formatMessage()
+{
+    QString msg = ui->textEdit->toMarkdown();
+    QString user = client->getUser().get_username();
+
+    return "<b>" + user + "</b>:<br>" + msg;
+}
+
 void PrivateMessages::onEnterKeyPressed()
 {
     qDebug() << "Sending message: " << ui->textEdit->toPlainText();
-    ui->textBrowser->append(ui->textEdit->toMarkdown());
+
+    QString fullMsg = formatMessage();
+    ui->textBrowser->append(fullMsg);
     ui->textEdit->clear();
+
+    //Testing; will remove later
     loadPage();
 }
 

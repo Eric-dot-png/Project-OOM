@@ -70,6 +70,8 @@ private:
     oom::Client *client;
     EnterKeyFilter *enterFilter;
 
+    QString formatMessage();
+
     //void unpackJson();
 };
 

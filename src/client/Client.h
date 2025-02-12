@@ -34,6 +34,7 @@ namespace oom
         ~Client();
 
         ClientState getState() const { return state; }
+        User getUser() const { return current_user; }
 
         // must be in Disconnected state.
         // puts the client into Connecting state
