@@ -40,8 +40,8 @@ void PrivateMessages::onEnterKeyPressed()
 {
     qDebug() << "Sending message: " << ui->textEdit->toPlainText();
 
-    QString fullMsg = formatMessage();
-    ui->textBrowser->append(fullMsg);
+    //QString fullMsg = formatMessage();
+    ui->textBrowser->append(formatMessage());
     ui->textEdit->clear();
 
     //Testing; will remove later

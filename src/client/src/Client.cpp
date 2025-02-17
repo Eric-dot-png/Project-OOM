@@ -150,6 +150,9 @@ namespace oom
                 qDebug() << "Login Success!";
                 state = ClientState::LoggedIn;
                 // need to set current user here???
+                User u(m["Username"].toString(),
+                       m["Password"].toString());
+                qDebug() << "Username:" << u.get_username();
                 emit loginSuccess();
                 break;
             }

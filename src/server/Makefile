@@ -17,7 +17,7 @@ CXX           = g++
 DEFINES       = -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -O2 -Wall -Wextra -D_REENTRANT -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -O2 -Wall -Wextra -D_REENTRANT -fPIC $(DEFINES)
-INCPATH       = -I. -I../common -I/usr/include/mysql -I-m64 -I/usr/include/qt5 -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I. -I/../lib64/qt5/mkspecs/linux-g++
+INCPATH       = -I. -I../common -I/usr/include/mysql -I-m64 -Iincludes -I/usr/include/qt5 -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I. -I/../lib64/qt5/mkspecs/linux-g++
 QMAKE         = /usr/bin/qmake-qt5
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -37,7 +37,7 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = a.out1.0.0
-DISTDIR = /home/student/OOM-project/Project-OOM/src/server/.tmp/a.out1.0.0
+DISTDIR = /home/student/OOMTest/src/server/.tmp/a.out1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1
 LIBS          = $(SUBLIBS) -L/usr/lib64/mysql -lmysqlclient -lz -lzstd -lssl -lcrypto -lresolv -lm /usr/lib64/libQt5Gui.so /usr/lib64/libQt5Network.so /usr/lib64/libQt5Core.so -lGL -lpthread   
@@ -52,9 +52,9 @@ OBJECTS_DIR   = ./
 
 ####### Files
 
-SOURCES       = main.cpp \
-		Server.cpp \
-		dbHandler.cpp \
+SOURCES       = src/main.cpp \
+		src/Server.cpp \
+		src/dbHandler.cpp \
 		../common/ProtocolManager.cpp moc_Server.cpp
 OBJECTS       = main.o \
 		Server.o \
@@ -268,11 +268,11 @@ DIST          = /../lib64/qt5/mkspecs/features/spec_pre.prf \
 		/../lib64/qt5/mkspecs/features/exceptions.prf \
 		/../lib64/qt5/mkspecs/features/yacc.prf \
 		/../lib64/qt5/mkspecs/features/lex.prf \
-		main.pro Server.h \
-		dbHandler.h \
-		../common/ProtocolManager.h main.cpp \
-		Server.cpp \
-		dbHandler.cpp \
+		main.pro includes/Server.h \
+		includes/dbHandler.h \
+		../common/ProtocolManager.h src/main.cpp \
+		src/Server.cpp \
+		src/dbHandler.cpp \
 		../common/ProtocolManager.cpp
 QMAKE_TARGET  = a.out
 DESTDIR       = 
@@ -717,8 +717,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /../lib64/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents Server.h dbHandler.h ../common/ProtocolManager.h $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp Server.cpp dbHandler.cpp ../common/ProtocolManager.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents includes/Server.h includes/dbHandler.h ../common/ProtocolManager.h $(DISTDIR)/
+	$(COPY_FILE) --parents src/main.cpp src/Server.cpp src/dbHandler.cpp ../common/ProtocolManager.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -753,13 +753,13 @@ moc_predefs.h: /../lib64/qt5/mkspecs/features/data/dummy.cpp
 compiler_moc_header_make_all: moc_Server.cpp
 compiler_moc_header_clean:
 	-$(DEL_FILE) moc_Server.cpp
-moc_Server.cpp: Server.h \
+moc_Server.cpp: includes/Server.h \
 		../common/ProtocolManager.h \
 		../common/User.h \
-		dbHandler.h \
+		includes/dbHandler.h \
 		moc_predefs.h \
 		/../lib64/qt5/bin/moc
-	/../lib64/qt5/bin/moc $(DEFINES) --include /home/student/OOM-project/Project-OOM/src/server/moc_predefs.h -I/../lib64/qt5/mkspecs/linux-g++ -I/home/student/OOM-project/Project-OOM/src/server -I/home/student/OOM-project/Project-OOM/src/common -I/usr/include/mysql -I/home/student/OOM-project/Project-OOM/src/server/-m64 -I/usr/include/qt5 -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/c++/14/x86_64-redhat-linux -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-redhat-linux/14/include -I/usr/local/include -I/usr/include Server.h -o moc_Server.cpp
+	/../lib64/qt5/bin/moc $(DEFINES) --include /home/student/OOMTest/src/server/moc_predefs.h -I/../lib64/qt5/mkspecs/linux-g++ -I/home/student/OOMTest/src/server -I/home/student/OOMTest/src/common -I/usr/include/mysql -I/home/student/OOMTest/src/server/-m64 -I/home/student/OOMTest/src/server/includes -I/usr/include/qt5 -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/c++/14/x86_64-redhat-linux -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-redhat-linux/14/include -I/usr/local/include -I/usr/include includes/Server.h -o moc_Server.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -775,21 +775,21 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean
 
 ####### Compile
 
-main.o: main.cpp Server.h \
+main.o: src/main.cpp includes/Server.h \
 		../common/ProtocolManager.h \
 		../common/User.h \
-		dbHandler.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
+		includes/dbHandler.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o src/main.cpp
 
-Server.o: Server.cpp Server.h \
+Server.o: src/Server.cpp includes/Server.h \
 		../common/ProtocolManager.h \
 		../common/User.h \
-		dbHandler.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Server.o Server.cpp
+		includes/dbHandler.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Server.o src/Server.cpp
 
-dbHandler.o: dbHandler.cpp dbHandler.h \
+dbHandler.o: src/dbHandler.cpp includes/dbHandler.h \
 		../common/User.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o dbHandler.o dbHandler.cpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o dbHandler.o src/dbHandler.cpp
 
 ProtocolManager.o: ../common/ProtocolManager.cpp ../common/ProtocolManager.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ProtocolManager.o ../common/ProtocolManager.cpp
