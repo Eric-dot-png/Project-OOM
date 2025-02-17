@@ -36,7 +36,7 @@ namespace oom
         
         int port_;
         QTcpServer * listener_;
-        dbHandler db;
+        dbHandler * db;
     };
 }
 

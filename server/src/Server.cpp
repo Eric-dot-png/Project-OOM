@@ -25,6 +25,7 @@ namespace oom
             qDebug() << "Listening on port" << port << "...";
         else
             qDebug() << "ERROR: Server could not start!";
+        db = dbHandler::GetInstance();
     }
     
     Server::~Server()
@@ -54,7 +55,7 @@ namespace oom
                     QString pwd = m["Password"].toString();
                     pwd = pwdHash(pwd);
                     User u(usr, pwd);
-                    if (db.loginValidate(u)) // if logged in
+                    if (db->loginValidate(u)) // if logged in
                     {
                         x = ProtocolManager::serialize(
                             ProtocolManager::LoginAccept,{});
@@ -85,7 +86,7 @@ namespace oom
                     }
                     else // if valid code
                     {
-                        bool success = db.emailValidate(u, code);
+                        bool success = db->emailValidate(u, code);
                         if(success) // if email validated
                         {
                             x = ProtocolManager::serialize(
@@ -111,7 +112,7 @@ namespace oom
                     QString email = m["Email"].toString();
                     pwd = pwdHash(pwd);
                     User u(usr, pwd, email);
-                    if (!db.availUsername(u)) // if username already used
+                    if (!db->availUsername(u)) // if username already used
                     {
                         x = ProtocolManager::serialize(
                             ProtocolManager::CreateAccountDenied,
@@ -119,7 +120,7 @@ namespace oom
                     }
                     else // if open account credentials
                     {
-                        QString code = db.newUser(u);
+                        QString code = db->newUser(u);
                         if(code != "") // if new User was created(w/o autoval)
                         {
                             std::string emailsyscall = "python3 myemail.py "
@@ -132,7 +133,7 @@ namespace oom
                                     {usr,pwd} );
                             else // if myemail.py runs into issues
                             {
-                                db.removeReg(u);
+                                db->removeReg(u);
                                 x = ProtocolManager::serialize(
                                     ProtocolManager::CreateAccountDenied,
                                     {"could not send email"});

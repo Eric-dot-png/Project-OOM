@@ -1,5 +1,30 @@
 #include "dbHandler.h"
 
+dbHandler * dbHandler::dbHandler_ = NULL;
+
+dbHandler::dbHandler()
+{
+    mysql_init(&mysql);
+    connection = mysql_real_connect(&mysql, "127.0.0.1",
+                                    "root", //CHANGE TO YOUR USER
+                                    "root", //CHANGE TO YOUR PASSWORD
+                                    "DSDB", 0, 0, 0);
+    if(connection == NULL)
+        printf(mysql_error(&mysql));
+}
+
+dbHandler::~dbHandler()
+{
+    mysql_close(connection);
+}
+
+dbHandler * dbHandler::GetInstance()
+{
+    if(dbHandler_ == NULL)
+        dbHandler_ = new dbHandler();
+    return dbHandler_;
+}
+
 //Returns 1 if select statement where username=desired username is empty
 bool dbHandler::availUsername(const User & p)
 {

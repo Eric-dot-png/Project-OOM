@@ -14,21 +14,8 @@
 class dbHandler
 {
 public:
-    dbHandler()
-    {
-        mysql_init(&mysql);
-        connection = mysql_real_connect(&mysql, "127.0.0.1",
-                                        "root", //CHANGE TO YOUR USER
-                                        "root", //CHANGE TO YOUR PASSWORD
-                                        "DSDB", 0, 0, 0);
-        if(connection == NULL)
-            printf(mysql_error(&mysql));
-    }
-    ~dbHandler()
-    {
-        mysql_close(connection);
-    }
-
+    static dbHandler * GetInstance();
+    
     //Checks if username is already used
     bool availUsername(const User &);
     //Adds new user to db, returns 0 if failed
@@ -41,7 +28,11 @@ public:
     bool removeReg(const User &);
     
 private:
+    dbHandler();
+    ~dbHandler();
+    
     MYSQL * connection, mysql;
+    static dbHandler * dbHandler_;
 };  
 
 #endif
