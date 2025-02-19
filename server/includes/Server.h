@@ -18,6 +18,7 @@
 #include "ProtocolManager.h"
 #include "User.h"
 #include "dbHandler.h"
+#include <unordered_map>
 
 namespace oom
 {
@@ -25,18 +26,25 @@ namespace oom
     {
         Q_OBJECT 
     public:
-        Server(int port, QObject * parent=NULL);
-        ~Server();
-                 
+        static Server * getInstance();
+        static void destroyInstance();
+            
     private slots: // these are functions that are connected to signals
         void onNewConnection(); // handles client requests 
     private:
+            Server(int port, QObject * parent=NULL);
+        ~Server();
+    
         //Checks if the string is entirely made up of numbers
         bool numeric(const QString &) const;
+        
+        static Server * instance;
         
         int port_;
         QTcpServer * listener_;
         dbHandler * db;
+        std::unordered_map<QString,
+                           std::pair<QHostAddress, quint16>> usermap;
     };
 }
 

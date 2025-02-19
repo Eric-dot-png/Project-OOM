@@ -5,6 +5,7 @@
 #define CLIENT_H
 
 #include <QHostAddress>
+#include <QTcpServer>
 #include <QTcpSocket>
 #include <QObject>
 #include <QDebug>
@@ -29,13 +30,13 @@ namespace oom
             CreatingAccount,
             AuthenticatingAccount
         };
-        
-        Client(QObject * parent=NULL);
-        ~Client();
 
+        static Client * getInstance();
+        static void destroyInstance();
+        
         ClientState getState() const { return state; }
         User getUser() const { return current_user; }
-
+        
         // must be in Disconnected state.
         // puts the client into Connecting state
         void connectToServer(const QHostAddress& host, int port);
@@ -55,6 +56,17 @@ namespace oom
         // must be in AuthenticatingAccount state
         // puts the client into  Connected State
         void submitAuthCode(const QString&);
+
+        // must be in Logged in state
+        // sends server the client's ip and port, and allows recieving of
+        // messages
+        void openListener();
+
+        // must be in Logged in state
+        // tells the server that the client no longer listening, and
+        // stops recieving message
+        void closeListener();
+    
         
     signals: // these are signals that trigger effects for the UI
         void connectedToServer();
@@ -68,6 +80,9 @@ namespace oom
         void onReply(); // this function called to handle server info
         
     private:
+        Client(QObject * parent=NULL);
+        ~Client();
+        
         /************************************************************
            The following functions handle the client's state.
            They are called inside of onReply()
@@ -76,10 +91,13 @@ namespace oom
         void handleCreatingAccountState(const QJsonObject& m);
         void handleAuthenticatingAccountState(const QJsonObject& m);
         /************************************************************/
+
+        static Client * instance;
         
         ClientState state;
-        QTcpSocket * socket;
+        QTcpSocket * socket; // comm with server
         User current_user;
+        QTcpServer * listener; // direct messages 
     };
 };
 

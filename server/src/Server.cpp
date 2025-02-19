@@ -15,14 +15,17 @@ QString pwdHash(const QString & s)
 
 namespace oom
 {
+    Server * Server::instance(NULL);
+
     Server::Server(int port, QObject * parent)
         : QObject(parent), port_(port), listener_(new QTcpServer(this))
     {
         connect(listener_, &QTcpServer::newConnection, this,
                 &Server::onNewConnection);
-
+        
         if (listener_->listen(QHostAddress::LocalHost, port))
-            qDebug() << "Listening on port" << port << "...";
+            qDebug() << "Listening on port" 
+                     << listener_->serverPort() << "...";
         else
             qDebug() << "ERROR: Server could not start!";
         db = dbHandler::GetInstance();
@@ -30,20 +33,35 @@ namespace oom
     
     Server::~Server()
     {
-        delete listener_;
+        listener_->close();
+    }
+    
+    Server * Server::getInstance()
+    {
+        if (instance == NULL)
+            instance = new Server(1234);
+        return instance;
+    }
+    
+    void Server::destroyInstance()
+    {
+        if (instance != NULL)
+        {
+            delete instance;
+            instance = NULL;
+        }
     }
     
     void Server::onNewConnection()
     {
-        
         QTcpSocket * clientSocket = listener_->nextPendingConnection();
         connect(clientSocket, &QTcpSocket::readyRead, this, [this,
                                                              clientSocket]()
         {
             // lambda function to handle client requests
             QByteArray data = clientSocket->readAll();
-            qDebug() << "Recieved" << data << "from" << clientSocket;
-
+            qDebug() << "Recieved" << data;
+            
             QJsonObject m = ProtocolManager::deserialize(data);
 
             QByteArray x; // message to send back
@@ -58,7 +76,7 @@ namespace oom
                     if (db->loginValidate(u)) // if logged in
                     {
                         x = ProtocolManager::serialize(
-                            ProtocolManager::LoginAccept,{});
+                            ProtocolManager::LoginAccept,{usr});
                     }
                     else // if log in failed
                     {
@@ -150,6 +168,31 @@ namespace oom
                     clientSocket->write(x);
                     break;
                 } // end of CreateAccountAuthCodeRequest
+                case ProtocolManager::AnnounceIpPort:
+                {
+                    QString usr = m["Username"].toString();
+                    QHostAddress ip(m["Ip"].toString());
+                    quint16 port = m["Port"].toString().toInt();
+                    if (usermap.find(usr) != usermap.end())
+                    {
+                        qDebug() << "Warning! User already in map."
+                                 << "Overwriting...";
+                    }
+                    usermap[usr] = {ip,port};
+                    
+                    qDebug() << usr << "->" << ip << "," << port;
+                    break;
+                }
+
+                case ProtocolManager::AnnounceOffline:
+                {
+                    QString usr = m["Username"].toString();
+
+                    usermap.erase(usr);
+                    
+                    qDebug() << usr << "has been removed from usrmap";
+                    break;
+                }
                 
                 default:
                 {
@@ -159,7 +202,7 @@ namespace oom
             }
         });
     }
-
+    
     //Returns 1 if all characters in s are 0 <= char <= 9
     bool Server::numeric(const QString & s) const
     {

@@ -21,11 +21,11 @@ int main(int argc, char* argv[])
     qInstallMessageHandler(customMessageHandler);
     QLoggingCategory::setFilterRules("*.debug=true");
     QCoreApplication app(argc, argv);
-    int port = 1234; // port for server to listen on
-    oom::Server s(port);
+    oom::Server * s = oom::Server::getInstance();    
+    int out = app.exec();
     
-    return app.exec();
-    
-    return 0;
+    dbHandler::destroyInstance();
+    oom::Server::destroyInstance();
+    return out;
 }
 

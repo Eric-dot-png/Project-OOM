@@ -18,6 +18,8 @@ namespace oom
     {
     private:
         ProtocolManager() {};
+        ProtocolManager & operator=(const ProtocolManager & p) = delete;
+        ProtocolManager(const ProtocolManager& p) = delete;
         
     public:
         enum MessageType {
@@ -31,10 +33,10 @@ namespace oom
             CreateAccountAuthCodeSubmit, 
             AccountAuthenticated,
             AccountNotAuthenticated,
-            MessageRequest, 
-            MessageAccept, // IGNORE
-            MessageDenied, // IGNORE
-            MessageForward, // IGNORE
+            AnnounceIpPort,
+            AnnounceOffline,
+            MessageRequest,
+            MessageForward,
             SIZE
         };
 

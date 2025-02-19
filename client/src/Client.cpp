@@ -1,13 +1,16 @@
 // file : Client.cpp
 // name : eric garcia
-
 #include "Client.h"
+
 namespace oom
 {
+    Client * Client::instance(NULL);
+    
     Client::Client(QObject * parent)
         : QObject(parent), state(ClientState::Disconnected),
           socket(new QTcpSocket(this)),
-          current_user("None","None","None") // for now this is guest user
+          current_user("None","None","None"), // for now this is guest user
+          listener(NULL)
     {
         connect(socket, &QTcpSocket::connected, this, [&](){
             qDebug() << "Connected to Server";
@@ -26,7 +29,26 @@ namespace oom
     
     Client::~Client()
     {
+        if (state != ClientState::Disconnected)
+            disconnect();
+        
         delete socket;
+    }
+
+    Client * Client::getInstance()
+    {
+        if (instance == NULL)
+            instance = new Client();
+        return instance;
+    }
+    
+    void Client::destroyInstance()
+    {
+        if (instance != NULL)
+        {
+            delete instance;
+            instance = NULL;
+        }
     }
     
     void Client::connectToServer(const QHostAddress& host, int port)
@@ -48,6 +70,11 @@ namespace oom
         if (state != ClientState::Disconnected)
         {
             qDebug() << "Disconnecting from server...";
+            if (state == ClientState::LoggedIn)
+            {
+                closeListener();
+            }
+            
             socket->disconnectFromHost();
             state = Disconnecting;
         }
@@ -91,7 +118,7 @@ namespace oom
             qDebug() << "Can't Create Account. Current State:" << state;
         }
     }
-
+    
     void Client::submitAuthCode(const QString& code)
     {
         if (state == ClientState::AuthenticatingAccount)
@@ -105,9 +132,70 @@ namespace oom
         }
         else
         {
-            qDebug() << "Authenticate Account. Current State:" << state;
+            qDebug() << "Can't Authenticate Account. Current State:" << state;
         }
     }
+
+    void Client::openListener()
+    {
+        if (state == ClientState::LoggedIn && listener == NULL)
+        {
+            listener = new QTcpServer(this);
+            if (listener->listen(QHostAddress::LocalHost, 0))
+            {
+                qDebug() << "Announcing Ip and Port:"
+                         << listener->serverAddress().toString()
+                         << ","
+                         << listener->serverPort();
+                
+                socket->write(
+                    ProtocolManager::serialize(
+                        ProtocolManager::AnnounceIpPort, {
+                            current_user.get_username(),
+                            listener->serverAddress().toString(),
+                            QString::number(listener->serverPort()) }
+                        )
+                    );
+            }
+            else qDebug() << "ERROR: Listener could not start!";
+        }
+        else if (listener != NULL)
+        {
+            qDebug() << "Already announced ip and port.";
+        }
+        else
+        {
+            qDebug() << "Can't Announce Ip and port. Current state:"
+                     << state; 
+        }
+    }
+
+    void Client::closeListener()
+    {
+        if (state == ClientState::LoggedIn && listener != NULL)
+        {
+            qDebug() << "Closing Listener...";
+            delete listener;
+            listener = NULL;
+
+            socket->write(
+                ProtocolManager::serialize(
+                    ProtocolManager::AnnounceOffline, {
+                        current_user.get_username() }
+                    )
+                );
+        }
+        else if (listener == NULL)
+        {
+            qDebug() << "Listener already closed.";
+        }
+        else
+        {
+            qDebug() << "Can't close listener. Current State:"
+                     << state;
+        }
+    }
+
     
     void Client::onReply()
     {
@@ -149,9 +237,10 @@ namespace oom
             {
                 qDebug() << "Login Success!";
                 state = ClientState::LoggedIn;
-                // need to set current user here???
                 User u(m["Username"].toString(),
                        m["Password"].toString());
+                current_user = u;
+                openListener();
                 qDebug() << "Username:" << u.get_username();
                 emit loginSuccess();
                 break;
@@ -185,7 +274,6 @@ namespace oom
                 qDebug() << "Account with username"
                          << u.get_username()
                          << "created!";
-                //login(u);
                 current_user = u;
                 emit accountCreated();
                 state = ClientState::AuthenticatingAccount;

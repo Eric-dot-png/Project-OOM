@@ -15,6 +15,47 @@ namespace oom
         int argc = argv.size();
         switch(t) // what type of message you want to make?
         {
+            case AnnounceIpPort:
+            {
+                if (argc == 3)
+                {
+                    QJsonObject ret({
+                            {"Type", t},
+                            {"Username", argv[0]},
+                            {"Ip", argv[1]},
+                            {"Port", argv[2]}
+                        });
+                    return QJsonDocument(ret).toJson();
+                }
+                else throw(ProtocolError());
+            }
+            case AnnounceOffline:
+            {
+                if (argc == 1)
+                {
+                    QJsonObject ret({
+                            {"Type", t},
+                            {"Username", argv[0]}
+                        });
+                    return QJsonDocument(ret).toJson();
+                }
+                else throw(ProtocolError());
+            }
+            case MessageForward:
+            case MessageRequest:
+            {
+                if (argc == 3)
+                {
+                    QJsonObject ret({
+                            {"Type", t},
+                            {"To", argv[0]},
+                            {"From", argv[1]},
+                            {"Message", argv[2]}
+                        });
+                    return QJsonDocument(ret).toJson();
+                }
+                else throw(ProtocolError());
+            }
             case CreateAccountRequest:
             {
                 if (argc == 3)
@@ -63,12 +104,23 @@ namespace oom
                 else throw(ProtocolError());
             }
             case AccountAuthenticated:
-            case LoginAccept:
             {
-                if (argc == 0) // no argument is needed
+                if (argc == 0)
                 {
                     QJsonObject ret({
-                        {"Type", t}
+                            {"Type", t},
+                        });
+                    return QJsonDocument(ret).toJson();
+                }
+                else throw(ProtocolError());
+            }
+            case LoginAccept:
+            {
+                if (argc == 1) // no argument is needed
+                {
+                    QJsonObject ret({
+                            {"Type", t},
+                            {"Username", argv[0]}
                         });
                     return QJsonDocument(ret).toJson();
                 }

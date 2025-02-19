@@ -15,6 +15,7 @@ class dbHandler
 {
 public:
     static dbHandler * GetInstance();
+    static void destroyInstance();
     
     //Checks if username is already used
     bool availUsername(const User &);

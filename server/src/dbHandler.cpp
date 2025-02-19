@@ -25,6 +25,15 @@ dbHandler * dbHandler::GetInstance()
     return dbHandler_;
 }
 
+void dbHandler::destroyInstance()
+{
+    if (dbHandler_ != NULL)
+    {
+        delete dbHandler_;
+        dbHandler_ = NULL;
+    }
+}
+
 //Returns 1 if select statement where username=desired username is empty
 bool dbHandler::availUsername(const User & p)
 {
