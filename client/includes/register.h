@@ -13,14 +13,15 @@
 #define REGISTER_H
 
 #include <QWidget>
+#include "oomwidget.h"
 #include "Client.h"
 #include "ui_register.h"
 
-class Register : public QWidget
+class Register : public OOMWidget
 {
     Q_OBJECT
 public:
-    explicit Register(Client *client, QWidget *parent = nullptr);
+    explicit Register(QWidget *parent = nullptr);
     ~Register();
 
 signals:
@@ -40,7 +41,6 @@ private slots:
 
 private:
     Ui::Register *registerUi;
-    Client *client;
 
     bool isValidEmail(const QString &);
     bool isValidPassword(const QString &);

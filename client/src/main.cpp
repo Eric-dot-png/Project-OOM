@@ -5,6 +5,7 @@
 //OOM project
 
 #include "applicationhandler.h"
+#include "oomwidget.h"
 #include "Client.h"
 #include <QApplication>
 #include <QDebug>
@@ -19,16 +20,21 @@ void customMessageHandler(QtMsgType type, const QMessageLogContext &context,
 
 int main(int argc, char *argv[])
 {
+    //Show debug information
     qInstallMessageHandler(customMessageHandler);
     QLoggingCategory::setFilterRules("*.debug=true");
+
+    //Main app
     QApplication a(argc, argv);
+
     Client * c = Client::getInstance();
-    ApplicationHandler oomApp(c);
-    oomApp.resize(800, 600);
-    oomApp.show();
+    OOMWidget::setClient(c);
+
+    OOMWidget *mainWidget = new OOMWidget();
+    mainWidget->startApp();
 
     int out = a.exec();
-    
+
     Client::destroyInstance();
     return out;
 }

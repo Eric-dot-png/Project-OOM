@@ -11,15 +11,16 @@
 #define AUTHENTICATIONCODE_H
 
 #include <QWidget>
+#include "oomwidget.h"
 #include "Client.h"
 #include "ui_authenticationcode.h"
 
-class authenticationCode : public QWidget
+class authenticationCode : public OOMWidget
 {
     Q_OBJECT
 
 public:
-    explicit authenticationCode(Client *client, QWidget *parent = nullptr);
+    explicit authenticationCode(QWidget *parent = nullptr);
     ~authenticationCode();
 
 private slots:
@@ -27,7 +28,6 @@ private slots:
     void authenticationFailed();
 
 private:
-    Client *client;
     Ui::authenticationCode *AuthUi;
 };
 

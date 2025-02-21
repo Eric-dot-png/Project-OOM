@@ -12,14 +12,16 @@
 #define LOGIN_H
 
 #include <QWidget>
+#include "oomwidget.h"
 #include "ui_login.h"
 #include "Client.h"
 
-class Login : public QWidget {
+class Login : public OOMWidget
+{
     Q_OBJECT
 
 public:
-    explicit Login(Client *client, QWidget *parent = nullptr);
+    explicit Login(QWidget *parent = nullptr);
     ~Login();
 
 signals:
@@ -31,7 +33,6 @@ private slots:
     void goToRegister();
 
 private:
-    Client *client;
     Ui::Login *loginUi;
 };
 

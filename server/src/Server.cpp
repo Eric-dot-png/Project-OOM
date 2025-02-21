@@ -185,7 +185,7 @@ void Server::onNewConnection()
                     QString code = db->newUser(u);
                     if(code != "") // if new User was created(w/o autoval)
                     {
-                        std::string emailsyscall = "python3 myemail.py "
+                        std::string emailsyscall = "python3 src/myemail.py "
                             + u.get_email().toStdString() + ' '
                             + code.toStdString();
                         int email = std::system(emailsyscall.c_str());

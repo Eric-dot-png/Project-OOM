@@ -10,8 +10,8 @@
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 
-Register::Register(Client *client, QWidget *parent)
-    : client(client), QWidget(parent), registerUi(new Ui::Register)
+Register::Register(QWidget *parent)
+    : OOMWidget(parent), registerUi(new Ui::Register)
 
 {
     registerUi->setupUi(this);

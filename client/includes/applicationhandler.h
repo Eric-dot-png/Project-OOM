@@ -17,6 +17,7 @@
 #include <QTimer>
 #include <QWidget>
 #include <QStackedWidget>
+#include "oomwidget.h"
 
 //Widgets
 #include "login.h"
@@ -28,15 +29,15 @@
 
 // Class to handle switching between widgets (a.k.a. different pages).
 
-class ApplicationHandler : public QWidget
+class ApplicationHandler : public OOMWidget
 {
     Q_OBJECT
+
 public:
-    explicit ApplicationHandler(Client *client, QWidget *parent = nullptr);
+    explicit ApplicationHandler(QWidget *parent = nullptr);
     void switchToWidget(int index);
     
 private:
-    Client *client;
     QStackedWidget *stackedWidget;
     Login *LoginWidget;
     Register *RegisterWidget;

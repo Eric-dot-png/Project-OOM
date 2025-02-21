@@ -10,8 +10,8 @@
  * Server page will be populated based on json file
 */
 
-ApplicationHandler::ApplicationHandler(Client *client, QWidget *parent)
-    : client(client), QWidget(parent)
+ApplicationHandler::ApplicationHandler(QWidget *parent)
+    : OOMWidget(parent)
 {
     int port = 1234; // replace LocalHost and Port when ready
     client->connectToServer(QHostAddress::LocalHost, port);
@@ -23,10 +23,10 @@ ApplicationHandler::ApplicationHandler(Client *client, QWidget *parent)
      */
     stackedWidget = new QStackedWidget;
 
-    LoginWidget = new Login(client, this);
-    RegisterWidget = new Register(client, this);
-    PrivateMessagesWidget = new PrivateMessages(client, this);
-    AuthenticationWidget = new authenticationCode(client, this);
+    LoginWidget = new Login(this);
+    RegisterWidget = new Register(this);
+    PrivateMessagesWidget = new PrivateMessages(this);
+    AuthenticationWidget = new authenticationCode(this);
 
 
     stackedWidget->addWidget(LoginWidget);

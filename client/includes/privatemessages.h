@@ -12,6 +12,7 @@
 
 #include <QWidget>
 #include <QKeyEvent>
+#include "oomwidget.h"
 #include "Client.h"
 #include "ui_privatemessages.h"
 #include "message.h"
@@ -43,12 +44,12 @@ signals:
     void enterPressed();
 };
 
-class PrivateMessages : public QWidget
+class PrivateMessages : public OOMWidget
 {
     Q_OBJECT
 
 public:
-    explicit PrivateMessages(Client *client, QWidget *parent = nullptr);
+    explicit PrivateMessages(QWidget *parent = nullptr);
     ~PrivateMessages();
 
 private slots:
@@ -67,7 +68,6 @@ signals:
 
 private:
     Ui::PrivateMessages *ui;
-    Client *client;
     EnterKeyFilter *enterFilter;
 
     QString formatMessage();

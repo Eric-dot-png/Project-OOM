@@ -27,6 +27,7 @@ run.commands = ./build/bin/a.out
 QMAKE_EXTRA_TARGETS += run
           
 SOURCES += \
+    src/oomwidget.cpp \
     src/Client.cpp \
     ../common/ProtocolManager.cpp \
     src/applicationhandler.cpp \
@@ -38,6 +39,7 @@ SOURCES += \
     src/register.cpp
     
 HEADERS += \
+    includes/oomwidget.h \
     includes/Client.h \
     ../common/ProtocolManager.h \
     ../common/User.h \

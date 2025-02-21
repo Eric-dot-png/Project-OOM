@@ -5,8 +5,8 @@
 #include "authenticationcode.h"
 #include "ui_authenticationcode.h"
 
-authenticationCode::authenticationCode(Client *client, QWidget *parent)
-    : client(client), QWidget(parent), AuthUi(new Ui::authenticationCode)
+authenticationCode::authenticationCode(QWidget *parent)
+    : OOMWidget(parent), AuthUi(new Ui::authenticationCode)
 {
     AuthUi->setupUi(this);
     connect(AuthUi->submitButton, &QPushButton::clicked, this, &authenticationCode::authenticateUser);

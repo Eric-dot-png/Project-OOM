@@ -8,8 +8,8 @@
 #include <QDebug>
 #include <iostream>
 
-Login::Login(Client *client, QWidget *parent)
-    : client(client), QWidget(parent), loginUi(new Ui::Login)
+Login::Login(QWidget *parent)
+    : OOMWidget(parent), loginUi(new Ui::Login)
 
 {
     loginUi->setupUi(this);

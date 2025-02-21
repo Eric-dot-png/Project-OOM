@@ -10,8 +10,8 @@
 #include "privatemessages.h"
 #include "ui_privatemessages.h"
 
-PrivateMessages::PrivateMessages(Client *client, QWidget *parent)
-    : client(client), QWidget(parent), ui(new Ui::PrivateMessages)
+PrivateMessages::PrivateMessages(QWidget *parent)
+    : OOMWidget(parent), ui(new Ui::PrivateMessages)
 {
     ui->setupUi(this);
 
