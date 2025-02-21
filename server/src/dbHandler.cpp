@@ -108,7 +108,7 @@ QString dbHandler::newUser(const User & p, bool autoval)
         std::string valcode = "";
         for(int i = 0; i < 6; i++)
             valcode += '0' + rand() % 10;
-        std::string q = "insert Registration(username, password, email, permissions, timer, code) values('" + p.get_username().toStdString() + "', '"
+        std::string q = "insert Registration(username, password, email, permissions, validTimeout, code) values('" + p.get_username().toStdString() + "', '"
             + p.get_password().toStdString() + "', '"
             + p.get_email().toStdString() + "', ";
         q += (p.get_permissions()? "1" : "0");
@@ -232,4 +232,17 @@ bool dbHandler::removeReg(const User & u)
         return 0;
     }
     return 1;
+}
+
+void dbHandler::cleanReg()
+{
+    MYSQL_RES * result;
+    
+    std::string q = "delete from Registration where validTimeout <= NOW()";
+    if(mysql_query(connection, q.c_str()))
+    {
+        qDebug() << "Could not clean";
+    }
+    result = mysql_store_result(connection);
+    mysql_free_result(result);
 }

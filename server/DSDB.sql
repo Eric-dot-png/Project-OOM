@@ -19,7 +19,6 @@
 --
 -- Table structure for table `Registration`
 --
-
 use DSDB;
 
 DROP TABLE IF EXISTS `Registration`;
@@ -30,7 +29,7 @@ CREATE TABLE `Registration` (
   `password` varchar(100) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   `permissions` tinyint(1) DEFAULT NULL,
-  `timer` datetime DEFAULT NULL,
+  `validTimeout` datetime DEFAULT NULL,
   `code` char(6) DEFAULT NULL,
   PRIMARY KEY (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
@@ -79,4 +78,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-02-03 14:56:34
+-- Dump completed on 2025-02-21  8:01:59

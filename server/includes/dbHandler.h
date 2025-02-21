@@ -27,6 +27,8 @@ public:
     bool loginValidate(const User &);
     //Returns 1 if registration credentials are removed
     bool removeReg(const User &);
+    //Flushes out all expired registrations
+    void cleanReg();
     
 private:
     dbHandler();
