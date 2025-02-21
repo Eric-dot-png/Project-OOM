@@ -17,9 +17,39 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `PrivMessage`
+--
+
+use DSDB;
+
+DROP TABLE IF EXISTS `PrivMessage`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `PrivMessage` (
+  `receiver` varchar(100) NOT NULL,
+  `sender` varchar(100) NOT NULL,
+  `sentAt` timestamp NULL DEFAULT current_timestamp(),
+  `message` text NOT NULL,
+  `deleted` tinyint(1) DEFAULT 0,
+  KEY `receiver` (`receiver`),
+  KEY `sender` (`sender`),
+  CONSTRAINT `PrivMessage_ibfk_1` FOREIGN KEY (`receiver`) REFERENCES `User` (`username`),
+  CONSTRAINT `PrivMessage_ibfk_2` FOREIGN KEY (`sender`) REFERENCES `User` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `PrivMessage`
+--
+
+LOCK TABLES `PrivMessage` WRITE;
+/*!40000 ALTER TABLE `PrivMessage` DISABLE KEYS */;
+/*!40000 ALTER TABLE `PrivMessage` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `Registration`
 --
-use DSDB;
 
 DROP TABLE IF EXISTS `Registration`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -78,4 +108,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-02-21  8:01:59
+-- Dump completed on 2025-02-21 12:30:29

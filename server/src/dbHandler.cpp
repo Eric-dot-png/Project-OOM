@@ -242,7 +242,54 @@ void dbHandler::cleanReg()
     if(mysql_query(connection, q.c_str()))
     {
         qDebug() << "Could not clean";
+        return;
     }
     result = mysql_store_result(connection);
     mysql_free_result(result);
+}
+
+bool dbHandler::storeMessage(const QJsonObject & m)
+{
+    MYSQL_RES * result;
+
+    std::string q = "insert PrivMessage(receiver, sender, message) values('"
+        + m["To"].toString().toStdString() + "', '"
+        + m["From"].toString().toStdString() + "', '"
+        + m["Message"].toString().toStdString() + "')";
+    if(mysql_query(connection, q.c_str()))
+    {
+        qDebug() << "Could not save new message";
+        return 0;
+    }
+   
+    return 1;
+}
+
+std::list<QJsonObject> dbHandler::getMessages(const User & u1, const User & u2,
+                                               int start, int length)
+{
+    MYSQL_RES * result;
+    MYSQL_ROW row;
+
+    std::string q = "select * from (select * from PrivMessage where receiver='"
+        + u1.get_username().toStdString() + "' and sender='" + u2.get_username().toStdString()
+        + "' union select * from PrivMessage where receiver='" + u2.get_username().toStdString()
+        + "' and sender='" + u1.get_username().toStdString() + "') as T where not deleted order by sentAt desc limit "
+        + std::to_string(start) + ", " + std::to_string(length);
+    if(mysql_query(connection, q.c_str()))
+    {
+        qDebug() << "DB failed to retrieve messages";
+        return {};
+    }
+    
+    result = mysql_store_result(connection);
+    row = mysql_fetch_row(result);
+    std::list<QJsonObject> res;
+    while(row != NULL)
+    {
+        res.push_back(QJsonObject({{"To", row[0]}, {"From", row[1]},
+                                   {"Timestamp", row[2]}, {"Message", row[3]}}));
+        row = mysql_fetch_row(result);
+    }
+    return res;
 }
