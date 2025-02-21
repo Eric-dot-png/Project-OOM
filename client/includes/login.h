@@ -19,7 +19,7 @@ class Login : public QWidget {
     Q_OBJECT
 
 public:
-    explicit Login(oom::Client *client, QWidget *parent = nullptr);
+    explicit Login(Client *client, QWidget *parent = nullptr);
     ~Login();
 
 signals:
@@ -31,7 +31,7 @@ private slots:
     void goToRegister();
 
 private:
-    oom::Client *client;
+    Client *client;
     Ui::Login *loginUi;
 };
 

@@ -10,7 +10,7 @@
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 
-Register::Register(oom::Client *client, QWidget *parent)
+Register::Register(Client *client, QWidget *parent)
     : client(client), QWidget(parent), registerUi(new Ui::Register)
 
 {
@@ -21,7 +21,7 @@ Register::Register(oom::Client *client, QWidget *parent)
     connect(registerUi->backToLoginButton, &QPushButton::clicked, this, &Register::handleBack);
     connect(registerUi->createAccountButton, &QPushButton::clicked, this, &Register::handleRegister);
     connect(registerUi->showPasswordButton, &QPushButton::clicked, this, &Register::showPassword);
-    //connect(client, oom::Client::connectToServer, this, &Register::usernameUnavailable);
+    //connect(client, Client::connectToServer, this, &Register::usernameUnavailable);
 
 
     //change this to signal from client when account creation fails

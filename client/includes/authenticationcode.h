@@ -19,7 +19,7 @@ class authenticationCode : public QWidget
     Q_OBJECT
 
 public:
-    explicit authenticationCode(oom::Client *client, QWidget *parent = nullptr);
+    explicit authenticationCode(Client *client, QWidget *parent = nullptr);
     ~authenticationCode();
 
 private slots:
@@ -27,7 +27,7 @@ private slots:
     void authenticationFailed();
 
 private:
-    oom::Client *client;
+    Client *client;
     Ui::authenticationCode *AuthUi;
 };
 

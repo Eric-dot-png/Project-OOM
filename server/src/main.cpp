@@ -21,11 +21,11 @@ int main(int argc, char* argv[])
     qInstallMessageHandler(customMessageHandler);
     QLoggingCategory::setFilterRules("*.debug=true");
     QCoreApplication app(argc, argv);
-    oom::Server * s = oom::Server::getInstance();    
+    Server * s = Server::getInstance();    
     int out = app.exec();
     
     dbHandler::destroyInstance();
-    oom::Server::destroyInstance();
+    Server::destroyInstance();
     return out;
 }
 

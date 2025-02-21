@@ -10,7 +10,7 @@
  * Server page will be populated based on json file
 */
 
-ApplicationHandler::ApplicationHandler(oom::Client *client, QWidget *parent)
+ApplicationHandler::ApplicationHandler(Client *client, QWidget *parent)
     : client(client), QWidget(parent)
 {
     int port = 1234; // replace LocalHost and Port when ready
@@ -74,24 +74,24 @@ ApplicationHandler::ApplicationHandler(oom::Client *client, QWidget *parent)
     });
 
     //Connect client to server
-    connect(client, &oom::Client::connectedToServer, this, [=]() {
+    connect(client, &Client::connectedToServer, this, [=]() {
         qDebug() << "clientside connectedToServer";
     });
 
     //Once account is created, move to authentication code form
-    connect(client, &oom::Client::accountCreated, this, [=]() {
+    connect(client, &Client::accountCreated, this, [=]() {
         qDebug() << "clientside accountCreated";
         switchToWidget(stackedWidget->indexOf(AuthenticationWidget));
     });
 
     //After authentication code is validated, move to privateMessages
-    connect(client, &oom::Client::accountAuthenticated, this, [=]() {
+    connect(client, &Client::accountAuthenticated, this, [=]() {
         qDebug() << "Clientside account authenticated, moving to privateMessages.";
         switchToWidget(stackedWidget->indexOf(PrivateMessagesWidget));
     });
 
     //Also Goto Login form -> PrivateMessages
-    connect(client, &oom::Client::loginSuccess, this, [=]() {
+    connect(client, &Client::loginSuccess, this, [=]() {
         qDebug() << "clientside loggedin";
         switchToWidget(stackedWidget->indexOf(PrivateMessagesWidget));
     });

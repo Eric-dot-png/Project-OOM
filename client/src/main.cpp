@@ -22,13 +22,13 @@ int main(int argc, char *argv[])
     qInstallMessageHandler(customMessageHandler);
     QLoggingCategory::setFilterRules("*.debug=true");
     QApplication a(argc, argv);
-    oom::Client * c = oom::Client::getInstance();
+    Client * c = Client::getInstance();
     ApplicationHandler oomApp(c);
     oomApp.resize(800, 600);
     oomApp.show();
 
     int out = a.exec();
     
-    oom::Client::destroyInstance();
+    Client::destroyInstance();
     return out;
 }

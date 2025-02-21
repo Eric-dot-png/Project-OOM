@@ -48,7 +48,7 @@ class PrivateMessages : public QWidget
     Q_OBJECT
 
 public:
-    explicit PrivateMessages(oom::Client *client, QWidget *parent = nullptr);
+    explicit PrivateMessages(Client *client, QWidget *parent = nullptr);
     ~PrivateMessages();
 
 private slots:
@@ -67,7 +67,7 @@ signals:
 
 private:
     Ui::PrivateMessages *ui;
-    oom::Client *client;
+    Client *client;
     EnterKeyFilter *enterFilter;
 
     QString formatMessage();

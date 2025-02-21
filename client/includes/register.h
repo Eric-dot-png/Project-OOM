@@ -20,7 +20,7 @@ class Register : public QWidget
 {
     Q_OBJECT
 public:
-    explicit Register(oom::Client *client, QWidget *parent = nullptr);
+    explicit Register(Client *client, QWidget *parent = nullptr);
     ~Register();
 
 signals:
@@ -40,7 +40,7 @@ private slots:
 
 private:
     Ui::Register *registerUi;
-    oom::Client *client;
+    Client *client;
 
     bool isValidEmail(const QString &);
     bool isValidPassword(const QString &);

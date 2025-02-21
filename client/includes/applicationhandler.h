@@ -32,11 +32,11 @@ class ApplicationHandler : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ApplicationHandler(oom::Client *client, QWidget *parent = nullptr);
+    explicit ApplicationHandler(Client *client, QWidget *parent = nullptr);
     void switchToWidget(int index);
     
 private:
-    oom::Client *client;
+    Client *client;
     QStackedWidget *stackedWidget;
     Login *LoginWidget;
     Register *RegisterWidget;

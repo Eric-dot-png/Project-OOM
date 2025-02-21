@@ -20,32 +20,31 @@
 #include "dbHandler.h"
 #include <unordered_map>
 
-namespace oom
+class Server : public QObject
 {
-    class Server : public QObject
-    {
-        Q_OBJECT 
-    public:
-        static Server * getInstance();
-        static void destroyInstance();
-            
-    private slots: // these are functions that are connected to signals
-        void onNewConnection(); // handles client requests 
-    private:
-            Server(int port, QObject * parent=NULL);
-        ~Server();
+    Q_OBJECT 
+public:
+    static Server * getInstance();
+    static void destroyInstance();
+                                 
+private slots: // these are functions that are connected to signals
+    void onNewConnection(); // handles client requests 
+private:
+    Server(int port, QObject * parent=NULL);
+    ~Server();
+    Server(const Server&) = delete;
+    Server& operator=(const Server&) = delete;
     
-        //Checks if the string is entirely made up of numbers
-        bool numeric(const QString &) const;
-        
-        static Server * instance;
-        
-        int port_;
-        QTcpServer * listener_;
-        dbHandler * db;
-        std::unordered_map<QString,
-                           std::pair<QHostAddress, quint16>> usermap;
-    };
-}
+    //Checks if the string is entirely made up of numbers
+    bool numeric(const QString &) const;
+    
+    static Server * instance;
+    
+    int port_;
+    QTcpServer * listener_;
+    dbHandler * db;
+    std::unordered_map<QString,
+                       std::pair<QHostAddress, quint16>> usermap;
+};
 
 #endif
