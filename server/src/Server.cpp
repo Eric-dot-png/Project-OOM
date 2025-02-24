@@ -16,17 +16,23 @@ QString pwdHash(const QString & s)
 Server * Server::instance(NULL);
 
 Server::Server(int port, QObject * parent)
-    : QObject(parent), port_(port), listener_(new QTcpServer(this))
+    : QObject(parent), port_(port), listener_(new QTcpServer(this)),
+      timer(new QTimer(this))
 {
+    timer->setInterval(60000); 
     connect(listener_, &QTcpServer::newConnection, this,
             &Server::onNewConnection);
-        
+
+    connect(timer, &QTimer::timeout, this, &Server::update);
+    
     if (listener_->listen(QHostAddress::LocalHost, port))
         qDebug() << "Listening on port" 
                  << listener_->serverPort() << "...";
     else
         qDebug() << "ERROR: Server could not start!";
     db = dbHandler::GetInstance();
+
+    timer->start();
 }
     
 Server::~Server()
@@ -49,7 +55,13 @@ void Server::destroyInstance()
         instance = NULL;
     }
 }
-    
+
+void Server::update()
+{
+    db->cleanReg();
+    timer->start();
+}
+
 void Server::onNewConnection()
 {
     QTcpSocket * clientSocket = listener_->nextPendingConnection();
@@ -61,7 +73,7 @@ void Server::onNewConnection()
         qDebug() << "Recieved" << data;
             
         QJsonObject m = ProtocolManager::deserialize(data);
-
+        
         QByteArray x; // message to send back
         switch(m["Type"].toInt())
         {
@@ -69,7 +81,7 @@ void Server::onNewConnection()
             {
                 qDebug() << "recieved msg forward...";
                 // put the message into the logger.
-                    
+                
                 break;
             }
             case ProtocolManager::PrivateMessageRequest:
@@ -185,7 +197,7 @@ void Server::onNewConnection()
                     QString code = db->newUser(u);
                     if(code != "") // if new User was created(w/o autoval)
                     {
-                        std::string emailsyscall = "python3 myemail.py "
+                        std::string emailsyscall = "python3 src/myemail.py "
                             + u.get_email().toStdString() + ' '
                             + code.toStdString();
                         int email = std::system(emailsyscall.c_str());

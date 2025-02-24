@@ -12,6 +12,7 @@
 #include <QHostAddress>
 #include <QObject>
 #include <QDebug>
+#include <QTimer>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 
@@ -28,6 +29,7 @@ public:
     static void destroyInstance();
                                  
 private slots: // these are functions that are connected to signals
+    void update();
     void onNewConnection(); // handles client requests 
 private:
     Server(int port, QObject * parent=NULL);
@@ -37,9 +39,10 @@ private:
     
     //Checks if the string is entirely made up of numbers
     bool numeric(const QString &) const;
-    
+
     static Server * instance;
-    
+
+    QTimer * timer;
     int port_;
     QTcpServer * listener_;
     dbHandler * db;
