@@ -5,6 +5,7 @@
 #define CLIENT_H
 
 #include <unordered_map>
+#include <stdexcept>
 
 #include <QHostAddress>
 #include <QTcpServer>
@@ -31,6 +32,9 @@ public:
         AuthenticatingAccount
     };
 
+    Client(Client&) = delete;
+    Client& operator=(const Client&) = delete;
+    
     static Client * getInstance();
     static void destroyInstance();
         
@@ -67,8 +71,10 @@ public:
     // stops recieving message
     void closeListener();
 
+    void discover(const User& u);
+    
     void privateMessage(const User& u, const QString& message);
-        
+    
 signals: // these are signals that trigger effects for the UI
     void connectedToServer();
     void disconnectedFromServer();
@@ -76,15 +82,17 @@ signals: // these are signals that trigger effects for the UI
     void accountCreated();
     void accountAuthenticated();
     void accountAuthenticationFail();
-                                        
+    void recievedDM(const QString& from, const QString& msg);
+    void discoverUserFail(const QString& username);
+    void discoverUserSucceed(const QString& username);
+                                                            
 private slots: // these are functions that are connected to signals
     void onReply(); // this function called to handle server info
-        
+    void onDM(); // this function called to handle dms from other users
+    
 private:
     Client(QObject * parent=NULL);
     ~Client();
-    Client(Client&) = delete;
-    Client& operator=(const Client&) = delete;
         
     void sendDataToOtherClient(const QHostAddress& ip,
                                const quint16& port,
@@ -101,8 +109,9 @@ private:
     void handleAuthenticatingAccountState(const QJsonObject& m);
     /************************************************************/
 
+    
+    
     static Client * instance;
-        
     ClientState state;
     QTcpSocket * socket; // comm with server
     User current_user;

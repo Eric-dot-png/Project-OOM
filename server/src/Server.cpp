@@ -77,6 +77,21 @@ void Server::onNewConnection()
         QByteArray x; // message to send back
         switch(m["Type"].toInt())
         {
+            case ProtocolManager::DiscoveryRequest:
+            {
+                User u(m["Username"].toString(),"");
+                bool existing_user = !db->availUsername(u);
+                if (existing_user)
+                    x = ProtocolManager::serialize(
+                        ProtocolManager::DiscoveryAccept, {}
+                        );
+                else
+                    x = ProtocolManager::serialize(
+                        ProtocolManager::DiscoveryFail, {}
+                        );
+
+                break;
+            }
             case ProtocolManager::PrivateMessageForward:
             {
                 qDebug() << "recieved msg forward...";

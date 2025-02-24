@@ -38,6 +38,9 @@ public:
         PrivateMessageDenied,
         PrivateMessageForward,
         PrivateMessage,
+        DiscoveryRequest,
+        DiscoveryFail,
+        DiscoveryAccept,
         SIZE
     };
     

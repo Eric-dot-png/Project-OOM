@@ -141,6 +141,8 @@ QByteArray ProtocolManager::serialize(MessageType t,
             }
             else throw(ProtocolError());
         }
+        case DiscoveryFail:
+        case DiscoveryAccept:
         case AccountAuthenticated:
         {
             if (argc == 0)
@@ -152,6 +154,7 @@ QByteArray ProtocolManager::serialize(MessageType t,
             }
             else throw(ProtocolError());
         }
+        case DiscoveryRequest:
         case LoginAccept:
         {
             if (argc == 1) // no argument is needed

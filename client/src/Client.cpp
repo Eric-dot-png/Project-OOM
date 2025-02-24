@@ -15,7 +15,7 @@ Client::Client(QObject * parent)
         state = ClientState::Connected;
         emit connectedToServer();
     });
-        
+    
     connect(socket, &QTcpSocket::disconnected, this, [&](){
         qDebug() << "Disconnected from Server";
         state = ClientState::Disconnected;
@@ -23,6 +23,9 @@ Client::Client(QObject * parent)
     });
         
     connect(socket, &QTcpSocket::readyRead, this, &Client::onReply);
+
+    connect(listener, &QTcpServer::newConnection, this,
+            &Client::onDM);
 }
     
 Client::~Client()
@@ -193,7 +196,25 @@ void Client::closeListener()
                  << state;
     }
 }
-    
+
+void Client::discover(const User& u)
+{
+    if (state == ClientState::LoggedIn)
+    {
+        qDebug() << "Attempting discovery for" << u.get_username();
+        
+        socket->write(ProtocolManager::serialize(
+                          ProtocolManager::DiscoveryRequest, {
+                              u.get_username()
+                          })
+            );
+    }
+    else
+    {
+        qDebug() << "Can't discover message. Current state:" << state;
+    }
+}
+
 void Client::privateMessage(const User& u, const QString& message)
 {
     if (state == ClientState::LoggedIn)
@@ -274,6 +295,20 @@ void Client::onReply()
     }
 }
 
+void Client::onDM()
+{
+    QTcpSocket * foreignSocket = listener->nextPendingConnection();
+
+    connect(foreignSocket, &QTcpSocket::readyRead, this, [this,
+                                                          foreignSocket]()
+    {
+        QByteArray data = foreignSocket->readAll();
+        qDebug() << "Recieved" << data;
+        QJsonObject json = ProtocolManager::deserialize(data);
+        emit recievedDM(json["From"].toString(),json["Message"].toString());
+    });
+}
+
 void Client::sendDataToOtherClient(const QHostAddress& ip,
                                    const quint16& port,
                                    const QByteArray & data) const
@@ -281,12 +316,12 @@ void Client::sendDataToOtherClient(const QHostAddress& ip,
     QTcpSocket tempSocket;
     tempSocket.connectToHost(ip,port);
 
-    if (!tempSocket.waitForConnected(2000))
+    if (!tempSocket.waitForConnected(20000))
     {
         qDebug() << "Timeout, could not send message";
         return;
     }
-        
+    
     tempSocket.write(data);
     tempSocket.flush();
         
@@ -298,6 +333,16 @@ void Client::handleLoggedInState(const QJsonObject& m)
 {
     switch(m["Type"].toInt())
     {
+        case ProtocolManager::DiscoveryAccept:
+        {
+            emit discoverUserSucceed(m["Username"].toString());
+            break;
+        }
+        case ProtocolManager::DiscoveryFail:
+        {
+            emit discoverUserFail(m["Username"].toString());
+            break;
+        }
         case ProtocolManager::PrivateMessageAccept:
         {
             QHostAddress ip(m["Ip"].toString());
