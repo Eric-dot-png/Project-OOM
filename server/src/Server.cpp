@@ -80,13 +80,16 @@ void Server::onNewConnection()
             case ProtocolManager::DiscoveryRequest:
             {
                 qDebug() << "recieved discovery request...";
+
                 User u(m["Username"].toString(),"");
                 bool existing_user = !db->availUsername(u);
+                qDebug() << existing_user;
                 if (existing_user)
                     x = ProtocolManager::serialize(
                         ProtocolManager::DiscoveryAccept, {}
                         );
                 else
+
                     x = ProtocolManager::serialize(
                         ProtocolManager::DiscoveryFail, {}
                         );
@@ -268,8 +271,9 @@ void Server::onNewConnection()
                 
             default:
             {
-                qDebug() << "Protocol" << m["Type"].toInt()
-                         << "not handled";
+                qDebug() << "Protocol" << m["Type"].toString()
+                << "not handled";
+
             }
         }
     });

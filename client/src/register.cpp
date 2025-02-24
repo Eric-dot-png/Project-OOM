@@ -26,7 +26,7 @@ Register::Register(QWidget *parent)
 
     //change this to signal from client when account creation fails
     connect(registerUi->showPasswordButton, &QPushButton::clicked, this, &Register::setBackEnabled);
-}
+} //end constructor
 
 Register::~Register()
 {
@@ -45,7 +45,7 @@ bool Register::isValidPassword(const QString &password)
 
     QRegularExpressionMatch match = re.match(password);
     return match.hasMatch();
-}
+} //end Register::isValidPassword()
 
 //To see if email input is actually an email address.
 //Can add more email domains but i thought gmail, yahoo and cougarmail is fine for now
@@ -57,7 +57,7 @@ bool Register::isValidEmail(const QString &email)
     QRegularExpressionMatch match = re.match(email);
 
     return match.hasMatch();
-}
+} //end Register::isValidEmail()
 
 //Reset labels, if returning to login form, clear all input boxes
 void Register::resetForm(bool fullForm)
@@ -73,7 +73,7 @@ void Register::resetForm(bool fullForm)
         registerUi->confirmPasswordEdit->clear();
         registerUi->emailEdit->clear();
     }
-}
+} //end Register::resetForm()
 
 
 /*
@@ -130,7 +130,7 @@ void Register::handleRegister()
         //after registration is accepted, the client will switch from
         //this form to another.
     }
-}
+} //end Register::handleRegister()
 
 //Back to login
 void Register::handleBack()
@@ -138,7 +138,7 @@ void Register::handleBack()
     qDebug() << "Going back to Login Page...";
     resetForm(true);
     emit backToLogin();
-}
+} //end Register::handleBack()
 
 
 
@@ -152,7 +152,7 @@ void Register::showPassword()
         registerUi->passwordEdit->setEchoMode(QLineEdit::Normal);
         registerUi->confirmPasswordEdit->setEchoMode(QLineEdit::Normal);
     }
-}
+} //end Register::showPassword()
 
 void Register::setBackEnabled()
 {
@@ -163,4 +163,4 @@ void Register::setBackEnabled()
     else
         qDebug() << "False";
     registerUi->backToLoginButton->setEnabled(!e);
-}
+} //end Register::setBackEnabled()

@@ -4,7 +4,6 @@
 
 /*
  * PrivateMessages Form.
- * Currently not used.
  */
 
 #ifndef PRIVATEMESSAGES_H
@@ -57,10 +56,6 @@ private slots:
 
     //Takes the json file and parses it
     void loadPage();
-    /*
-    void sendMessage();
-    void changeFriend();
-    void changeServer();*/
 
 
 signals:
@@ -70,9 +65,14 @@ private:
     Ui::PrivateMessages *ui;
     EnterKeyFilter *enterFilter;
 
-    QString formatMessage();
 
-    //void unpackJson();
+    //scuffed for now
+    User currentlyMessaging;
+
+    QString formatClientMessage();
+    QString formatOtherMessage();
+    void searchUser();
+
 };
 
 #endif // PRIVATEMESSAGES_H

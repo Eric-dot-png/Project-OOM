@@ -10,6 +10,7 @@ class OOMWidget : public QWidget
 public:
     explicit OOMWidget(QWidget *parent = nullptr)
         : QWidget(parent) {}
+
     void startApp();
 
     static void setClient(Client *c) { client = c; }

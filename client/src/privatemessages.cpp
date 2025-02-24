@@ -9,18 +9,37 @@
 
 #include "privatemessages.h"
 #include "ui_privatemessages.h"
+#include "User.h"
 
 PrivateMessages::PrivateMessages(QWidget *parent)
-    : OOMWidget(parent), ui(new Ui::PrivateMessages)
+    : OOMWidget(parent), ui(new Ui::PrivateMessages), currentlyMessaging(NULL)
 {
     ui->setupUi(this);
+    ui->friendNameLabel->clear();
 
     //This allows the textbox to detect the enter key
     enterFilter = new EnterKeyFilter(this);
     ui->textEdit->installEventFilter(enterFilter);
 
     connect(enterFilter, &EnterKeyFilter::enterPressed, this, &PrivateMessages::onEnterKeyPressed);
+    connect(ui->searchUserTextbox, &QLineEdit::returnPressed, this, &PrivateMessages::searchUser);
 
+    //connect(client, &Client::recievedDM, this, &PrivateMessages::recievedMessage);
+
+
+    //If searching for a user fails
+    connect(client, &Client::discoverUserFail, this, [=](const QString& username){
+        ui->userNotFoundLabel->setText("User " + username +  " not found!");
+        ui->friendNameLabel->clear();
+    });
+
+    //If searching for a user succeeds
+    connect(client, &Client::discoverUserSucceed, this, [=](const QString& username){
+        ui->userNotFoundLabel->clear();
+        ui->friendNameLabel->setText("Now messaging: " + username);
+        currentlyMessaging = User(username);
+        qDebug() << currentlyMessaging.get_username();
+    });
 }
 
 PrivateMessages::~PrivateMessages()
@@ -28,24 +47,54 @@ PrivateMessages::~PrivateMessages()
     delete ui;
 }
 
-QString PrivateMessages::formatMessage()
+//function to open a window showing all users?
+//if so, need function to return list of all currently registered users.
+
+void PrivateMessages::searchUser()
+{
+    qDebug() << "Searching for user: " << ui->searchUserTextbox->text();
+    User u = User(ui->searchUserTextbox->text());
+
+    if (u.get_username() == client->getUser().get_username()) return;
+
+    ui->userNotFoundLabel->setText("Currently searching for: " + u.get_username());
+    client->discover(u);
+
+}
+
+QString PrivateMessages::formatOtherMessage()
+{
+    //get from client/server
+    QString otherMsg = "";
+
+    QString user = currentlyMessaging.get_username();
+
+    return "<b>" + user + "</b>:<br>" + otherMsg;
+}
+
+QString PrivateMessages::formatClientMessage()
 {
     QString msg = ui->textEdit->toMarkdown();
     QString user = client->getUser().get_username();
 
     return "<b>" + user + "</b>:<br>" + msg;
+
 }
 
 void PrivateMessages::onEnterKeyPressed()
 {
     qDebug() << "Sending message: " << ui->textEdit->toPlainText();
 
-    //QString fullMsg = formatMessage();
-    ui->textBrowser->append(formatMessage());
+    QString fullMsg = formatClientMessage();
+    QString msgContent = ui->textEdit->toPlainText();
+
+    ui->textBrowser->append(formatClientMessage());
     ui->textEdit->clear();
 
+    client->privateMessage(client->getUser(), msgContent);
+
     //Testing; will remove later
-    loadPage();
+    //loadPage();
 }
 
 void PrivateMessages::loadPage()

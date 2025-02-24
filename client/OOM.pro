@@ -11,6 +11,7 @@ CONFIG += c++17 console
 
 BUILD_DIR = $$PWD/build
 
+            
 QMAKE_MKDIR = mkdir -p
 QMAKE_CLEAN += $$BUILD_DIR
 clean.target = clean_build_dir

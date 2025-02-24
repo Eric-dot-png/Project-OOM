@@ -7,7 +7,7 @@ class User
 {
 public:
     User(const QString & u,
-         const QString & pass,
+         const QString & pass="",
          const QString & e="",
          bool per=0)
         : u_(u), pass_(pass), email_(e), per_(per)

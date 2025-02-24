@@ -51,7 +51,7 @@ ApplicationHandler::ApplicationHandler(QWidget *parent)
      *         slot(function) to be called when a signal is emitted
      *         )
 
-    /*
+
      * Each connect function is a transition to a new form
      */
 
@@ -95,7 +95,7 @@ ApplicationHandler::ApplicationHandler(QWidget *parent)
         qDebug() << "clientside loggedin";
         switchToWidget(stackedWidget->indexOf(PrivateMessagesWidget));
     });
-}
+} //End of Constructor
 
 void ApplicationHandler::switchToWidget(int index){
     if (index >= 0 && index < stackedWidget->count())
