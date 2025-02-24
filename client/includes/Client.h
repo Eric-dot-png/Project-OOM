@@ -49,6 +49,8 @@ public:
     // puts the client into Disconnected state
     void disconnect();
 
+    void writeToServer(ProtocolManager::MessageType, const QStringList&);
+    
     // must be in Connected state
     // puts the client into loggingin state
     void login(const User &);
@@ -79,6 +81,7 @@ signals: // these are signals that trigger effects for the UI
     void connectedToServer();
     void disconnectedFromServer();
     void loginSuccess();
+    void accountNotCreated();
     void accountCreated();
     void accountAuthenticated();
     void accountAuthenticationFail();

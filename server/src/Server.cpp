@@ -79,6 +79,7 @@ void Server::onNewConnection()
         {
             case ProtocolManager::DiscoveryRequest:
             {
+                qDebug() << "recieved discovery request...";
                 User u(m["Username"].toString(),"");
                 bool existing_user = !db->availUsername(u);
                 if (existing_user)
@@ -89,7 +90,7 @@ void Server::onNewConnection()
                     x = ProtocolManager::serialize(
                         ProtocolManager::DiscoveryFail, {}
                         );
-
+                clientSocket->write(x);
                 break;
             }
             case ProtocolManager::PrivateMessageForward:
@@ -267,7 +268,7 @@ void Server::onNewConnection()
                 
             default:
             {
-                qDebug() << "Protocol" << m["Type"].toString()
+                qDebug() << "Protocol" << m["Type"].toInt()
                          << "not handled";
             }
         }

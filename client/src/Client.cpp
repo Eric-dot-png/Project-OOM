@@ -85,6 +85,12 @@ void Client::disconnect()
     }
 }
     
+void Client::writeToServer(ProtocolManager::MessageType t,
+                           const QStringList& argv)
+{
+    socket->write(ProtocolManager::serialize(t,argv));
+}
+
 void Client::login(const User & u)
 {
     if (state == ClientState::Connected)
@@ -272,6 +278,11 @@ void Client::onReply()
         
     switch(state)
     {
+        case ClientState::LoggedIn:
+        {
+            handleLoggedInState(m);
+            break;
+        }
         case ClientState::LoggingIn:
         {
             handleLoggingInState(m);
