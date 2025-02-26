@@ -85,11 +85,14 @@ void Server::onNewConnection()
                 bool existing_user = !db->availUsername(u);
                 qDebug() << existing_user;
                 if (existing_user)
+                {
+                    QString messagehistory = db->getMessages(m["CurrUser"].toString(), usrname);
                     x = ProtocolManager::serialize(
-                        ProtocolManager::DiscoveryAccept, {usrname}
+                        ProtocolManager::DiscoveryAccept,
+                        {usrname, messagehistory}
                         );
+                }
                 else
-
                     x = ProtocolManager::serialize(
                         ProtocolManager::DiscoveryFail, {usrname}
                         );

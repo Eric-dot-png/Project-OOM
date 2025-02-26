@@ -33,8 +33,9 @@ public:
 
     //returns 1 if stored messages updated
     bool storeMessage(const QJsonObject &);
-    //returns list of (length) messages beginning at start(0 is most recent message)
-    std::list<QJsonObject> getMessages(const User &, const User &, int start, int length);
+    //returns list of (length) messages separated by ":;:" beginning at start(0 is most recent message)
+    QString getMessages(const QString & u1, const QString & u2,
+                        int start = 0, int length = 10);
 
     //returns 1 if friendship created
     bool addFriend(const User &, const User &);

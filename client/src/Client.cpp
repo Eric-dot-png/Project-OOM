@@ -207,7 +207,7 @@ void Client::discover(const User& u)
         
         socket->write(ProtocolManager::serialize(
                           ProtocolManager::DiscoveryRequest, {
-                              u.get_username()
+                              current_user.get_username(), u.get_username()
                           })
             );
     }

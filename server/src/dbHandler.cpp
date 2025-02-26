@@ -271,16 +271,17 @@ bool dbHandler::storeMessage(const QJsonObject & m)
     return 1;
 }
 
-std::list<QJsonObject> dbHandler::getMessages(const User & u1, const User & u2,
-                                               int start, int length)
+QString dbHandler::getMessages(const QString & u1,
+                               const QString & u2,
+                               int start, int length)
 {
     MYSQL_RES * result;
     MYSQL_ROW row;
 
-    std::string q = "select * from (select * from PrivMessage where receiver='"
-        + u1.get_username().toStdString() + "' and sender='" + u2.get_username().toStdString()
-        + "' union select * from PrivMessage where receiver='" + u2.get_username().toStdString()
-        + "' and sender='" + u1.get_username().toStdString() + "') as T where not deleted order by sentAt desc limit "
+    std::string q = "select * from (select * from PrivMessage where receiver='" + u1.toStdString() + "' and sender='" + u2.toStdString()
+        + "' union select * from PrivMessage where receiver='"
+        + u2.toStdString() + "' and sender='" + u1.toStdString()
+        + "') as T where not deleted order by sentAt desc limit "
         + std::to_string(start) + ", " + std::to_string(length);
     if(mysql_query(connection, q.c_str()))
     {
@@ -290,14 +291,17 @@ std::list<QJsonObject> dbHandler::getMessages(const User & u1, const User & u2,
     
     result = mysql_store_result(connection);
     row = mysql_fetch_row(result);
-    std::list<QJsonObject> res;
+    QStringList res;
     while(row != NULL)
     {
-        res.push_back(QJsonObject({{"To", row[0]}, {"From", row[1]},
-                                   {"Timestamp", row[2]}, {"Message", row[3]}}));
+        res.push_back(QJsonDocument(QJsonObject({{"To", row[0]},
+                                                  {"From", row[1]},
+                                                  {"Timestamp", row[2]},
+                                                  {"Message", row[3]}})
+                ).toJson());
         row = mysql_fetch_row(result);
     }
-    return res;
+    return res.join(":;:");
 }
 
 bool dbHandler::addFriend(const User & u1, const User & u2)

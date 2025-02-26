@@ -166,9 +166,33 @@ QByteArray ProtocolManager::serialize(MessageType t,
             }
             else throw(ProtocolError());
         }
-        case DiscoveryFail:
         case DiscoveryAccept:
+        {
+            if (argc == 2)
+            {
+                QJsonObject ret({
+                        {"Type", t},
+                        {"Username", argv[0]},
+                        {"Messages", argv[1]}
+                    });
+                return QJsonDocument(ret).toJson();
+            }
+            else throw(ProtocolError());
+        }
         case DiscoveryRequest:
+        {
+            if (argc == 2)
+            {
+                QJsonObject ret({
+                        {"Type", t},
+                        {"CurrUser", argv[0]},
+                        {"Username", argv[1]}
+                    });
+                return QJsonDocument(ret).toJson();
+            }
+            else throw(ProtocolError());
+        }
+        case DiscoveryFail:
         case LoginAccept:
         {
             if (argc == 1) // no argument is needed
