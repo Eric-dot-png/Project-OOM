@@ -231,6 +231,9 @@ bool dbHandler::removeReg(const User & u)
         qDebug() << "Couldn't delete: " << mysql_error(connection);
         return 0;
     }
+    result = mysql_store_result(connection);
+    mysql_free_result(result);
+    
     return 1;
 }
 
@@ -261,6 +264,8 @@ bool dbHandler::storeMessage(const QJsonObject & m)
         qDebug() << "Could not save new message";
         return 0;
     }
+    result = mysql_store_result(connection);
+    mysql_free_result(result);
    
     return 1;
 }
@@ -292,4 +297,48 @@ std::list<QJsonObject> dbHandler::getMessages(const User & u1, const User & u2,
         row = mysql_fetch_row(result);
     }
     return res;
+}
+
+bool dbHandler::addFriend(const User & u1, const User & u2)
+{
+    MYSQL_RES * result;
+
+    std::string q = "select * from Friends where u1='"
+        + u1.get_username().toStdString() + "' and u2='"
+        + u2.get_username().toStdString() + "'";
+    if(mysql_query(connection, q.c_str()))
+    {
+        qDebug() << "Failed select 1 in addFriend";
+        return 0;
+    }
+    result = mysql_store_result(connection);
+    if(mysql_fetch_row(result) == NULL)
+    {
+        mysql_free_result(result);
+        q = "select * from Friends where u1='"
+            + u2.get_username().toStdString() + "' and u2='"
+            + u1.get_username().toStdString() + "'";
+        if(mysql_query(connection, q.c_str()))
+        {
+            qDebug() << "Failed select2 in addFriend";
+            return 0;
+        }
+        result = mysql_store_result(connection);
+    }
+    if(mysql_fetch_row(result) == NULL)
+    {
+        mysql_free_result(result);
+        q = "insert Friends(u1, u2) values('"
+            + u1.get_username().toStdString() + "', '"
+            + u2.get_username().toStdString() + "'";
+        if(mysql_query(connection, q.c_str()))
+        {
+            qDebug() << "Failed to insert Friendship";
+            return 0;
+        }
+        result = mysql_store_result(connection);
+    }
+
+    mysql_free_result(result);
+    return 1;
 }

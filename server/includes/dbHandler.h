@@ -30,10 +30,14 @@ public:
     bool removeReg(const User &);
     //Flushes out all expired registrations
     void cleanReg();
+
     //returns 1 if stored messages updated
     bool storeMessage(const QJsonObject &);
     //returns list of (length) messages beginning at start(0 is most recent message)
     std::list<QJsonObject> getMessages(const User &, const User &, int start, int length);
+
+    //returns 1 if friendship created
+    bool addFriend(const User &, const User &);
     
 private:
     dbHandler();
