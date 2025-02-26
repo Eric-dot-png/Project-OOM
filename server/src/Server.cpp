@@ -80,18 +80,18 @@ void Server::onNewConnection()
             case ProtocolManager::DiscoveryRequest:
             {
                 qDebug() << "recieved discovery request...";
-
-                User u(m["Username"].toString(),"");
+                QString usrname = m["Username"].toString();
+                User u(usrname,"");
                 bool existing_user = !db->availUsername(u);
                 qDebug() << existing_user;
                 if (existing_user)
                     x = ProtocolManager::serialize(
-                        ProtocolManager::DiscoveryAccept, {}
+                        ProtocolManager::DiscoveryAccept, {usrname}
                         );
                 else
 
                     x = ProtocolManager::serialize(
-                        ProtocolManager::DiscoveryFail, {}
+                        ProtocolManager::DiscoveryFail, {usrname}
                         );
                 clientSocket->write(x);
                 break;

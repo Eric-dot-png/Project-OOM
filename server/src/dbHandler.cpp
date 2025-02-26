@@ -342,3 +342,4 @@ bool dbHandler::addFriend(const User & u1, const User & u2)
     mysql_free_result(result);
     return 1;
 }
+
