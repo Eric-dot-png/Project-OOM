@@ -8,7 +8,7 @@ class Message : public QObject
 {
     Q_OBJECT
 public:
-    explicit Message(User sender, User receiver, QString msg, QObject *parent = nullptr);
+    explicit Message(const QString &sender, const QString &receiver, const QString &msg, QObject *parent = nullptr);
 
     
     QString get_sender() const { return sender.get_username(); }

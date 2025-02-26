@@ -38,7 +38,8 @@ SOURCES += \
     src/login.cpp \
     src/privatemessages.cpp \
     src/register.cpp \
-    src/regMachine.cpp
+    src/regMachine.cpp \
+    src/OOMTextBrowser.cpp
     
 HEADERS += \
     includes/oomwidget.h \
@@ -51,7 +52,8 @@ HEADERS += \
     includes/privatemessages.h \
     includes/register.h \
     includes/regMachine.h \
-    includes/message.h
+    includes/message.h \
+    includes/OOMTextBrowser.h
 
 FORMS += \
     forms/authenticationcode.ui \

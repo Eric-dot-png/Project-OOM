@@ -23,7 +23,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QTextBrowser" name="textBrowser">
+  <widget class="OOMTextBrowser" name="textBrowser">
    <property name="geometry">
     <rect>
      <x>160</x>
@@ -102,6 +102,13 @@
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>OOMTextBrowser</class>
+   <extends>QTextBrowser</extends>
+   <header location="global">OOMTextBrowser.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>textEdit</tabstop>
   <tabstop>serverCombobox</tabstop>

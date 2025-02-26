@@ -9,12 +9,12 @@
 #ifndef UI_PRIVATEMESSAGES_H
 #define UI_PRIVATEMESSAGES_H
 
+#include <OOMTextBrowser.h>
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
-#include <QtWidgets/QTextBrowser>
 #include <QtWidgets/QTextEdit>
 #include <QtWidgets/QWidget>
 
@@ -24,7 +24,7 @@ class Ui_PrivateMessages
 {
 public:
     QTextEdit *textEdit;
-    QTextBrowser *textBrowser;
+    OOMTextBrowser *textBrowser;
     QLabel *friendNameLabel;
     QComboBox *serverCombobox;
     QLineEdit *searchUserTextbox;
@@ -39,7 +39,7 @@ public:
         textEdit = new QTextEdit(PrivateMessages);
         textEdit->setObjectName(QString::fromUtf8("textEdit"));
         textEdit->setGeometry(QRect(160, 470, 481, 41));
-        textBrowser = new QTextBrowser(PrivateMessages);
+        textBrowser = new OOMTextBrowser(PrivateMessages);
         textBrowser->setObjectName(QString::fromUtf8("textBrowser"));
         textBrowser->setGeometry(QRect(160, 150, 481, 301));
         friendNameLabel = new QLabel(PrivateMessages);

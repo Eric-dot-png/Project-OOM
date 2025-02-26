@@ -7,6 +7,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
+#include "OOMTextBrowser.h"
 #include "privatemessages.h"
 #include "ui_privatemessages.h"
 #include "User.h"
@@ -25,7 +26,7 @@ PrivateMessages::PrivateMessages(QWidget *parent)
     connect(enterFilter, &EnterKeyFilter::enterPressed, this, &PrivateMessages::onEnterKeyPressed);
     connect(ui->searchUserTextbox, &QLineEdit::returnPressed, this, &PrivateMessages::searchUser);
 
-    //connect(client, &Client::recievedDM, this, &PrivateMessages::recievedMessage);
+    connect(client, &Client::recievedDM, this, &PrivateMessages::receivedMessage);
 
 
     //If searching for a user fails
@@ -93,13 +94,22 @@ void PrivateMessages::onEnterKeyPressed()
 
     QString user = currentlyMessaging.get_username();
 
-    ui->textBrowser->append(formatClientMessage());
+    //ui->textBrowser->append(formatClientMessage());
+    ui->textBrowser->appendMessage(Message(client->getUser().get_username(), currentlyMessaging.get_username(), msgContent));
+    //ui->textBrowser->appendMessage(client->getUser().get_username(), currentlyMessaging.get_username(), msgContent);
     ui->textEdit->clear();
 
     client->privateMessage(user, msg.get_msg());
 
     //Testing; will remove later
     //loadPage();
+}
+
+void PrivateMessages::receivedMessage(QString from, QString msg)
+{
+    if (from == currentlyMessaging.get_username())
+        //ui->textBrowser->appendMessage(currentlyMessaging.get_username(), client->getUser().get_username(), msg);
+        ui->textBrowser->appendMessage(Message(currentlyMessaging.get_username(), client->getUser().get_username(), msg));
 }
 
 void PrivateMessages::loadPage()

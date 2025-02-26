@@ -72,6 +72,7 @@ private:
     QString formatClientMessage();
     QString formatOtherMessage();
     void searchUser();
+    void receivedMessage(QString from, QString msg);
 
 };
 
