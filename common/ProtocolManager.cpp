@@ -127,8 +127,6 @@ QByteArray ProtocolManager::serialize(MessageType t,
             
             else throw(ProtocolError());
         }
-        case DiscoveryFail:
-        case DiscoveryAccept:
         case AccountNotAuthenticated:
         case CreateAccountDenied: 
         case LoginDenied: 
@@ -154,6 +152,8 @@ QByteArray ProtocolManager::serialize(MessageType t,
             }
             else throw(ProtocolError());
         }
+        case DiscoveryFail:
+        case DiscoveryAccept:
         case DiscoveryRequest:
         case LoginAccept:
         {
