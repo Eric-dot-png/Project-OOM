@@ -10,6 +10,7 @@
 #include "privatemessages.h"
 #include "ui_privatemessages.h"
 #include "User.h"
+#include "message.h"
 
 PrivateMessages::PrivateMessages(QWidget *parent)
     : OOMWidget(parent), ui(new Ui::PrivateMessages), currentlyMessaging(NULL)
@@ -88,10 +89,12 @@ void PrivateMessages::onEnterKeyPressed()
     QString fullMsg = formatClientMessage();
     QString msgContent = ui->textEdit->toPlainText();
 
+    Message msg = Message(client->getUser().get_username(), currentlyMessaging.get_username(), msgContent);
+
     ui->textBrowser->append(formatClientMessage());
     ui->textEdit->clear();
 
-    client->privateMessage(client->getUser(), msgContent);
+    client->privateMessage(client->getUser(), msg.get_msg());
 
     //Testing; will remove later
     //loadPage();

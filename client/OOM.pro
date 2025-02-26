@@ -28,6 +28,7 @@ run.commands = ./build/bin/a.out
 QMAKE_EXTRA_TARGETS += run
           
 SOURCES += \
+    src/message.cpp \
     src/oomwidget.cpp \
     src/Client.cpp \
     ../common/ProtocolManager.cpp \
@@ -49,7 +50,11 @@ HEADERS += \
     includes/login.h \
     includes/privatemessages.h \
     includes/register.h \
+<<<<<<< Updated upstream
     includes/regMachine.h
+=======
+    includes/message.h
+>>>>>>> Stashed changes
 
 FORMS += \
     forms/authenticationcode.ui \
