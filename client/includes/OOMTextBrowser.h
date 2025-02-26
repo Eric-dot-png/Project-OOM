@@ -13,12 +13,12 @@ class OOMTextBrowser : public QTextBrowser {
 public:
     explicit OOMTextBrowser(QWidget *parent = nullptr);
 
-    void appendMessage(Message msg);
+    void appendMessage(const Message &msg);
 
-    const QVector<QMap<QString, QString>>& getMessages() const { return messageList; }
+    const QVector<Message>& getMessages() const { return messageList; }
 
 private:
-    QVector<QMap<QString, QString>> messageList;
+    QVector<Message> messageList;
 };
 
 #endif //OOMTEXTBROWSER_H

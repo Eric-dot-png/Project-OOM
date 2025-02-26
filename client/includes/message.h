@@ -1,14 +1,12 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include <QObject>
 #include "User.h"
 
-class Message : public QObject
+class Message
 {
-    Q_OBJECT
 public:
-    explicit Message(const QString &sender, const QString &receiver, const QString &msg, QObject *parent = nullptr);
+    explicit Message(const QString &sender, const QString &receiver, const QString &msg);
 
     
     QString get_sender() const { return sender.get_username(); }
