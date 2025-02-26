@@ -1,0 +1,34 @@
+# Change to directory where compile_commands.json is
+compilation_database_dir: .
+# Change to directory where diagram should be written
+output_directory: ../diagrams
+diagrams:
+  client_class_diagram:
+    type: class
+    glob:
+      - src/*.cpp
+      - includes/*.h
+      - ../common/*.cpp
+      - ../common/*.h
+    include:
+      paths:
+        - src
+        - includes
+        - ../common
+  client_sequence_diagram:
+    type: sequence
+    glob:
+      - src/*.cpp
+      - includes/*.h
+      - ../common/*.cpp
+      - ../common/*.h
+    include:
+      paths:
+        - src
+        - includes
+        - ../common
+    from:
+      - function:
+          r: "main.*"
+    generate_condition_statements: true
+    generate_return_types: true
