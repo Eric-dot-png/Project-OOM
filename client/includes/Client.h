@@ -16,6 +16,8 @@
 #include "ProtocolManager.h"
 #include "User.h"
 
+class RegMachine;
+
 class Client : public QObject
 {
     Q_OBJECT
@@ -76,7 +78,7 @@ public:
     void discover(const User& u);
     
     void privateMessage(const User& u, const QString& message);
-    
+
 signals: // these are signals that trigger effects for the UI
     void connectedToServer();
     void disconnectedFromServer();
@@ -120,7 +122,7 @@ private:
     User current_user;
     QTcpServer * listener; // recieve direct messages 
     QTcpSocket * sender; // send direct messages
-        
+    
     std::unordered_map<QString,
                        std::pair<QHostAddress, quint16>> usermap;
 

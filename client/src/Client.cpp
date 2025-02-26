@@ -1,6 +1,8 @@
 // file : Client.cpp
 // name : eric garcia
+
 #include "Client.h"
+#include "regMachine.h"
 
 Client * Client::instance(NULL);
     
@@ -23,9 +25,6 @@ Client::Client(QObject * parent)
     });
         
     connect(socket, &QTcpSocket::readyRead, this, &Client::onReply);
-
-    connect(listener, &QTcpServer::newConnection, this,
-            &Client::onDM);
 }
     
 Client::~Client()
@@ -112,6 +111,7 @@ void Client::createAccount(const User & u)
 {
     if (state == ClientState::Connected)
     {
+        RegMachine::getInstance()->createAcc(u);
         qDebug() << "Attempting Create Account...";
         socket->write(ProtocolManager::serialize(
                           ProtocolManager::CreateAccountRequest,
@@ -130,6 +130,7 @@ void Client::submitAuthCode(const QString& code)
 {
     if (state == ClientState::AuthenticatingAccount)
     {
+        RegMachine::getInstance()->authAcc(code);
         qDebug() << "Attempting Authentication...";
         socket->write(ProtocolManager::serialize(
                           ProtocolManager::CreateAccountAuthCodeSubmit,
@@ -148,13 +149,16 @@ void Client::openListener()
     if (state == ClientState::LoggedIn && listener == NULL)
     {
         listener = new QTcpServer(this);
+        connect(listener, &QTcpServer::newConnection, this,
+                &Client::onDM);    
+        
         if (listener->listen(QHostAddress::LocalHost, 0))
         {
             qDebug() << "Announcing Ip and Port:"
                      << listener->serverAddress().toString()
                      << ","
                      << listener->serverPort();
-                
+            
             socket->write(
                 ProtocolManager::serialize(
                     ProtocolManager::AnnounceIpPort, {
@@ -182,6 +186,8 @@ void Client::closeListener()
     if (state == ClientState::LoggedIn && listener != NULL)
     {
         qDebug() << "Closing Listener...";
+        QObject::disconnect(listener, &QTcpServer::newConnection, this,
+                            &Client::onDM);    
         delete listener;
         listener = NULL;
 
@@ -435,6 +441,7 @@ void Client::handleCreatingAccountState(const QJsonObject& m)
                      << "created!";
             current_user = u;
             emit accountCreated();
+            RegMachine::getInstance()->print_state();
             state = ClientState::AuthenticatingAccount;
             break;
         }

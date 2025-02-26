@@ -14,7 +14,7 @@
 #include "oomwidget.h"
 #include "Client.h"
 #include "ui_privatemessages.h"
-#include "message.h"
+//#include "message.h"
 
 
 /*
