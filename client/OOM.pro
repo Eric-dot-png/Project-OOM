@@ -35,7 +35,6 @@ SOURCES += \
     src/authenticationcode.cpp \
     src/main.cpp \
     src/login.cpp \
-    src/message.cpp \
     src/privatemessages.cpp \
     src/register.cpp
     
@@ -47,7 +46,6 @@ HEADERS += \
     includes/applicationhandler.h \
     includes/authenticationcode.h \
     includes/login.h \
-    includes/message.h \
     includes/privatemessages.h \
     includes/register.h
 

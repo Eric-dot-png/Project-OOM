@@ -27,7 +27,7 @@ authenticationCode::~authenticationCode()
 void authenticationCode::authenticateUser()
 {
     QString code = AuthUi->codeTextbox->text();
-    qDebug() << code;
+    //qDebug() << code;
     client->submitAuthCode(code);
 }
 
