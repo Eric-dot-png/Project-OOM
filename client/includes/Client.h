@@ -31,7 +31,6 @@ public:
         LoggingIn,
         LoggedIn,
         CreatingAccount,
-        AuthenticatingAccount
     };
 
     Client(Client&) = delete;
@@ -83,10 +82,12 @@ signals: // these are signals that trigger effects for the UI
     void connectedToServer();
     void disconnectedFromServer();
     void loginSuccess();
+
     void accountNotCreated();
     void accountCreated();
     void accountAuthenticated();
     void accountAuthenticationFail();
+    
     void recievedDM(const QString& from, const QString& msg);
     void discoverUserFail(const QString& username);
     void discoverUserSucceed(const QString& username);

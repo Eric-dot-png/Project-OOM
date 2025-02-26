@@ -9,54 +9,47 @@ RegMachine::RegMachine()
     : QObject(NULL), client(Client::getInstance()),
       m(new QStateMachine(this))
 {
-    QState * idle = new QState();
-    idle->setObjectName("idle");
-    QState * registering = new QState();
-    registering->setObjectName("registering");
-    QState * registered = new QState();
-    registered->setObjectName("registered");
-    QState * authenticating = new QState();
-    authenticating->setObjectName("authenticating");
-    QState * authenticated = new QState();
-    authenticated->setObjectName("authenticated");
-    
+    QState * idle = new QState(m);
+    QState * registering = new QState(m);
+    QState * registered = new QState(m);
+    QState * authenticating = new QState(m);
+    QState * authenticated = new QState(m);
     
     idle->addTransition(this,&RegMachine::calledCreateAcc,registering);
-
-    registering->addTransition(client, &Client::accountCreated, registered);
-    registering->addTransition(client, &Client::accountNotCreated, idle);
-    
+    QSignalTransition * accSucc = registering->addTransition(
+        client, &Client::accountCreated, registered);
+    QSignalTransition * accFail = registering->addTransition(
+        client, &Client::accountNotCreated, idle);
     registered->addTransition(this,&RegMachine::calledAuthAcc,authenticating);
     
-    authenticating->addTransition(client, &Client::accountAuthenticated,
-                                  authenticated);
-    authenticating->addTransition(client, &Client::accountAuthenticationFail,
-                                  registered);
+    QSignalTransition * authSucc = authenticating->addTransition(
+        client, &Client::accountAuthenticated, authenticated);
+    QSignalTransition * authFail = authenticating->addTransition(
+        client, &Client::accountAuthenticationFail,registered);
     authenticated->addTransition(this, &RegMachine::finished, idle);
-
-    QObject::connect(idle, &QState::entered, this, [this]
+    
+    QObject::connect(accSucc, &QSignalTransition::triggered, this, []()
     {
-        qDebug() << "Entered idle...";
+        qDebug() << "Account added to Registration. Now Authenticate:";
     });
-
-    QObject::connect(registering, &QState::entered, this, [this]
+    QObject::connect(accFail,&QSignalTransition::triggered,this,[]()
     {
-        qDebug() << "Entered registering...";
+        qDebug() << "Account Was Not Created."
+                 << "Try again with different credentials";
     });
     
-    QObject::connect(registered, &QState::entered, this, [this]
+    QObject::connect(authSucc, &QSignalTransition::triggered, this, []()
     {
-        qDebug() << "Entered registered...";
+        qDebug() << "Account Authenticated. Welcome to OOM!";
     });
-
-    QObject::connect(authenticating, &QState::entered, this, [this]
+    QObject::connect(authFail, &QSignalTransition::triggered, this, []()
     {
-        qDebug() << "Entered authenticating...";
+        qDebug() << "Account Not Authenticated. Try again.";
     });
+    
     
     QObject::connect(authenticated, &QState::entered, this, [this]
     {
-        qDebug() << "Entered authenticated...";
         emit finished();
     });
 
@@ -83,18 +76,25 @@ void RegMachine::destroyInstance()
 
 void RegMachine::createAcc(const User& u)
 {
-    qDebug() << "RegMachine createAcc called!!!";
+    qDebug() << "attempting to register"
+             << u.get_username() << u.get_password()
+             << u.get_email();
+    client->writeToServer(ProtocolManager::CreateAccountRequest,
+                          {u.get_username(), u.get_password(),
+                           u.get_email()});
     emit calledCreateAcc();
 }
 
-void RegMachine::authAcc(const QString& code)
+void RegMachine::authAcc(const User& u, const QString& code)
 {
     qDebug() << "RegMachine authAcc called!!!";
+    client->writeToServer(ProtocolManager::CreateAccountAuthCodeSubmit,
+                          {u.get_username(), u.get_password(), code});
     emit calledAuthAcc();
 }
 
 void RegMachine::onAuthenticated()
 {
+    qDebug() << "Gz, account authenticated. welcome!";
     emit finished();
 }
-

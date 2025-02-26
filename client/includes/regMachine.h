@@ -8,6 +8,7 @@
 #include <QStateMachine>
 
 #include "Client.h"
+#include "ProtocolManager.h"
 
 class RegMachine : public QObject
 {
@@ -21,13 +22,7 @@ public:
     static void destroyInstance();
 
     void createAcc(const User& u);
-    void authAcc(const QString& code);
-
-    void print_state()
-    {
-        for (const QAbstractState * state : m->configuration())
-            qDebug() << "Active state:" << state->objectName();
-    }
+    void authAcc(const User& u, const QString& code);
     
 signals:
     void calledCreateAcc();

@@ -20,6 +20,8 @@
 -- Table structure for table `Friends`
 --
 
+USE DSDB;
+
 DROP TABLE IF EXISTS `Friends`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;

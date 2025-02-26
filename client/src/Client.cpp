@@ -113,11 +113,6 @@ void Client::createAccount(const User & u)
     {
         RegMachine::getInstance()->createAcc(u);
         qDebug() << "Attempting Create Account...";
-        socket->write(ProtocolManager::serialize(
-                          ProtocolManager::CreateAccountRequest,
-                          {u.get_username(), u.get_password(),
-                           u.get_email()})
-            );
         state = ClientState::CreatingAccount;
     }
     else
@@ -128,15 +123,10 @@ void Client::createAccount(const User & u)
     
 void Client::submitAuthCode(const QString& code)
 {
-    if (state == ClientState::AuthenticatingAccount)
+    if (state == ClientState::CreatingAccount)
     {
-        RegMachine::getInstance()->authAcc(code);
+        RegMachine::getInstance()->authAcc(current_user,code);
         qDebug() << "Attempting Authentication...";
-        socket->write(ProtocolManager::serialize(
-                          ProtocolManager::CreateAccountAuthCodeSubmit,
-                          {current_user.get_username(),
-                           current_user.get_password(), code})
-            );
     }
     else
     {
@@ -301,11 +291,6 @@ void Client::onReply()
             handleCreatingAccountState(m);
             break;
         }
-        case ClientState::AuthenticatingAccount:
-        {
-            handleAuthenticatingAccountState(m);
-            break;
-        }
         default:
         {
             qDebug() << "State Failure:" << "\nCurrentState: " << state;
@@ -439,55 +424,38 @@ void Client::handleCreatingAccountState(const QJsonObject& m)
 {
     switch(m["Type"].toInt())
     {
-        case ProtocolManager::CreateAccountAccept:
-        {
-            User u(m["Username"].toString(),
-                   m["Password"].toString());
-            qDebug() << "Account with username"
-                     << u.get_username()
-                     << "created!";
-            current_user = u;
-            emit accountCreated();
-            RegMachine::getInstance()->print_state();
-            state = ClientState::AuthenticatingAccount;
-            break;
-        }
-        case ProtocolManager::CreateAccountDenied:
-        {
-            qDebug() << "Account Creation Failed!";
-            state = ClientState::Connected;
-            break;
-        }
-        default:
-        {
-            qDebug() << "State Transition Failure:"
-                     << "\nCurrent State:" << state
-                     << "\n  Attempting transition to:"
-                     << m["Type"].toInt();
-            break;
-        }
-    }
-}
-    
-void Client::handleAuthenticatingAccountState(const QJsonObject& m)
-{
-    switch(m["Type"].toInt())
-    {
         case ProtocolManager::AccountAuthenticated:
         {
-            qDebug() << "Account"
-                     << current_user.get_username()
-                     << "Authenticated";
+            // qDebug() << "Account"
+            //          << current_user.get_username()
+            //          << "Authenticated";
             state = ClientState::Connected;
-            //login(current_user);
             
             emit accountAuthenticated();
             break;
         }
         case ProtocolManager::AccountNotAuthenticated:
         {
-            qDebug() << "Authentication Failed, wrong code";
+            // qDebug() << "Authentication Failed, wrong code";
             emit accountAuthenticationFail();
+            break;
+        }
+        case ProtocolManager::CreateAccountAccept:
+        {
+            User u(m["Username"].toString(),
+                   m["Password"].toString());
+            // qDebug() << "Account with username"
+            //          << u.get_username()
+            //          << "created!";
+            current_user = u;
+            emit accountCreated();
+            break;
+        }
+        case ProtocolManager::CreateAccountDenied:
+        {
+            //qDebug() << "Account Creation Failed!";
+            emit accountNotCreated();
+            state = ClientState::Connected;
             break;
         }
         default:
