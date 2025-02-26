@@ -5,3 +5,4 @@ Message::Message(User sender, User receiver, QString msg, QObject *parent)
 {
 
 }
+

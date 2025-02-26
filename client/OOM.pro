@@ -50,11 +50,8 @@ HEADERS += \
     includes/login.h \
     includes/privatemessages.h \
     includes/register.h \
-<<<<<<< Updated upstream
-    includes/regMachine.h
-=======
+    includes/regMachine.h \
     includes/message.h
->>>>>>> Stashed changes
 
 FORMS += \
     forms/authenticationcode.ui \
