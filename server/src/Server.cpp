@@ -123,21 +123,36 @@ void Server::onNewConnection()
                 {
                     qDebug() << "User is not online... logging msg";
                     // log message here
-                    x = ProtocolManager::serialize(
-                        ProtocolManager::PrivateMessageDenied,
-                        {"User is not online."}
-                        );
+                    bool sent = db->storeMessage(m);
+                    if(sent)
+                        x = ProtocolManager::serialize(
+                            ProtocolManager::PrivateMessageAcceptOffline,
+                            {uname, msg});
+                    else
+                        x = ProtocolManager::serialize(
+                            ProtocolManager::PrivateMessageDenied,
+                            {"Error sending message offline."}
+                            );
                 }
                 else
                 {
                     qDebug() << "User is online, logging msg";
                     // log message here
-                    auto ip_port = p->second;
-                    x = ProtocolManager::serialize(
-                        ProtocolManager::PrivateMessageAccept,
-                        {uname,ip_port.first.toString(),
-                         QString::number(ip_port.second),msg}
-                        );
+                    bool sent = db->storeMessage(m);
+                    if(sent)
+                    {
+                        auto ip_port = p->second;
+                        x = ProtocolManager::serialize(
+                            ProtocolManager::PrivateMessageAccept,
+                            {uname,ip_port.first.toString(),
+                             QString::number(ip_port.second),msg}
+                            );
+                    }
+                    else
+                        x = ProtocolManager::serialize(
+                            ProtocolManager::PrivateMessageDenied,
+                            {"Error storing message."}
+                            );
                 }
                 clientSocket->write(x);
                 break;

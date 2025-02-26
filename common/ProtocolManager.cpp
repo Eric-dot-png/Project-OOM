@@ -41,12 +41,13 @@ QByteArray ProtocolManager::serialize(MessageType t,
         }
         case PrivateMessageRequest:
         {
-            if (argc == 2)
+            if (argc == 3)
             {
                 QJsonObject ret({
                         {"Type", t},
                         {"To", argv[0]},
-                        {"Message", argv[1]}
+                        {"From", argv[1]},
+                        {"Message", argv[2]}
                     });
                 return QJsonDocument(ret).toJson();
             }
@@ -62,6 +63,19 @@ QByteArray ProtocolManager::serialize(MessageType t,
                         {"Ip", argv[1]},
                         {"Port", argv[2]},
                         {"Message", argv[3]}
+                    });
+                return QJsonDocument(ret).toJson();
+            }
+            else throw(ProtocolError());
+        }
+        case PrivateMessageAcceptOffline:
+        {
+            if (argc == 2)
+            {
+                QJsonObject ret({
+                        {"Type", t},
+                        {"To", argv[0]},
+                        {"Message", argv[1]}
                     });
                 return QJsonDocument(ret).toJson();
             }

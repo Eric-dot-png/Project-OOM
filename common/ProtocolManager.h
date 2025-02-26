@@ -35,6 +35,7 @@ public:
         AnnounceOffline,
         PrivateMessageRequest,
         PrivateMessageAccept,
+        PrivateMessageAcceptOffline,
         PrivateMessageDenied,
         PrivateMessageForward,
         PrivateMessage,

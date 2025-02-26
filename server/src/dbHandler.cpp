@@ -261,7 +261,8 @@ bool dbHandler::storeMessage(const QJsonObject & m)
         + m["Message"].toString().toStdString() + "')";
     if(mysql_query(connection, q.c_str()))
     {
-        qDebug() << "Could not save new message";
+        qDebug() << q.c_str();
+        qDebug() << "Could not save new message" << mysql_error(connection);
         return 0;
     }
     result = mysql_store_result(connection);
@@ -343,3 +344,43 @@ bool dbHandler::addFriend(const User & u1, const User & u2)
     return 1;
 }
 
+std::list<QString> dbHandler::getFriendslist(const User & u)
+{
+    MYSQL_RES * result;
+    MYSQL_ROW row;
+    std::list<QString> ret;
+
+    std::string q = "select u2 from Friends where u1='"
+        + u.get_username().toStdString() + "'";
+    if(mysql_query(connection, q.c_str()))
+    {
+        qDebug() << "select 1 fail in getFriendslist()";
+        return {};
+    }
+    result = mysql_store_result(connection);
+    row = mysql_fetch_row(result);
+    while(row != NULL)
+    {
+        ret.push_back(row[0]);
+        row = mysql_fetch_row(result);
+    }
+    mysql_free_result(result);
+
+    q = "select u1 from Friends where u2='" + u.get_username().toStdString()
+        + "'";
+    if(mysql_query(connection, q.c_str()))
+    {
+        qDebug() << "select 2 fail in getFriendslist()";
+        return {};
+    }
+    result = mysql_store_result(connection);
+    row = mysql_fetch_row(result);
+    while(row != NULL)
+    {
+        ret.push_back(row[0]);
+        row = mysql_fetch_row(result);
+    }
+    mysql_free_result(result);
+
+    return ret;
+}

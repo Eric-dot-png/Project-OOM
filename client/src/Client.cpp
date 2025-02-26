@@ -264,7 +264,9 @@ void Client::privateMessage(const User& u, const QString& message)
             // ask the server for the ip and port of the guy
             socket->write(ProtocolManager::serialize(
                               ProtocolManager::PrivateMessageRequest,
-                              { u.get_username(), message }
+                              { u.get_username(),
+                                current_user.get_username(),
+                                message }
                               )
                 );
         }

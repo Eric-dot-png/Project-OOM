@@ -38,6 +38,8 @@ public:
 
     //returns 1 if friendship created
     bool addFriend(const User &, const User &);
+    //returns friendlist(WOW!)
+    std::list<QString> getFriendslist(const User &);
     
 private:
     dbHandler();
