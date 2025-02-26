@@ -477,6 +477,8 @@ void Client::handleAuthenticatingAccountState(const QJsonObject& m)
                      << current_user.get_username()
                      << "Authenticated";
             state = ClientState::Connected;
+            //login(current_user);
+            
             emit accountAuthenticated();
             break;
         }

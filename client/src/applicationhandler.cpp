@@ -86,8 +86,8 @@ ApplicationHandler::ApplicationHandler(QWidget *parent)
 
     //After authentication code is validated, move to privateMessages
     connect(client, &Client::accountAuthenticated, this, [=]() {
-        qDebug() << "Clientside account authenticated, moving to privateMessages.";
-        switchToWidget(stackedWidget->indexOf(PrivateMessagesWidget));
+        qDebug() << "Clientside account authenticated, moving to login.";
+        switchToWidget(stackedWidget->indexOf(LoginWidget));
     });
 
     //Also Goto Login form -> PrivateMessages
