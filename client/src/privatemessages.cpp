@@ -91,10 +91,12 @@ void PrivateMessages::onEnterKeyPressed()
 
     Message msg = Message(client->getUser().get_username(), currentlyMessaging.get_username(), msgContent);
 
+    QString user = currentlyMessaging.get_username();
+
     ui->textBrowser->append(formatClientMessage());
     ui->textEdit->clear();
 
-    client->privateMessage(client->getUser(), msg.get_msg());
+    client->privateMessage(user, msg.get_msg());
 
     //Testing; will remove later
     //loadPage();

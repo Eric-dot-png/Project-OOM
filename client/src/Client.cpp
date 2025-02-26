@@ -331,8 +331,9 @@ void Client::sendDataToOtherClient(const QHostAddress& ip,
                                    const QByteArray & data) const
 {
     QTcpSocket tempSocket;
+    qDebug() << "Trying to connect to" << ip << "port:" << port;
     tempSocket.connectToHost(ip,port);
-
+    
     if (!tempSocket.waitForConnected(20000))
     {
         qDebug() << "Timeout, could not send message";
@@ -364,11 +365,15 @@ void Client::handleLoggedInState(const QJsonObject& m)
         {
             QHostAddress ip(m["Ip"].toString());
             QString u(m["To"].toString());
-            quint16 port(m["Port"].toInt());
+            qDebug() << "Port try1:" << m["Port"].toString();
+            
+            quint16 port(m["Port"].toString().toInt());
             QString message(m["Message"].toString());
                 
-            usermap[u] = {ip,port};
 
+            qDebug() << "Port try2:" << port;
+            usermap[u] = {ip,port};
+          
             sendDataToOtherClient(ip,port,
                                   ProtocolManager::serialize(
                                       ProtocolManager::PrivateMessage,
