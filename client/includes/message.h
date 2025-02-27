@@ -6,6 +6,7 @@
 class Message
 {
 public:
+    //Later change this to User, User, Qstring i think?
     explicit Message(const QString &sender, const QString &receiver, const QString &msg);
 
     

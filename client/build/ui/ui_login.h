@@ -66,10 +66,12 @@ public:
         passwordTextbox = new QLineEdit(Login);
         passwordTextbox->setObjectName(QString::fromUtf8("passwordTextbox"));
         passwordTextbox->setGeometry(QRect(320, 280, 113, 28));
-        passwordTextbox->setEchoMode(QLineEdit::EchoMode::Password);
+        passwordTextbox->setMaxLength(30);
+        passwordTextbox->setEchoMode(QLineEdit::Password);
         usernameTextbox = new QLineEdit(Login);
         usernameTextbox->setObjectName(QString::fromUtf8("usernameTextbox"));
         usernameTextbox->setGeometry(QRect(320, 230, 113, 28));
+        usernameTextbox->setMaxLength(20);
         usernameTextbox->setClearButtonEnabled(false);
         usernameTextbox->raise();
         label->raise();

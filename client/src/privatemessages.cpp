@@ -23,9 +23,13 @@ PrivateMessages::PrivateMessages(QWidget *parent)
     enterFilter = new EnterKeyFilter(this);
     ui->textEdit->installEventFilter(enterFilter);
 
+    //Connect enter key
     connect(enterFilter, &EnterKeyFilter::enterPressed, this, &PrivateMessages::onEnterKeyPressed);
+
+    //Detect enter key
     connect(ui->searchUserTextbox, &QLineEdit::returnPressed, this, &PrivateMessages::searchUser);
 
+    //Show message when there is an incoming message
     connect(client, &Client::recievedDM, this, &PrivateMessages::receivedMessage);
 
 
@@ -37,11 +41,28 @@ PrivateMessages::PrivateMessages(QWidget *parent)
 
     //If searching for a user succeeds
     connect(client, &Client::discoverUserSucceed, this, [=](const QString& username, const QList<QJsonObject> & messageJsonList){
+
         ui->userNotFoundLabel->clear();
         ui->friendNameLabel->setText("Now messaging: " + username);
         currentlyMessaging = User(username);
         qDebug() << currentlyMessaging.get_username();
+
         qDebug() << messageJsonList;
+
+        for (auto it = messageJsonList.rbegin(); it != messageJsonList.rend(); ++it)
+        {
+            QJsonObject obj = *it;
+            QString to = obj["To"].toString();
+            QString from = obj["From"].toString();
+            QString msg = obj["Message"].toString();
+            qDebug() << to + ' ' + from + ' ' + msg;
+
+            ui->textBrowser->appendMessage(Message(from, to, msg), 1);
+
+        }
+
+        qDebug() << "Done with lambda";
+
     });
 }
 
@@ -55,6 +76,8 @@ PrivateMessages::~PrivateMessages()
 
 void PrivateMessages::searchUser()
 {
+    ui->textBrowser->clearHistory();
+    ui->textBrowser->clear();
     qDebug() << "Searching for user: " << ui->searchUserTextbox->text();
     User u = User(ui->searchUserTextbox->text());
 
@@ -96,7 +119,7 @@ void PrivateMessages::onEnterKeyPressed()
     QString user = currentlyMessaging.get_username();
 
     //ui->textBrowser->append(formatClientMessage());
-    ui->textBrowser->appendMessage(Message(client->getUser().get_username(), currentlyMessaging.get_username(), msgContent));
+    ui->textBrowser->appendMessage(Message(client->getUser().get_username(), currentlyMessaging.get_username(), msgContent), 0);
     //ui->textBrowser->appendMessage(client->getUser().get_username(), currentlyMessaging.get_username(), msgContent);
     ui->textEdit->clear();
 
@@ -110,9 +133,12 @@ void PrivateMessages::receivedMessage(QString from, QString msg)
 {
     if (from == currentlyMessaging.get_username())
         //ui->textBrowser->appendMessage(currentlyMessaging.get_username(), client->getUser().get_username(), msg);
-        ui->textBrowser->appendMessage(Message(currentlyMessaging.get_username(), client->getUser().get_username(), msg));
+        ui->textBrowser->appendMessage(Message(currentlyMessaging.get_username(), client->getUser().get_username(), msg), 0);
 }
 
+
+
+//Not used, will be used later for servers!
 void PrivateMessages::loadPage()
 {
     //deserialize?

@@ -103,7 +103,8 @@ void Server::onNewConnection()
             {
                 qDebug() << "recieved msg forward...";
                 // put the message into the logger.
-                
+                bool sent = db->storeMessage(m);
+
                 break;
             }
             case ProtocolManager::PrivateMessageRequest:

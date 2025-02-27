@@ -140,8 +140,11 @@
    <property name="inputMask">
     <string/>
    </property>
+   <property name="maxLength">
+    <number>30</number>
+   </property>
    <property name="echoMode">
-    <enum>QLineEdit::EchoMode::Password</enum>
+    <enum>QLineEdit::Password</enum>
    </property>
    <property name="placeholderText">
     <string>Password</string>
@@ -155,6 +158,9 @@
      <width>113</width>
      <height>28</height>
     </rect>
+   </property>
+   <property name="maxLength">
+    <number>20</number>
    </property>
    <property name="placeholderText">
     <string>Username</string>

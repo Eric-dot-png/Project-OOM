@@ -34,6 +34,9 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
+   <property name="maxLength">
+    <number>20</number>
+   </property>
   </widget>
   <widget class="QLineEdit" name="passwordEdit">
    <property name="geometry">
@@ -50,8 +53,11 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
+   <property name="maxLength">
+    <number>30</number>
+   </property>
    <property name="echoMode">
-    <enum>QLineEdit::EchoMode::Password</enum>
+    <enum>QLineEdit::Password</enum>
    </property>
   </widget>
   <widget class="QLineEdit" name="emailEdit">
@@ -68,6 +74,9 @@
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
+   </property>
+   <property name="maxLength">
+    <number>100</number>
    </property>
   </widget>
   <widget class="QLabel" name="label">
@@ -224,8 +233,11 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
+   <property name="maxLength">
+    <number>30</number>
+   </property>
    <property name="echoMode">
-    <enum>QLineEdit::EchoMode::Password</enum>
+    <enum>QLineEdit::Password</enum>
    </property>
   </widget>
   <widget class="QLabel" name="emailConfirmLabel">

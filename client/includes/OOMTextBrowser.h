@@ -7,15 +7,21 @@
 
 #include "message.h"
 
+//REMOVE ?
+
 class OOMTextBrowser : public QTextBrowser {
     Q_OBJECT
 
 public:
     explicit OOMTextBrowser(QWidget *parent = nullptr);
 
-    void appendMessage(const Message &msg);
+    void appendMessage(const Message &msg, bool history);
+    void addMessageToHistory(const Message msg);
 
     const QVector<Message>& getMessages() const { return messageList; }
+    void clearHistory() { messageList.clear(); }
+
+
 
 private:
     QVector<Message> messageList;
