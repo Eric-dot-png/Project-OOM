@@ -4,12 +4,15 @@
 //File: main.cpp
 //OOM project
 
+#include <QApplication>
+#include <QDebug>
+
+#include "config.h"
 #include "applicationhandler.h"
 #include "oomwidget.h"
 #include "Client.h"
-#include <QApplication>
-#include <QDebug>
 #include "regMachine.h"
+
 
 void customMessageHandler(QtMsgType type, const QMessageLogContext &context,
                           const QString &msg)
@@ -21,9 +24,12 @@ void customMessageHandler(QtMsgType type, const QMessageLogContext &context,
 
 int main(int argc, char *argv[])
 {
-    //Show debug information
-    qInstallMessageHandler(customMessageHandler);
-    QLoggingCategory::setFilterRules("*.debug=true");
+    if (DEBUG_MODE)
+    {
+        // Show debug information
+        qInstallMessageHandler(customMessageHandler);
+        QLoggingCategory::setFilterRules("*.debug=true");
+    }
     
     //Main app
     QApplication a(argc, argv);

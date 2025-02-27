@@ -7,12 +7,14 @@
 #include <unordered_map>
 #include <stdexcept>
 
+#include <QNetworkInterface>
 #include <QHostAddress>
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QObject>
 #include <QDebug>
 
+#include "config.h"
 #include "ProtocolManager.h"
 #include "User.h"
 
@@ -64,16 +66,6 @@ public:
     // puts the client into  Connected State
     void submitAuthCode(const QString&);
 
-    // must be in Logged in state
-    // sends server the client's ip and port, and allows recieving of
-    // messages
-    void openListener();
-
-    // must be in Logged in state
-    // tells the server that the client no longer listening, and
-    // stops recieving message
-    void closeListener();
-
     void discover(const User& u);
     
     void privateMessage(const User& u, const QString& message);
@@ -100,20 +92,35 @@ private slots: // these are functions that are connected to signals
 private:
     Client(QObject * parent=NULL);
     ~Client();
-        
+
+    
+    // must be in Logged in state
+    // sends server the client's ip and port, and allows recieving of
+    // messages
+    void openListener();
+    
+    // must be in Logged in state
+    // tells the server that the client no longer listening, and
+    // stops recieving message
+    void closeListener();
+
+    
+    QHostAddress getDeviceIpAddress(); // returns first non-loopback
+                                       // ipv4 address
+    
     void sendDataToOtherClient(const QHostAddress& ip,
                                const quint16& port,
                                const QByteArray & data) const;
         
-        
     /************************************************************
            The following functions handle the client's state.
-           They are called inside of onReply()
+           They are called inside of onReply().
+
+           Note : Eric is actively trying to remove this
     *************************************************************/
     void handleLoggedInState(const QJsonObject& m);
     void handleLoggingInState(const QJsonObject& m);
     void handleCreatingAccountState(const QJsonObject& m);
-    void handleAuthenticatingAccountState(const QJsonObject& m);
     /************************************************************/
 
     

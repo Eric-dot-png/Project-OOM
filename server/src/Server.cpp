@@ -25,7 +25,7 @@ Server::Server(int port, QObject * parent)
 
     connect(timer, &QTimer::timeout, this, &Server::update);
     
-    if (listener_->listen(QHostAddress::LocalHost, port))
+    if (listener_->listen(SERVER_IP, SERVER_PORT))
         qDebug() << "Listening on port" 
                  << listener_->serverPort() << "...";
     else
@@ -104,7 +104,6 @@ void Server::onNewConnection()
                 qDebug() << "recieved msg forward...";
                 // put the message into the logger.
                 bool sent = db->storeMessage(m);
-
                 break;
             }
             case ProtocolManager::PrivateMessageRequest:
@@ -112,7 +111,7 @@ void Server::onNewConnection()
                 qDebug() << "recieved msg request...";
                 QString uname = m["To"].toString();
                 QString msg = m["Message"].toString();
-
+                
                 User u(uname,"","");
                 bool exists = !db->availUsername(u);
                 auto p = usermap.find(uname);

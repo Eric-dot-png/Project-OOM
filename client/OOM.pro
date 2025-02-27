@@ -42,6 +42,7 @@ SOURCES += \
     src/OOMTextBrowser.cpp
     
 HEADERS += \
+    ../common/config.h \
     includes/oomwidget.h \
     includes/Client.h \
     ../common/ProtocolManager.h \

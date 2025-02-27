@@ -8,6 +8,8 @@
 #include "dbHandler.h"
 #include <mysql.h>
 
+#include "config.h"
+
 void customMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     if (!QString(context.category).startsWith("qt")) {
@@ -18,10 +20,14 @@ void customMessageHandler(QtMsgType type, const QMessageLogContext &context, con
 int main(int argc, char* argv[])
 {
     srand(time(NULL));
-    qInstallMessageHandler(customMessageHandler);
-    QLoggingCategory::setFilterRules("*.debug=true");
+    if (DEBUG_MODE)
+    {
+        qInstallMessageHandler(customMessageHandler);
+        QLoggingCategory::setFilterRules("*.debug=true");
+    }
+    
     QCoreApplication app(argc, argv);
-    Server * s = Server::getInstance();    
+    Server::getInstance();    
     int out = app.exec();
     
     dbHandler::destroyInstance();

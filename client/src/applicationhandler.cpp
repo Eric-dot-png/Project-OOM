@@ -13,8 +13,7 @@
 ApplicationHandler::ApplicationHandler(QWidget *parent)
     : OOMWidget(parent)
 {
-    int port = 1234; // replace LocalHost and Port when ready
-    client->connectToServer(QHostAddress::LocalHost, port);
+    client->connectToServer(SERVER_IP, SERVER_PORT);
     
     /*
      * Stacked widget to allow seemless transitioning between forms.

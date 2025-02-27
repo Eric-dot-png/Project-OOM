@@ -21,6 +21,8 @@
 #include "dbHandler.h"
 #include <unordered_map>
 
+#include "config.h"
+
 class Server : public QObject
 {
     Q_OBJECT 

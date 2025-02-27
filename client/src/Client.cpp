@@ -141,8 +141,10 @@ void Client::openListener()
         listener = new QTcpServer(this);
         connect(listener, &QTcpServer::newConnection, this,
                 &Client::onDM);    
+
+        QHostAddress ip = getDeviceIpAddress();
         
-        if (listener->listen(QHostAddress::LocalHost, 0))
+        if (listener->listen(ip, 0))
         {
             qDebug() << "Announcing Ip and Port:"
                      << listener->serverAddress().toString()
@@ -311,6 +313,20 @@ void Client::onDM()
         QJsonObject json = ProtocolManager::deserialize(data);
         emit recievedDM(json["From"].toString(),json["Message"].toString());
     });
+}
+
+QHostAddress Client::getDeviceIpAddress()
+{
+    if (LOCAL_MODE) return QHostAddress::LocalHost;
+    else
+    {
+        for (const QHostAddress& addr : QNetworkInterface::allAddresses())
+            if (addr.protocol() != QAbstractSocket::IPv4Protocol
+                && !addr.isLoopback()) return addr;
+
+        qDebug() << "No address found in network interface?? Returning ()";
+        return QHostAddress();
+    }
 }
 
 void Client::sendDataToOtherClient(const QHostAddress& ip,
