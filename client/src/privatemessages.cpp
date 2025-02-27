@@ -36,11 +36,12 @@ PrivateMessages::PrivateMessages(QWidget *parent)
     });
 
     //If searching for a user succeeds
-    connect(client, &Client::discoverUserSucceed, this, [=](const QString& username){
+    connect(client, &Client::discoverUserSucceed, this, [=](const QString& username, const QList<QJsonObject> & messageJsonList){
         ui->userNotFoundLabel->clear();
         ui->friendNameLabel->setText("Now messaging: " + username);
         currentlyMessaging = User(username);
         qDebug() << currentlyMessaging.get_username();
+        qDebug() << messageJsonList;
     });
 }
 

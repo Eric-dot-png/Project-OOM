@@ -90,7 +90,8 @@ signals: // these are signals that trigger effects for the UI
     
     void recievedDM(const QString& from, const QString& msg);
     void discoverUserFail(const QString& username);
-    void discoverUserSucceed(const QString& username);
+    void discoverUserSucceed(const QString& username,
+                             const QList<QJsonObject> & messageJsonList);
                                                             
 private slots: // these are functions that are connected to signals
     void onReply(); // this function called to handle server info

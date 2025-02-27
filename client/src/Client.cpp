@@ -340,7 +340,17 @@ void Client::handleLoggedInState(const QJsonObject& m)
     {
         case ProtocolManager::DiscoveryAccept:
         {
-            emit discoverUserSucceed(m["Username"].toString());
+            QStringList messagelist = m["Messages"].toString().split(":;:");
+            QList<QJsonObject> messageJsonList;
+            for(QString str : messagelist)
+            {
+                QJsonDocument d = QJsonDocument::fromJson(str.toUtf8());
+                if(!d.isNull() && d.isObject())
+                    messageJsonList.append(d.object());
+            }
+            
+            emit discoverUserSucceed(m["Username"].toString(),
+                                     messageJsonList);
             break;
         }
         case ProtocolManager::DiscoveryFail:
