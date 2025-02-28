@@ -14,11 +14,15 @@
 #include "message.h"
 
 PrivateMessages::PrivateMessages(QWidget *parent)
-    : OOMWidget(parent), ui(new Ui::PrivateMessages), currentlyMessaging(NULL)
+    : OOMWidget(parent), ui(new Ui::PrivateMessages),
+      currentlyMessaging("","","")
 {
+    QTimer * timer = new QTimer(this);
     ui->setupUi(this);
     ui->friendNameLabel->clear();
 
+    connect(timer,&QTimer::timeout, this, &PrivateMessages::update);
+    
     //This allows the textbox to detect the enter key
     enterFilter = new EnterKeyFilter(this);
     ui->textEdit->installEventFilter(enterFilter);
@@ -62,8 +66,9 @@ PrivateMessages::PrivateMessages(QWidget *parent)
         }
 
         qDebug() << "Done with lambda";
-
+        
     });
+    timer->start(1000);
 }
 
 PrivateMessages::~PrivateMessages()
@@ -181,5 +186,14 @@ void PrivateMessages::loadPage()
         //Message message(from, to, msg);
 
         qDebug() << "To:" << to << "| From:" << from <<"| Msg:" << msg;
+    }
+}
+
+void PrivateMessages::update()
+{
+    if (currentlyMessaging.get_username() != "") 
+    {
+        ui->textBrowser->clear();
+        client->discover(currentlyMessaging);
     }
 }

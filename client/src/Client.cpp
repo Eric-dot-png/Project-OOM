@@ -333,6 +333,8 @@ void Client::sendDataToOtherClient(const QHostAddress& ip,
                                    const quint16& port,
                                    const QByteArray & data) const
 {
+    return;
+    
     QTcpSocket tempSocket;
     qDebug() << "Trying to connect to" << ip << "port:" << port;
     tempSocket.connectToHost(ip,port);
@@ -365,7 +367,7 @@ void Client::handleLoggedInState(const QJsonObject& m)
                     messageJsonList.append(d.object());
             }
             
-            emit discoverUserSucceed(m["Username"].toString(),
+s            emit discoverUserSucceed(m["Username"].toString(),
                                      messageJsonList);
             break;
         }

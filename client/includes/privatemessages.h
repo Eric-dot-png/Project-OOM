@@ -11,9 +11,13 @@
 
 #include <QWidget>
 #include <QKeyEvent>
+#include <QTimer>
+
 #include "oomwidget.h"
 #include "Client.h"
 #include "ui_privatemessages.h"
+
+
 //#include "message.h"
 
 
@@ -56,8 +60,8 @@ private slots:
 
     //Takes the json file and parses it
     void loadPage();
-
-
+    
+    void update(); // fuck
 signals:
 
 
