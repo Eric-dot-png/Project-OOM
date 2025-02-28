@@ -15,13 +15,11 @@ diagrams:
         - src
         - includes
         - ../common
-  client_sequence_diagram:
+  regMachine_sequence_diagram:
     type: sequence
     glob:
-      - src/*.cpp
-      - includes/*.h
-      - ../common/*.cpp
-      - ../common/*.h
+      - src/regMachine.cpp
+      - includes/regMachine.h
     include:
       paths:
         - src
@@ -29,6 +27,39 @@ diagrams:
         - ../common
     from:
       - function:
-          r: "main.*"
+          r: ".*"
     generate_condition_statements: true
     generate_return_types: true
+    inline_lambda_messages: true
+  applicationhandler_sequence_diagram:
+    type: sequence
+    glob:
+      - src/applicationhandler.cpp
+      - includes/applicationhandler.h
+    include:
+      paths:
+        - src
+        - includes
+        - ../common
+    from:
+      - function:
+          r: ".*"
+    generate_condition_statements: true
+    generate_return_types: true
+    inline_lambda_messages: true
+  register_sequence_diagram:
+    type: sequence
+    glob:
+      - src/register.cpp
+      - includes/register.h
+    include:
+      paths:
+        - src
+        - includes
+        - ../common
+    from:
+      - function:
+          r: ".*"
+    generate_condition_statements: true
+    generate_return_types: true
+    inline_lambda_messages: true

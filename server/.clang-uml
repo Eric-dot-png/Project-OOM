@@ -15,13 +15,11 @@ diagrams:
         - src
         - includes
         - ../common
-  server_sequence_diagram:
+  dbHandler_sequence_diagram:
     type: sequence
     glob:
-      - src/*.cpp
-      - includes/*.h
-      - ../common/*.cpp
-      - ../common/*.h
+      - src/dbHandler.cpp
+      - includes/dbHandler.h
     include:
       paths:
         - src
@@ -29,6 +27,6 @@ diagrams:
         - ../common
     from:
       - function:
-          r: "Server::onNewConnection.*"
+          r: ".*"
     generate_condition_statements: true
     generate_return_types: true
