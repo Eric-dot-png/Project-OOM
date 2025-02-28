@@ -50,6 +50,8 @@ private:
     dbHandler * db;
     std::unordered_map<QString,
                        std::pair<QHostAddress, quint16>> usermap;
+
+    std::unordered_map<QString, QTcpSocket*> onlineUserMap;
 };
 
 #endif

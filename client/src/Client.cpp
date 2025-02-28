@@ -225,43 +225,46 @@ void Client::privateMessage(const User& u, const QString& message)
     {
         qDebug() << "Attempting private message...";
 
-        if (usermap.find(u.get_username()) != usermap.end())
-        {
-            qDebug() << "Already have target user information,"
-                     << "continuing...";
-            // forward the message to the server
-            socket->write(
-                ProtocolManager::serialize(
-                    ProtocolManager::PrivateMessageForward, {
-                        u.get_username(), current_user.get_username(),
-                        message }
-                    )
-                );
+        writeToServer(ProtocolManager::PrivateMessage,
+                      {u.get_username(),
+                       current_user.get_username(), message});
+        // if (usermap.find(u.get_username()) != usermap.end())
+        // {
+        //     qDebug() << "Already have target user information,"
+        //              << "continuing...";
+        //     // forward the message to the server
+        //     socket->write(
+        //         ProtocolManager::serialize(
+        //             ProtocolManager::PrivateMessageForward, {
+        //                 u.get_username(), current_user.get_username(),
+        //                 message }
+        //             )
+        //         );
                 
-            // send the message to the user
-            auto ip_port = usermap[u.get_username()];
-            sendDataToOtherClient(ip_port.first, ip_port.second,
-                                  ProtocolManager::serialize(
-                                      ProtocolManager::PrivateMessage, {
-                                          u.get_username(),
-                                          current_user.get_username(),
-                                          message }
-                                      )
-                );
-        }
-        else
-        {
-            qDebug() << "Don't have target user information,"
-                     << "Requesting it";
-            // ask the server for the ip and port of the guy
-            socket->write(ProtocolManager::serialize(
-                              ProtocolManager::PrivateMessageRequest,
-                              { u.get_username(),
-                                current_user.get_username(),
-                                message }
-                              )
-                );
-        }
+        //     // send the message to the user
+        //     auto ip_port = usermap[u.get_username()];
+        //     sendDataToOtherClient(ip_port.first, ip_port.second,
+        //                           ProtocolManager::serialize(
+        //                               ProtocolManager::PrivateMessage, {
+        //                                   u.get_username(),
+        //                                   current_user.get_username(),
+        //                                   message }
+        //                               )
+        //         );
+        // }
+        // else
+        // {
+        //     qDebug() << "Don't have target user information,"
+        //              << "Requesting it";
+        //     // ask the server for the ip and port of the guy
+        //     socket->write(ProtocolManager::serialize(
+        //                       ProtocolManager::PrivateMessageRequest,
+        //                       { u.get_username(),
+        //                         current_user.get_username(),
+        //                         message }
+        //                       )
+        //         );
+        // }
     }
     else
     {
@@ -273,7 +276,7 @@ void Client::onReply()
 {
     QByteArray data = socket->readAll();
     qDebug() << "Received" << data << "from server.";
-        
+    
     QJsonObject m = ProtocolManager::deserialize(data);
         
     switch(state)
@@ -334,7 +337,6 @@ void Client::sendDataToOtherClient(const QHostAddress& ip,
                                    const QByteArray & data) const
 {
     return;
-    
     QTcpSocket tempSocket;
     qDebug() << "Trying to connect to" << ip << "port:" << port;
     tempSocket.connectToHost(ip,port);
@@ -356,6 +358,12 @@ void Client::handleLoggedInState(const QJsonObject& m)
 {
     switch(m["Type"].toInt())
     {
+        case ProtocolManager::PrivateMessage:
+        {
+            qDebug() << "oMg i gOt a mEsSagE";
+            emit recievedDM(m["From"].toString(), m["Message"].toString());
+            break;
+        }
         case ProtocolManager::DiscoveryAccept:
         {
             QStringList messagelist = m["Messages"].toString().split(":;:");
@@ -367,7 +375,7 @@ void Client::handleLoggedInState(const QJsonObject& m)
                     messageJsonList.append(d.object());
             }
             
-s            emit discoverUserSucceed(m["Username"].toString(),
+            emit discoverUserSucceed(m["Username"].toString(),
                                      messageJsonList);
             break;
         }

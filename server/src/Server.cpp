@@ -78,13 +78,28 @@ void Server::onNewConnection()
         QByteArray x; // message to send back
         switch(m["Type"].toInt())
         {
+            case ProtocolManager::PrivateMessage:
+            {
+                qDebug() << "Recieved private message";
+                QString to = m["To"].toString();
+                QString from = m["From"].toString();
+                QString msg = m["Message"].toString();
+
+                bool existing_user = !db->availUsername(to);
+                if (existing_user)
+                    db->storeMessage(m);
+
+                if (onlineUserMap.find(to) != onlineUserMap.end())
+                    onlineUserMap[to]->write(data);
+                break;
+            }
             case ProtocolManager::DiscoveryRequest:
             {
                 qDebug() << "recieved discovery request...";
                 QString usrname = m["Username"].toString();
                 User u(usrname,"");
                 bool existing_user = !db->availUsername(u);
-                qDebug() << existing_user;
+                //qDebug() << existing_user;
                 if (existing_user)
                 {
                     QString messagehistory = db->getMessages(m["CurrUser"].toString(), usrname);
@@ -171,6 +186,7 @@ void Server::onNewConnection()
                 {
                     x = ProtocolManager::serialize(
                         ProtocolManager::LoginAccept,{usr});
+                    onlineUserMap[usr] = clientSocket;
                 }
                 else // if log in failed
                 {
