@@ -70,7 +70,8 @@ void Server::onNewConnection()
     {
         // lambda function to handle client requests
         QByteArray data = clientSocket->readAll();
-        qDebug() << "Recieved" << data;
+        qDebug() << "Recieved" << data << "from"
+                 << clientSocket->socketDescriptor();
             
         QJsonObject m = ProtocolManager::deserialize(data);
         
