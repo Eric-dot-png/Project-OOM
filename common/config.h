@@ -4,7 +4,7 @@
 #include <QHostAddress>
 
 const bool DEBUG_MODE = true;
-const bool LOCAL_MODE = false;
+const bool LOCAL_MODE = true;
 
 const QHostAddress SERVER_IP = (LOCAL_MODE ? QHostAddress::LocalHost :
                                 QHostAddress("216.106.76.23")); // sample ip

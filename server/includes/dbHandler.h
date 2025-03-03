@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <mysql.h>
 #include <string>
-#include <iostream>
+#include <sstream>
 #include <cstdlib>
 #include <QDateTime>
 #include <list>
