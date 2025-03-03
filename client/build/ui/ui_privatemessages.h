@@ -30,34 +30,43 @@ public:
     QLineEdit *searchUserTextbox;
     QLabel *label;
     QLabel *userNotFoundLabel;
+    QLabel *currentUser;
 
     void setupUi(QWidget *PrivateMessages)
     {
         if (PrivateMessages->objectName().isEmpty())
             PrivateMessages->setObjectName(QString::fromUtf8("PrivateMessages"));
-        PrivateMessages->resize(796, 561);
+        PrivateMessages->resize(1244, 625);
+        QSizePolicy sizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(PrivateMessages->sizePolicy().hasHeightForWidth());
+        PrivateMessages->setSizePolicy(sizePolicy);
         textEdit = new QTextEdit(PrivateMessages);
         textEdit->setObjectName(QString::fromUtf8("textEdit"));
-        textEdit->setGeometry(QRect(160, 470, 481, 41));
+        textEdit->setGeometry(QRect(340, 480, 481, 41));
         textBrowser = new OOMTextBrowser(PrivateMessages);
         textBrowser->setObjectName(QString::fromUtf8("textBrowser"));
-        textBrowser->setGeometry(QRect(160, 150, 481, 301));
+        textBrowser->setGeometry(QRect(340, 160, 481, 301));
         friendNameLabel = new QLabel(PrivateMessages);
         friendNameLabel->setObjectName(QString::fromUtf8("friendNameLabel"));
-        friendNameLabel->setGeometry(QRect(160, 130, 441, 18));
+        friendNameLabel->setGeometry(QRect(340, 140, 441, 18));
         serverCombobox = new QComboBox(PrivateMessages);
         serverCombobox->setObjectName(QString::fromUtf8("serverCombobox"));
-        serverCombobox->setGeometry(QRect(630, 10, 151, 26));
+        serverCombobox->setGeometry(QRect(1070, 10, 151, 26));
         searchUserTextbox = new QLineEdit(PrivateMessages);
         searchUserTextbox->setObjectName(QString::fromUtf8("searchUserTextbox"));
-        searchUserTextbox->setGeometry(QRect(210, 30, 113, 26));
+        searchUserTextbox->setGeometry(QRect(430, 100, 113, 26));
         label = new QLabel(PrivateMessages);
         label->setObjectName(QString::fromUtf8("label"));
-        label->setGeometry(QRect(120, 30, 81, 20));
+        label->setGeometry(QRect(340, 100, 81, 20));
         userNotFoundLabel = new QLabel(PrivateMessages);
         userNotFoundLabel->setObjectName(QString::fromUtf8("userNotFoundLabel"));
-        userNotFoundLabel->setGeometry(QRect(330, 30, 191, 21));
+        userNotFoundLabel->setGeometry(QRect(550, 100, 191, 21));
         userNotFoundLabel->setWordWrap(true);
+        currentUser = new QLabel(PrivateMessages);
+        currentUser->setObjectName(QString::fromUtf8("currentUser"));
+        currentUser->setGeometry(QRect(10, 10, 58, 18));
         QWidget::setTabOrder(textEdit, serverCombobox);
         QWidget::setTabOrder(serverCombobox, textBrowser);
 
@@ -76,6 +85,7 @@ public:
         serverCombobox->setPlaceholderText(QCoreApplication::translate("PrivateMessages", "Choose a Server...", nullptr));
         label->setText(QCoreApplication::translate("PrivateMessages", "Search User:", nullptr));
         userNotFoundLabel->setText(QString());
+        currentUser->setText(QCoreApplication::translate("PrivateMessages", "TextLabel", nullptr));
     } // retranslateUi
 
 };

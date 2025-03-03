@@ -305,6 +305,19 @@
     <string>Show</string>
    </property>
   </widget>
+  <widget class="QLabel" name="loadingLabel">
+   <property name="geometry">
+    <rect>
+     <x>390</x>
+     <y>340</y>
+     <width>181</width>
+     <height>131</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>usrnameEdit</tabstop>

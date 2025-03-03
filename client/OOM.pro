@@ -11,6 +11,7 @@ CONFIG += c++17 console
 
 BUILD_DIR = $$PWD/build
 
+
             
 QMAKE_MKDIR = mkdir -p
 QMAKE_CLEAN += $$BUILD_DIR
@@ -67,3 +68,6 @@ TARGET = ./a.out
 #qnx: target.path = /tmp/$${TARGET}/bin
 #else: unix:!android: target.path = /opt/$${TARGET}/bin
 #!isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    resources.qrc

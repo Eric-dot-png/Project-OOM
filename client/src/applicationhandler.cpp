@@ -22,17 +22,15 @@ ApplicationHandler::ApplicationHandler(QWidget *parent)
      */
     stackedWidget = new QStackedWidget;
 
+
+    //Keeping these to load at app start since they are more likely to be needed at app start
     LoginWidget = new Login(this);
     RegisterWidget = new Register(this);
-    PrivateMessagesWidget = new PrivateMessages(this);
     AuthenticationWidget = new authenticationCode(this);
-
 
     stackedWidget->addWidget(LoginWidget);
     stackedWidget->addWidget(RegisterWidget);
-    stackedWidget->addWidget(PrivateMessagesWidget);
     stackedWidget->addWidget(AuthenticationWidget);
-
 
     stackedWidget->setCurrentIndex(0); // login page
 
@@ -56,12 +54,28 @@ ApplicationHandler::ApplicationHandler(QWidget *parent)
 
     //Goto Login form -> PrivateMessages form
     connect(LoginWidget, &Login::loginSuccess, this, [=]() {
+
+        if (!PrivateMessagesWidget) {
+            PrivateMessagesWidget = new PrivateMessages(this);
+            stackedWidget->addWidget(PrivateMessagesWidget);
+        }
+
         qDebug() << "Logged in, going to private messages form...";
         switchToWidget(stackedWidget->indexOf(PrivateMessagesWidget));
+
+        //Login, register and auth are done, mark for deletion
+        LoginWidget->deleteLater();
+        RegisterWidget->deleteLater();
+        AuthenticationWidget->deleteLater();
     });
 
     //Goto Login form -> Register form
     connect(LoginWidget, &Login::registerRequested, this, [=]() {
+        if (!RegisterWidget) {
+            RegisterWidget = new Register(this);
+            stackedWidget->addWidget(RegisterWidget);
+        }
+
         qDebug() << "Going to register form...";
         switchToWidget(stackedWidget->indexOf(RegisterWidget));
     });
@@ -83,16 +97,33 @@ ApplicationHandler::ApplicationHandler(QWidget *parent)
         switchToWidget(stackedWidget->indexOf(AuthenticationWidget));
     });
 
-    //After authentication code is validated, move to privateMessages
+    //After authentication code is validated, move to Login
     connect(client, &Client::accountAuthenticated, this, [=]() {
         qDebug() << "Clientside account authenticated, moving to login.";
         switchToWidget(stackedWidget->indexOf(LoginWidget));
     });
 
-    //Also Goto Login form -> PrivateMessages
+    //Login -> Private message, mark widgets that wont be used for deletion
     connect(client, &Client::loginSuccess, this, [=]() {
+
+        if (!PrivateMessagesWidget) {
+            PrivateMessagesWidget = new PrivateMessages(this);
+            stackedWidget->addWidget(PrivateMessagesWidget);
+        }
         qDebug() << "clientside loggedin";
         switchToWidget(stackedWidget->indexOf(PrivateMessagesWidget));
+
+        //Login, register and auth are done, mark for deletion
+        stackedWidget->removeWidget(LoginWidget);
+        stackedWidget->removeWidget(RegisterWidget);
+        stackedWidget->removeWidget(AuthenticationWidget);
+
+        //deleteLater() is for safe deletion by Qt, if we use 'delete ...Widget;', it might crash if Qt doesnt like it lol
+        LoginWidget->deleteLater();
+        RegisterWidget->deleteLater();
+        AuthenticationWidget->deleteLater();
+
+
     });
 } //End of Constructor
 

@@ -32,11 +32,6 @@ void Login::handleLogin() {
     User u(usr,pwd);
     client->login(u);
 
-
-
-    //BADBADBADBAD just for testing.
-    //emit loginSuccess();
-
 }
 
 //When register button is clicked, this will fire the

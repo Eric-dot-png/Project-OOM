@@ -35,6 +35,7 @@ public:
     QLabel *emailConfirmLabel;
     QLabel *passwordMatchLabel;
     QPushButton *showPasswordButton;
+    QLabel *loadingLabel;
 
     void setupUi(QWidget *Register)
     {
@@ -130,6 +131,9 @@ public:
         showPasswordButton->setObjectName(QString::fromUtf8("showPasswordButton"));
         showPasswordButton->setGeometry(QRect(370, 170, 41, 26));
         showPasswordButton->setCursor(QCursor(Qt::PointingHandCursor));
+        loadingLabel = new QLabel(Register);
+        loadingLabel->setObjectName(QString::fromUtf8("loadingLabel"));
+        loadingLabel->setGeometry(QRect(390, 340, 181, 131));
         QWidget::setTabOrder(usrnameEdit, passwordEdit);
         QWidget::setTabOrder(passwordEdit, confirmPasswordEdit);
         QWidget::setTabOrder(confirmPasswordEdit, emailEdit);
@@ -157,6 +161,7 @@ public:
         emailConfirmLabel->setText(QString());
         passwordMatchLabel->setText(QString());
         showPasswordButton->setText(QCoreApplication::translate("Register", "Show", nullptr));
+        loadingLabel->setText(QString());
     } // retranslateUi
 
 };

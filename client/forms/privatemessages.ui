@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>796</width>
-    <height>561</height>
+    <width>1244</width>
+    <height>625</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -16,8 +22,8 @@
   <widget class="QTextEdit" name="textEdit">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>470</y>
+     <x>340</x>
+     <y>480</y>
      <width>481</width>
      <height>41</height>
     </rect>
@@ -26,8 +32,8 @@
   <widget class="OOMTextBrowser" name="textBrowser">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>150</y>
+     <x>340</x>
+     <y>160</y>
      <width>481</width>
      <height>301</height>
     </rect>
@@ -36,8 +42,8 @@
   <widget class="QLabel" name="friendNameLabel">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>130</y>
+     <x>340</x>
+     <y>140</y>
      <width>441</width>
      <height>18</height>
     </rect>
@@ -49,7 +55,7 @@
   <widget class="QComboBox" name="serverCombobox">
    <property name="geometry">
     <rect>
-     <x>630</x>
+     <x>1070</x>
      <y>10</y>
      <width>151</width>
      <height>26</height>
@@ -65,8 +71,8 @@
   <widget class="QLineEdit" name="searchUserTextbox">
    <property name="geometry">
     <rect>
-     <x>210</x>
-     <y>30</y>
+     <x>430</x>
+     <y>100</y>
      <width>113</width>
      <height>26</height>
     </rect>
@@ -75,8 +81,8 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>120</x>
-     <y>30</y>
+     <x>340</x>
+     <y>100</y>
      <width>81</width>
      <height>20</height>
     </rect>
@@ -88,8 +94,8 @@
   <widget class="QLabel" name="userNotFoundLabel">
    <property name="geometry">
     <rect>
-     <x>330</x>
-     <y>30</y>
+     <x>550</x>
+     <y>100</y>
      <width>191</width>
      <height>21</height>
     </rect>
@@ -99,6 +105,19 @@
    </property>
    <property name="wordWrap">
     <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="currentUser">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>58</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
    </property>
   </widget>
  </widget>

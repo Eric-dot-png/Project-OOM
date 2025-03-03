@@ -17,11 +17,9 @@ PrivateMessages::PrivateMessages(QWidget *parent)
     : OOMWidget(parent), ui(new Ui::PrivateMessages),
       currentlyMessaging("","","")
 {
-    //QTimer * timer = new QTimer(this);
     ui->setupUi(this);
     ui->friendNameLabel->clear();
 
-    //connect(timer,&QTimer::timeout, this, &PrivateMessages::update);
     
     //This allows the textbox to detect the enter key
     enterFilter = new EnterKeyFilter(this);
@@ -68,7 +66,8 @@ PrivateMessages::PrivateMessages(QWidget *parent)
         qDebug() << "Done with lambda";
         
     });
-    //timer->start(1000);
+
+    ui->currentUser->setText(client->getUser().get_username());
 }
 
 PrivateMessages::~PrivateMessages()
@@ -123,21 +122,18 @@ void PrivateMessages::onEnterKeyPressed()
 
     QString user = currentlyMessaging.get_username();
 
-    //ui->textBrowser->append(formatClientMessage());
     ui->textBrowser->appendMessage(Message(client->getUser().get_username(), currentlyMessaging.get_username(), msgContent), 0);
-    //ui->textBrowser->appendMessage(client->getUser().get_username(), currentlyMessaging.get_username(), msgContent);
+
     ui->textEdit->clear();
 
     client->privateMessage(user, msg.get_msg());
 
-    //Testing; will remove later
-    //loadPage();
+
 }
 
 void PrivateMessages::receivedMessage(QString from, QString msg)
 {
     if (from == currentlyMessaging.get_username())
-        //ui->textBrowser->appendMessage(currentlyMessaging.get_username(), client->getUser().get_username(), msg);
         ui->textBrowser->appendMessage(Message(currentlyMessaging.get_username(), client->getUser().get_username(), msg), 0);
 }
 

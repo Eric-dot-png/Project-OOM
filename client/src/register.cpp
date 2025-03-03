@@ -9,6 +9,7 @@
 #include <iostream>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
+#include <QMovie>
 
 Register::Register(QWidget *parent)
     : OOMWidget(parent), registerUi(new Ui::Register)
@@ -25,7 +26,7 @@ Register::Register(QWidget *parent)
 
 
     //change this to signal from client when account creation fails
-    connect(registerUi->showPasswordButton, &QPushButton::clicked, this, &Register::setBackEnabled);
+    connect(client, &Client::accountNotCreated, this, &Register::setBackEnabled);
 } //end constructor
 
 Register::~Register()
@@ -52,7 +53,7 @@ bool Register::isValidPassword(const QString &password)
 bool Register::isValidEmail(const QString &email)
 {
     //domain\\.com
-    QRegularExpression re("^[a-zA-Z0-9._%+-]+@(gmail\\.com|yahoo\\.com|cougars\\.ccis\\.com)$");
+    QRegularExpression re("^[a-zA-Z0-9._%+-]+@(gmail\\.com|yahoo\\.com|cougars\\.ccis\\.edu)$");
 
     QRegularExpressionMatch match = re.match(email);
 
@@ -82,6 +83,10 @@ void Register::resetForm(bool fullForm)
 
 void Register::handleRegister()
 {
+    QMovie *loadingIcon = new QMovie(":/images/images/OOMloading.gif");
+    registerUi->loadingLabel->setMovie(loadingIcon);
+    loadingIcon->start();
+
     resetForm(false);
 
     //Username
@@ -118,13 +123,14 @@ void Register::handleRegister()
     {
         registerUi->emailConfirmLabel->setText(emailError);
         registerUi->passwordMatchLabel->setText(passwordError);
+        loadingIcon->stop();
     }
     else
     {
         registerUi->backToLoginButton->setEnabled(false);
         User user(u, p, e);
         client->createAccount(user);
-
+        loadingIcon->stop();
         //after registration is accepted, the client will switch from
         //this form to another.
     }
@@ -135,6 +141,7 @@ void Register::handleBack()
 {
     qDebug() << "Going back to Login Page...";
     resetForm(true);
+
     emit backToLogin();
 } //end Register::handleBack()
 
