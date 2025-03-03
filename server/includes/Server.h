@@ -34,23 +34,17 @@ private slots: // these are functions that are connected to signals
     void update();
     void onNewConnection(); // handles client requests 
 private:
-    Server(int port, QObject * parent=NULL);
+    Server(QObject * parent=NULL);
     ~Server();
     Server(const Server&) = delete;
     Server& operator=(const Server&) = delete;
-    
-    //Checks if the string is entirely made up of numbers
-    bool numeric(const QString &) const;
 
     static Server * instance;
 
     QTimer * timer;
-    int port_;
-    QTcpServer * listener_;
+    QTcpServer * listener;
     dbHandler * db;
-    std::unordered_map<QString,
-                       std::pair<QHostAddress, quint16>> usermap;
-
+    
     std::unordered_map<QString, QTcpSocket*> onlineUserMap;
 };
 
