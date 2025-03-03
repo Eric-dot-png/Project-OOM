@@ -13,21 +13,30 @@ QString pwdHash(const QString & s)
     return newS;
 }
 
+//Returns 1 if all characters in s are 0 <= char <= 9
+bool numeric(const QString & s) 
+{
+    for(const QChar & c : s)
+        if(c < '0' || c > '9')
+            return 0;
+    return 1;
+}
+
 Server * Server::instance(NULL);
 
-Server::Server(int port, QObject * parent)
-    : QObject(parent), port_(port), listener_(new QTcpServer(this)),
+Server::Server(QObject * parent)
+    : QObject(parent), listener(new QTcpServer(this)),
       timer(new QTimer(this))
 {
     timer->setInterval(60000); 
-    connect(listener_, &QTcpServer::newConnection, this,
+    connect(listener, &QTcpServer::newConnection, this,
             &Server::onNewConnection);
 
     connect(timer, &QTimer::timeout, this, &Server::update);
     
-    if (listener_->listen(SERVER_IP, SERVER_PORT))
+    if (listener->listen(SERVER_HOST_IP, SERVER_PORT))
         qDebug() << "Listening on port" 
-                 << listener_->serverPort() << "...";
+                 << listener->serverPort() << "...";
     else
         qDebug() << "ERROR: Server could not start!";
     db = dbHandler::GetInstance();
@@ -37,13 +46,13 @@ Server::Server(int port, QObject * parent)
     
 Server::~Server()
 {
-    listener_->close();
+    listener->close();
 }
     
 Server * Server::getInstance()
 {
     if (instance == NULL)
-        instance = new Server(1234);
+        instance = new Server;
     return instance;
 }
     
@@ -64,7 +73,7 @@ void Server::update()
 
 void Server::onNewConnection()
 {
-    QTcpSocket * clientSocket = listener_->nextPendingConnection();
+    QTcpSocket * clientSocket = listener->nextPendingConnection();
     connect(clientSocket, &QTcpSocket::readyRead, this, [this,
                                                          clientSocket]()
     {
@@ -72,7 +81,7 @@ void Server::onNewConnection()
         QByteArray data = clientSocket->readAll();
         qDebug() << "Recieved" << data << "from"
                  << clientSocket->socketDescriptor();
-            
+        
         QJsonObject m = ProtocolManager::deserialize(data);
         
         QByteArray x; // message to send back
@@ -82,13 +91,8 @@ void Server::onNewConnection()
             {
                 qDebug() << "Recieved private message";
                 QString to = m["To"].toString();
-                QString from = m["From"].toString();
-                QString msg = m["Message"].toString();
-
-                bool existing_user = !db->availUsername(to);
-                if (existing_user)
-                    db->storeMessage(m);
-
+                db->storeMessage(m);
+                
                 if (onlineUserMap.find(to) != onlineUserMap.end())
                     onlineUserMap[to]->write(data);
                 break;
@@ -99,7 +103,6 @@ void Server::onNewConnection()
                 QString usrname = m["Username"].toString();
                 User u(usrname,"");
                 bool existing_user = !db->availUsername(u);
-                //qDebug() << existing_user;
                 if (existing_user)
                 {
                     QString messagehistory = db->getMessages(m["CurrUser"].toString(), usrname);
@@ -112,67 +115,6 @@ void Server::onNewConnection()
                     x = ProtocolManager::serialize(
                         ProtocolManager::DiscoveryFail, {usrname}
                         );
-                clientSocket->write(x);
-                break;
-            }
-            case ProtocolManager::PrivateMessageForward:
-            {
-                qDebug() << "recieved msg forward...";
-                // put the message into the logger.
-                bool sent = db->storeMessage(m);
-                break;
-            }
-            case ProtocolManager::PrivateMessageRequest:
-            {
-                qDebug() << "recieved msg request...";
-                QString uname = m["To"].toString();
-                QString msg = m["Message"].toString();
-                
-                User u(uname,"","");
-                bool exists = !db->availUsername(u);
-                auto p = usermap.find(uname);
-                if (p == usermap.end() && !exists)
-                {
-                    x = ProtocolManager::serialize(
-                        ProtocolManager::PrivateMessageDenied,
-                        {"User Does Not Exist. "}
-                        );
-                }
-                else if (p == usermap.end())
-                {
-                    qDebug() << "User is not online... logging msg";
-                    // log message here
-                    bool sent = db->storeMessage(m);
-                    if(sent)
-                        x = ProtocolManager::serialize(
-                            ProtocolManager::PrivateMessageAcceptOffline,
-                            {uname, msg});
-                    else
-                        x = ProtocolManager::serialize(
-                            ProtocolManager::PrivateMessageDenied,
-                            {"Error sending message offline."}
-                            );
-                }
-                else
-                {
-                    qDebug() << "User is online, logging msg";
-                    // log message here
-                    bool sent = db->storeMessage(m);
-                    if(sent)
-                    {
-                        auto ip_port = p->second;
-                        x = ProtocolManager::serialize(
-                            ProtocolManager::PrivateMessageAccept,
-                            {uname,ip_port.first.toString(),
-                             QString::number(ip_port.second),msg}
-                            );
-                    }
-                    else
-                        x = ProtocolManager::serialize(
-                            ProtocolManager::PrivateMessageDenied,
-                            {"Error storing message."}
-                            );
-                }
                 clientSocket->write(x);
                 break;
             }
@@ -231,8 +173,7 @@ void Server::onNewConnection()
                 }
                 clientSocket->write(x);
                 break;
-            } // end of CreateAccountAuthCodeSubmit
-                    
+            } 
             case ProtocolManager::CreateAccountRequest:
             {
                 QString usr = m["Username"].toString();
@@ -277,48 +218,9 @@ void Server::onNewConnection()
                 } 
                 clientSocket->write(x);
                 break;
-            } // end of CreateAccountAuthCodeRequest
-            case ProtocolManager::AnnounceIpPort:
-            {
-                QString usr = m["Username"].toString();
-                QHostAddress ip(m["Ip"].toString());
-                quint16 port = m["Port"].toString().toInt();
-                if (usermap.find(usr) != usermap.end())
-                {
-                    qDebug() << "Warning! User already in map."
-                             << "Overwriting...";
-                }
-                usermap[usr] = {ip,port};
-                    
-                qDebug() << usr << "->" << ip << "," << port;
-                break;
-            }
-
-            case ProtocolManager::AnnounceOffline:
-            {
-                QString usr = m["Username"].toString();
-
-                usermap.erase(usr);
-                    
-                qDebug() << usr << "has been removed from usrmap";
-                break;
-            }
-                
-            default:
-            {
-                qDebug() << "Protocol" << m["Type"].toString()
-                << "not handled";
-
-            }
+            } 
         }
     });
 }
-    
-//Returns 1 if all characters in s are 0 <= char <= 9
-bool Server::numeric(const QString & s) const
-{
-    for(const QChar & c : s)
-        if(c < '0' || c > '9')
-            return 0;
-    return 1;
-}
+
+
