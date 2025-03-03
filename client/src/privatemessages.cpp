@@ -6,6 +6,7 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QTextBrowser>
 
 #include "OOMTextBrowser.h"
 #include "privatemessages.h"
@@ -57,11 +58,14 @@ PrivateMessages::PrivateMessages(QWidget *parent)
             QString to = obj["To"].toString();
             QString from = obj["From"].toString();
             QString msg = obj["Message"].toString();
+
             qDebug() << to + ' ' + from + ' ' + msg;
 
             ui->textBrowser->appendMessage(Message(from, to, msg), 1);
 
         }
+
+
 
         qDebug() << "Done with lambda";
         

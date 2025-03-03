@@ -25,6 +25,7 @@ public:
     QLabel *label;
     QPushButton *submitButton;
     QLabel *authFailedLabel;
+    QLabel *loadingLabel;
 
     void setupUi(QWidget *authenticationCode)
     {
@@ -49,6 +50,9 @@ public:
         font.setBold(true);
         authFailedLabel->setFont(font);
         authFailedLabel->setWordWrap(true);
+        loadingLabel = new QLabel(authenticationCode);
+        loadingLabel->setObjectName(QString::fromUtf8("loadingLabel"));
+        loadingLabel->setGeometry(QRect(270, 200, 45, 45));
 
         retranslateUi(authenticationCode);
 
@@ -61,6 +65,7 @@ public:
         label->setText(QCoreApplication::translate("authenticationCode", "Authentication code:", nullptr));
         submitButton->setText(QCoreApplication::translate("authenticationCode", "Submit", nullptr));
         authFailedLabel->setText(QString());
+        loadingLabel->setText(QString());
     } // retranslateUi
 
 };

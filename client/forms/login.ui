@@ -169,6 +169,19 @@
     <bool>false</bool>
    </property>
   </widget>
+  <widget class="QLabel" name="loadingLabel">
+   <property name="geometry">
+    <rect>
+     <x>560</x>
+     <y>270</y>
+     <width>45</width>
+     <height>45</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
   <zorder>usernameTextbox</zorder>
   <zorder>label</zorder>
   <zorder>label_2</zorder>
@@ -178,6 +191,7 @@
   <zorder>registerNotImplementedLabel</zorder>
   <zorder>authFailedLabel</zorder>
   <zorder>passwordTextbox</zorder>
+  <zorder>loadingLabel</zorder>
  </widget>
  <tabstops>
   <tabstop>usernameTextbox</tabstop>

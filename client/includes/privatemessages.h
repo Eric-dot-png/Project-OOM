@@ -70,6 +70,8 @@ private:
     EnterKeyFilter *enterFilter;
 
 
+
+
     //scuffed for now
     User currentlyMessaging;
 

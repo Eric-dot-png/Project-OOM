@@ -442,6 +442,7 @@ void Client::handleLoggingInState(const QJsonObject& m)
         {
             qDebug() << "Login Failed!";
             state = ClientState::Connected;
+            emit loginFail();
             break;
         }
         default:

@@ -133,7 +133,7 @@ public:
         showPasswordButton->setCursor(QCursor(Qt::PointingHandCursor));
         loadingLabel = new QLabel(Register);
         loadingLabel->setObjectName(QString::fromUtf8("loadingLabel"));
-        loadingLabel->setGeometry(QRect(390, 340, 181, 131));
+        loadingLabel->setGeometry(QRect(380, 320, 45, 45));
         QWidget::setTabOrder(usrnameEdit, passwordEdit);
         QWidget::setTabOrder(passwordEdit, confirmPasswordEdit);
         QWidget::setTabOrder(confirmPasswordEdit, emailEdit);

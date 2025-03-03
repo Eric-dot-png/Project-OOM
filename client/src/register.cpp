@@ -17,7 +17,7 @@ Register::Register(QWidget *parent)
 {
     registerUi->setupUi(this);
     registerUi->testLabel->clear();
-
+    registerUi->loadingLabel->setVisible(false);
 
     connect(registerUi->backToLoginButton, &QPushButton::clicked, this, &Register::handleBack);
     connect(registerUi->createAccountButton, &QPushButton::clicked, this, &Register::handleRegister);
@@ -83,6 +83,8 @@ void Register::resetForm(bool fullForm)
 
 void Register::handleRegister()
 {
+    registerUi->loadingLabel->setVisible(true);
+    //Loading Icon
     QMovie *loadingIcon = new QMovie(":/images/images/OOMloading.gif");
     registerUi->loadingLabel->setMovie(loadingIcon);
     loadingIcon->start();
@@ -123,16 +125,17 @@ void Register::handleRegister()
     {
         registerUi->emailConfirmLabel->setText(emailError);
         registerUi->passwordMatchLabel->setText(passwordError);
+
         loadingIcon->stop();
+        registerUi->loadingLabel->setVisible(false);
     }
     else
     {
         registerUi->backToLoginButton->setEnabled(false);
         User user(u, p, e);
         client->createAccount(user);
-        loadingIcon->stop();
-        //after registration is accepted, the client will switch from
-        //this form to another.
+
+
     }
 } //end Register::handleRegister()
 

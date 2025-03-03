@@ -30,6 +30,7 @@ public:
     QLabel *authFailedLabel;
     QLineEdit *passwordTextbox;
     QLineEdit *usernameTextbox;
+    QLabel *loadingLabel;
 
     void setupUi(QWidget *Login)
     {
@@ -73,6 +74,9 @@ public:
         usernameTextbox->setGeometry(QRect(320, 230, 113, 28));
         usernameTextbox->setMaxLength(20);
         usernameTextbox->setClearButtonEnabled(false);
+        loadingLabel = new QLabel(Login);
+        loadingLabel->setObjectName(QString::fromUtf8("loadingLabel"));
+        loadingLabel->setGeometry(QRect(560, 270, 45, 45));
         usernameTextbox->raise();
         label->raise();
         label_2->raise();
@@ -82,6 +86,7 @@ public:
         registerNotImplementedLabel->raise();
         authFailedLabel->raise();
         passwordTextbox->raise();
+        loadingLabel->raise();
         QWidget::setTabOrder(usernameTextbox, passwordTextbox);
         QWidget::setTabOrder(passwordTextbox, loginButton);
         QWidget::setTabOrder(loginButton, registerButton);
@@ -110,6 +115,7 @@ public:
         passwordTextbox->setInputMask(QString());
         passwordTextbox->setPlaceholderText(QCoreApplication::translate("Login", "Password", nullptr));
         usernameTextbox->setPlaceholderText(QCoreApplication::translate("Login", "Username", nullptr));
+        loadingLabel->setText(QString());
     } // retranslateUi
 
 };

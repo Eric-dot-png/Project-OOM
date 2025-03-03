@@ -6,6 +6,7 @@
 #include "login.h"
 #include "ui_login.h"
 #include <QDebug>
+#include <QMovie>
 #include <iostream>
 
 Login::Login(QWidget *parent)
@@ -13,10 +14,15 @@ Login::Login(QWidget *parent)
 
 {
     loginUi->setupUi(this);
-
+    loginUi->loadingLabel->setVisible(false);
     //Connect buttons to the below slots
     connect(loginUi->loginButton, &QPushButton::clicked, this, &Login::handleLogin);
     connect(loginUi->registerButton, &QPushButton::clicked, this, &Login::goToRegister);
+
+    connect(client, &Client::loginFail, this, [=]() {
+        loginUi->loadingLabel->setVisible(false);
+        loginUi->authFailedLabel->setText("Login failed! \nPlease try again or make an account if you don't have one!");
+    });
 }
 
 Login::~Login() {
@@ -26,6 +32,12 @@ Login::~Login() {
 //When login button is clicked, this slot is fired.
 //Gets username and password, sends to client to login.
 void Login::handleLogin() {
+    loginUi->loadingLabel->setVisible(true);
+    //Loading Icon
+    QMovie *loadingIcon = new QMovie(":/images/images/OOMloading.gif");
+    loginUi->loadingLabel->setMovie(loadingIcon);
+    loadingIcon->start();
+
     QString usr = loginUi->usernameTextbox->text();
     QString pwd = loginUi->passwordTextbox->text();
     

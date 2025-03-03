@@ -74,6 +74,7 @@ signals: // these are signals that trigger effects for the UI
     void connectedToServer();
     void disconnectedFromServer();
     void loginSuccess();
+    void loginFail();
 
     void accountNotCreated();
     void accountCreated();

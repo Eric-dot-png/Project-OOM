@@ -13,8 +13,11 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QComboBox>
+#include <QtWidgets/QGroupBox>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
+#include <QtWidgets/QListView>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QTextEdit>
 #include <QtWidgets/QWidget>
 
@@ -31,6 +34,13 @@ public:
     QLabel *label;
     QLabel *userNotFoundLabel;
     QLabel *currentUser;
+    QListView *friendView;
+    QListView *serverView;
+    QLabel *label_2;
+    QGroupBox *groupBox;
+    QComboBox *comboBox;
+    QPushButton *pushButton;
+    QPushButton *dd;
 
     void setupUi(QWidget *PrivateMessages)
     {
@@ -44,29 +54,50 @@ public:
         PrivateMessages->setSizePolicy(sizePolicy);
         textEdit = new QTextEdit(PrivateMessages);
         textEdit->setObjectName(QString::fromUtf8("textEdit"));
-        textEdit->setGeometry(QRect(340, 480, 481, 41));
+        textEdit->setGeometry(QRect(260, 550, 481, 41));
         textBrowser = new OOMTextBrowser(PrivateMessages);
         textBrowser->setObjectName(QString::fromUtf8("textBrowser"));
-        textBrowser->setGeometry(QRect(340, 160, 481, 301));
+        textBrowser->setGeometry(QRect(260, 110, 481, 421));
         friendNameLabel = new QLabel(PrivateMessages);
         friendNameLabel->setObjectName(QString::fromUtf8("friendNameLabel"));
-        friendNameLabel->setGeometry(QRect(340, 140, 441, 18));
+        friendNameLabel->setGeometry(QRect(260, 90, 441, 18));
         serverCombobox = new QComboBox(PrivateMessages);
         serverCombobox->setObjectName(QString::fromUtf8("serverCombobox"));
-        serverCombobox->setGeometry(QRect(1070, 10, 151, 26));
+        serverCombobox->setGeometry(QRect(100, 10, 151, 26));
         searchUserTextbox = new QLineEdit(PrivateMessages);
         searchUserTextbox->setObjectName(QString::fromUtf8("searchUserTextbox"));
-        searchUserTextbox->setGeometry(QRect(430, 100, 113, 26));
+        searchUserTextbox->setGeometry(QRect(350, 50, 113, 26));
         label = new QLabel(PrivateMessages);
         label->setObjectName(QString::fromUtf8("label"));
-        label->setGeometry(QRect(340, 100, 81, 20));
+        label->setGeometry(QRect(260, 50, 81, 20));
         userNotFoundLabel = new QLabel(PrivateMessages);
         userNotFoundLabel->setObjectName(QString::fromUtf8("userNotFoundLabel"));
-        userNotFoundLabel->setGeometry(QRect(550, 100, 191, 21));
+        userNotFoundLabel->setGeometry(QRect(470, 50, 191, 21));
         userNotFoundLabel->setWordWrap(true);
         currentUser = new QLabel(PrivateMessages);
         currentUser->setObjectName(QString::fromUtf8("currentUser"));
-        currentUser->setGeometry(QRect(10, 10, 58, 18));
+        currentUser->setGeometry(QRect(260, 20, 58, 18));
+        friendView = new QListView(PrivateMessages);
+        friendView->setObjectName(QString::fromUtf8("friendView"));
+        friendView->setGeometry(QRect(100, 50, 151, 561));
+        serverView = new QListView(PrivateMessages);
+        serverView->setObjectName(QString::fromUtf8("serverView"));
+        serverView->setGeometry(QRect(0, 50, 101, 561));
+        label_2 = new QLabel(PrivateMessages);
+        label_2->setObjectName(QString::fromUtf8("label_2"));
+        label_2->setGeometry(QRect(50, 160, 191, 41));
+        groupBox = new QGroupBox(PrivateMessages);
+        groupBox->setObjectName(QString::fromUtf8("groupBox"));
+        groupBox->setGeometry(QRect(970, 70, 191, 131));
+        comboBox = new QComboBox(groupBox);
+        comboBox->setObjectName(QString::fromUtf8("comboBox"));
+        comboBox->setGeometry(QRect(10, 30, 121, 26));
+        pushButton = new QPushButton(groupBox);
+        pushButton->setObjectName(QString::fromUtf8("pushButton"));
+        pushButton->setGeometry(QRect(20, 90, 51, 26));
+        dd = new QPushButton(groupBox);
+        dd->setObjectName(QString::fromUtf8("dd"));
+        dd->setGeometry(QRect(119, 90, 51, 26));
         QWidget::setTabOrder(textEdit, serverCombobox);
         QWidget::setTabOrder(serverCombobox, textBrowser);
 
@@ -86,6 +117,10 @@ public:
         label->setText(QCoreApplication::translate("PrivateMessages", "Search User:", nullptr));
         userNotFoundLabel->setText(QString());
         currentUser->setText(QCoreApplication::translate("PrivateMessages", "TextLabel", nullptr));
+        label_2->setText(QCoreApplication::translate("PrivateMessages", "Listen for right click", nullptr));
+        groupBox->setTitle(QCoreApplication::translate("PrivateMessages", "Pending friend requests", nullptr));
+        pushButton->setText(QCoreApplication::translate("PrivateMessages", "Accept", nullptr));
+        dd->setText(QCoreApplication::translate("PrivateMessages", "Deny", nullptr));
     } // retranslateUi
 
 };
