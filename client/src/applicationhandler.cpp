@@ -32,6 +32,9 @@ ApplicationHandler::ApplicationHandler(QWidget *parent)
     stackedWidget->addWidget(RegisterWidget);
     stackedWidget->addWidget(AuthenticationWidget);
 
+    PrivateMessagesWidget = new PrivateMessages(this);
+    stackedWidget->addWidget(PrivateMessagesWidget);
+    
     stackedWidget->setCurrentIndex(0); // login page
 
     //The layout of the window
@@ -56,8 +59,6 @@ ApplicationHandler::ApplicationHandler(QWidget *parent)
     connect(LoginWidget, &Login::loginSuccess, this, [=]() {
 
         if (!PrivateMessagesWidget) {
-            PrivateMessagesWidget = new PrivateMessages(this);
-            stackedWidget->addWidget(PrivateMessagesWidget);
         }
 
         qDebug() << "Logged in, going to private messages form...";

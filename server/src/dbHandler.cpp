@@ -35,15 +35,15 @@ void dbHandler::destroyInstance()
 }
 
 //Returns 1 if select statement where username=desired username is empty
-bool dbHandler::availUsername(const User & p)
+bool dbHandler::availUsername(const QString & p)
 {
     MYSQL_RES * result;
     
     std::stringstream ss;
     ss << "select * from (select username from User where username='"
-       << p.get_username().toStdString()
+       << p.toStdString()
        << "' union select username from Registration where username='"
-       << p.get_username().toStdString() << "') as T";
+       << p.toStdString() << "') as T";
     
     if(mysql_query(connection, ss.str().c_str()))
     {
@@ -58,7 +58,8 @@ bool dbHandler::availUsername(const User & p)
 }
 
 //Inserts User, and returns 0 if anything goes wrong
-QString dbHandler::newUser(const User & p, bool autoval)
+QString dbHandler::newUser(const QString & user, const QString & pass,
+                           const QString & email, bool perm, bool autoval)
 {
     MYSQL_RES * result;
     std::stringstream ss;
@@ -67,10 +68,8 @@ QString dbHandler::newUser(const User & p, bool autoval)
         // INSERT User(username, password, email, permissions)
         // VALUES('(username)', '(password)', '(email)', permissions)
         ss << "insert User(username, password, email, permissions) values('"
-           << p.get_username().toStdString() << "', '"
-           << p.get_password().toStdString() << "', '"
-           << p.get_email().toStdString() << "', " << p.get_permissions()
-           << ")";
+           << user.toStdString() << "', '" << pass.toStdString() << "', '"
+           << email.toStdString() << "', " << perm << ")";
         if(mysql_query(connection, ss.str().c_str()))
         {
             qDebug() << "autoval fail " << mysql_error(connection);
@@ -87,11 +86,9 @@ QString dbHandler::newUser(const User & p, bool autoval)
         for(int i = 0; i < 6; i++)
             valcode += '0' + rand() % 10;
         ss << "insert Registration(username, password, email, permissions, "
-           << "validTimeout, code) values('"
-           << p.get_username().toStdString() << "', '"
-           << p.get_password().toStdString() << "', '"
-           << p.get_email().toStdString() << "', " << p.get_permissions()
-           << ", '" << timer << "', '" << valcode << "')";
+           << "validTimeout, code) values('" << user.toStdString() << "', '"
+           << pass.toStdString() << "', '" << email.toStdString() << "', "
+           << perm << ", '" << timer << "', '" << valcode << "')";
         if(mysql_query(connection, ss.str().c_str()))
         {
             qDebug() << "first false" << mysql_error(connection);
@@ -102,16 +99,15 @@ QString dbHandler::newUser(const User & p, bool autoval)
 }
 
 //returns 1 if user info moved from registration to user
-bool dbHandler::emailValidate(const User & p, const QString & code)
+bool dbHandler::emailValidate(const QString & user, const QString & code)
 {
     MYSQL_RES * result;
     MYSQL_ROW row;
 
     // SELECT * FROM Registraion WHERE username='(username)' and code='(code)'
     std::stringstream ss;
-    ss << "select * from Registration where username='"
-       << p.get_username().toStdString() << "' and code='"
-       << code.toStdString() << "'";
+    ss << "select * from Registration where username='" << user.toStdString()
+       << "' and code='" << code.toStdString() << "'";
     if(mysql_query(connection, ss.str().c_str()))
     {
         qDebug() << "Uh oh:" << mysql_error(connection);
@@ -125,7 +121,9 @@ bool dbHandler::emailValidate(const User & p, const QString & code)
         qDebug() << "Information not in Registration";
         return 0;
     }
-    User u(row[0], row[1], row[2], row[3] == "1");
+    QString pass = row[1];
+    QString email = row[2];
+    bool perm = row[3];
     mysql_free_result(result);
     
     // START TRANSACTION
@@ -136,7 +134,7 @@ bool dbHandler::emailValidate(const User & p, const QString & code)
         return 0;
     }
     
-    bool regRemoved = removeReg(u);
+    bool regRemoved = removeReg(user);
     if(!regRemoved) // if information not removed from Registration
     {
         qDebug() << "Registration deletion failed... ";
@@ -144,7 +142,7 @@ bool dbHandler::emailValidate(const User & p, const QString & code)
         return 0;
     }
     
-    QString success = newUser(u, 1);
+    QString success = newUser(user, pass, email, perm, 1);
     if(success != "") // if information added to User
     {
         mysql_query(connection, "commit");
@@ -158,15 +156,14 @@ bool dbHandler::emailValidate(const User & p, const QString & code)
 }
 
 //Returns 1 if user, password pair exists in validated users
-bool dbHandler::loginValidate(const User & p)
+bool dbHandler::loginValidate(const QString & user, const QString & pass)
 {
     MYSQL_RES * result;
 
     // SELECT * FROM User WHERE username='(username)' and password='(password)'
     std::stringstream ss;
-    ss << "select * from User where username='"
-       << p.get_username().toStdString() << "' and password='"
-       << p.get_password().toStdString() << "'";
+    ss << "select * from User where username='" << user.toStdString()
+       << "' and password='" << pass.toStdString() << "'";
     if(mysql_query(connection, ss.str().c_str()))
         return 0;
     result = mysql_store_result(connection);
@@ -176,14 +173,14 @@ bool dbHandler::loginValidate(const User & p)
 }
 
 //Returns 1 if register row corresponding to user no longer exists
-bool dbHandler::removeReg(const User & u)
+bool dbHandler::removeReg(const QString & user)
 {
     MYSQL_RES * result;
 
     // DELETE FROM Registration WHERE username='(username)'
     std::stringstream ss;
-    ss << "delete from Registration where username='"
-       << u.get_username().toStdString() << "'";
+    ss << "delete from Registration where username='" << user.toStdString()
+       << "'";
     if(mysql_query(connection, ss.str().c_str()))
     {
         qDebug() << "Couldn't delete: " << mysql_error(connection);
@@ -264,16 +261,14 @@ QString dbHandler::getMessages(const QString & u1,
     return res.join(":;:");
 }
 
-bool dbHandler::addFriend(const User & u1, const User & u2)
+bool dbHandler::addFriend(const QString & u1, const QString & u2)
 {
     MYSQL_RES * result;
 
     std::stringstream ss;
-    ss << "select * from Friends where (u1='"
-       << u1.get_username().toStdString() << "' and u2='"
-       << u2.get_username().toStdString() << "') or (u1='"
-       << u2.get_username().toStdString() << "' and u2='"
-       << u1.get_username().toStdString() << "')";
+    ss << "select * from Friends where (u1='" << u1.toStdString()
+       << "' and u2='" << u2.toStdString() << "') or (u1='"
+       << u2.toStdString() << "' and u2='" << u1.toStdString() << "')";
     if(mysql_query(connection, ss.str().c_str()))
     {
         qDebug() << "Failed select 1 in addFriend";
@@ -284,9 +279,8 @@ bool dbHandler::addFriend(const User & u1, const User & u2)
     {
         mysql_free_result(result);
         ss.flush();
-        ss << "insert Friends(u1, u2) values('"
-           << u1.get_username().toStdString() << "', '"
-           << u2.get_username().toStdString() << "'";
+        ss << "insert Friends(u1, u2) values('" << u1.toStdString() << "', '"
+           << u2.toStdString() << "'";
         if(mysql_query(connection, ss.str().c_str()))
         {
             qDebug() << "Failed to insert Friendship";
@@ -299,17 +293,16 @@ bool dbHandler::addFriend(const User & u1, const User & u2)
     return 1;
 }
 
-std::list<QString> dbHandler::getFriendslist(const User & u)
+QStringList dbHandler::getFriendslist(const QString & user)
 {
     MYSQL_RES * result;
     MYSQL_ROW row;
-    std::list<QString> ret;
+    QStringList ret;
 
     std::stringstream ss;
     ss << "select * from (select u2 from Friends where u1='"
-       << u.get_username().toStdString()
-       << "' union select u1 from Friends where u2='"
-       << u.get_username().toStdString() << "') as T";
+       << user.toStdString() << "' union select u1 from Friends where u2='"
+       << user.toStdString() << "') as T";
     if(mysql_query(connection, ss.str().c_str()))
     {
         qDebug() << "select 1 fail in getFriendslist()";

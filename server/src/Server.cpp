@@ -101,8 +101,7 @@ void Server::onNewConnection()
             {
                 qDebug() << "recieved discovery request...";
                 QString usrname = m["Username"].toString();
-                User u(usrname,"");
-                bool existing_user = !db->availUsername(u);
+                bool existing_user = !db->availUsername(usrname);
                 if (existing_user)
                 {
                     QString messagehistory = db->getMessages(m["CurrUser"].toString(), usrname);
@@ -123,8 +122,7 @@ void Server::onNewConnection()
                 QString usr = m["Username"].toString();
                 QString pwd = m["Password"].toString();
                 pwd = pwdHash(pwd);
-                User u(usr, pwd);
-                if (db->loginValidate(u)) // if logged in
+                if (db->loginValidate(usr, pwd)) // if logged in
                 {
                     x = ProtocolManager::serialize(
                         ProtocolManager::LoginAccept,{usr});
@@ -144,10 +142,7 @@ void Server::onNewConnection()
             case ProtocolManager::CreateAccountAuthCodeSubmit:
             {
                 QString usr = m["Username"].toString();
-                QString pwd = m["Password"].toString();
                 QString code = m["Code"].toString();
-                pwd = pwdHash(pwd);
-                User u(usr, pwd);
                 if (!numeric(code) || code.length() != 6) // if invalid code
                 {
                     x = ProtocolManager::serialize(
@@ -156,7 +151,7 @@ void Server::onNewConnection()
                 }
                 else // if valid code
                 {
-                    bool success = db->emailValidate(u, code);
+                    bool success = db->emailValidate(usr, code);
                     if(success) // if email validated
                     {
                         x = ProtocolManager::serialize(
@@ -180,8 +175,7 @@ void Server::onNewConnection()
                 QString pwd = m["Password"].toString();
                 QString email = m["Email"].toString();
                 pwd = pwdHash(pwd);
-                User u(usr, pwd, email);
-                if (!db->availUsername(u)) // if username already used
+                if (!db->availUsername(usr)) // if username already used
                 {
                     x = ProtocolManager::serialize(
                         ProtocolManager::CreateAccountDenied,
@@ -189,11 +183,11 @@ void Server::onNewConnection()
                 }
                 else // if open account credentials
                 {
-                    QString code = db->newUser(u);
+                    QString code = db->newUser(usr, pwd, email);
                     if(code != "") // if new User was created(w/o autoval)
                     {
                         std::string emailsyscall = "python3 src/myemail.py "
-                            + u.get_email().toStdString() + ' '
+                            + email.toStdString() + ' '
                             + code.toStdString();
                         int email = std::system(emailsyscall.c_str());
                         if(email == 0) // if myemail.py has no issues
@@ -202,7 +196,7 @@ void Server::onNewConnection()
                                 {usr,pwd} );
                         else // if myemail.py runs into issues
                         {
-                            db->removeReg(u);
+                            db->removeReg(usr);
                             x = ProtocolManager::serialize(
                                 ProtocolManager::CreateAccountDenied,
                                 {"could not send email"});
