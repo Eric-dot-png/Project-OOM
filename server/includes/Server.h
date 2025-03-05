@@ -38,6 +38,10 @@ private:
     Server(const Server&) = delete;
     Server& operator=(const Server&) = delete;
 
+    void writeToUserRaw(const QString& name, const QByteArray& data);
+    void writeToSocket(QTcpSocket * s, Protocol t,
+                       const QList<QJsonValue>& argv);
+    
     static Server * instance;
 
     QTimer * timer;
