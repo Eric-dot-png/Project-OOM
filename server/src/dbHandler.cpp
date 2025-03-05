@@ -329,18 +329,12 @@ bool dbHandler::addFriend(const QString & u1, const QString & u2)
         return 0;
     }
 
-    std::stringstream ss;
-    ss << "delete from FriendRequest where (sender='" << u1.toStdString()
-       << "' and receiver='" << u2.toStdString() << "') or (sender='"
-       << u2.toStdString() << "' and receiver='" << u1.toStdString() << "')";
-    if(mysql_query(connection, ss.str().c_str()))
-    {
-        qDebug() << "Failed to remove from FriendRequest";
-        mysql_query(connection, "rollback");
+    if(!removeFriendRequest(u1, u2))
         return 0;
-    }
+    if(!removeFriendRequest(u2, u1))
+        return 0;
     
-    ss.flush();
+    std::stringstream ss;
     ss << "insert Friends(u1, u2) values('" << u1.toStdString() << "', '"
        << u2.toStdString() << "'";
     if(mysql_query(connection, ss.str().c_str()))
@@ -394,4 +388,24 @@ QStringList dbHandler::getFriendslist(const QString & user)
     mysql_free_result(result);
 
     return ret;
+}
+
+bool dbHandler::areFriends(const QString & u1, const QString & u2)
+{
+    MYSQL_RES * result;
+
+    std::stringstream ss;
+    ss << "select * from Friends where (u1='" << u1.toStdString()
+       << "' and u2='" << u2.toStdString() << "') or (u1='"
+       << u2.toStdString() << "' and u2='" << u1.toStdString() << "')";
+    if(mysql_query(connection, ss.str().c_str()))
+    {
+        qDebug() << "Couldn't search friends\n";
+        return 0;
+    }
+    result = mysql_store_result(connection);
+    bool res = mysql_fetch_row(result) != NULL;
+    mysql_free_result(result);
+
+    return res;
 }

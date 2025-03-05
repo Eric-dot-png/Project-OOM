@@ -57,6 +57,8 @@ public:
     bool removeFriend(const QString & u1, const QString & u2);
     //returns friendlist(WOW!)
     QStringList getFriendslist(const QString & user);
+    //returns 1 if friendship exists
+    bool areFriends(const QString & u1, const QString & u2);
     
 private:
     dbHandler();
