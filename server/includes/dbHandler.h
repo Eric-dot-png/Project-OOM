@@ -37,8 +37,16 @@ public:
     QString getMessages(const QString & u1, const QString & u2,
                         int start = 0, int length = 10);
 
+    //returns 1 if friend request created
+    bool addFriendRequest(const QString & from, const QString & to);
+    //returns 1 if friend request removed
+    bool removeFriendRequest(const QString & from, const QString & to);
+    //returns pending friend requests
+    QStringList getFriendRequests(const QString & u);
     //returns 1 if friendship created
     bool addFriend(const QString & u1, const QString & u2);
+    //returns 1 if friendship removed
+    bool removeFriend(const QString & u1, const QString & u2);
     //returns friendlist(WOW!)
     QStringList getFriendslist(const QString & user);
     
