@@ -61,7 +61,6 @@ private slots:
     //Takes the json file and parses it
     void loadPage();
     
-    void update(); // fuck
 signals:
 
 

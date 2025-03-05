@@ -3,27 +3,34 @@
 
 #include "ProtocolManager.h"
 
-std::unordered_map<Protocol, Serializer*> ProtocolManager::map = {
-    {Protocol::LoginRequest, LoginRequest::getInstance()},
-    {Protocol::LoginDenied, LoginDenied::getInstance()},
-    {Protocol::LoginAccept, LoginAccept::getInstance()},
-    {Protocol::CreateAccountRequest, CreateAccountRequest::getInstance()},
-    {Protocol::CreateAccountAccept, CreateAccountAccept::getInstance()},
-    {Protocol::CreateAccountDenied, CreateAccountDenied::getInstance()},
-    {Protocol::AuthCodeSubmit, AuthCodeSubmit::getInstance()},
-    {Protocol::AuthCodeAccept, AuthCodeAccept::getInstance()},
-    {Protocol::AuthCodeDenied, AuthCodeDenied::getInstance()},
-    {Protocol::AnnounceOffline, AnnounceOffline::getInstance()},
-    {Protocol::PrivateMessage, PrivateMessage::getInstance()},
-    {Protocol::DiscoveryRequest, DiscoveryRequest::getInstance()},
-    {Protocol::DiscoveryFail, DiscoveryFail::getInstance()},
-    {Protocol::DiscoveryAccept, DiscoveryAccept::getInstance()}
+std::unordered_map<Protocol,
+                   Serializers::AbstractSerializer*> ProtocolManager::map = {
+    {Protocol::LoginRequest, Serializers::LoginRequest::getInstance()},
+    {Protocol::LoginDenied, Serializers::LoginDenied::getInstance()},
+    {Protocol::LoginAccept, Serializers::LoginAccept::getInstance()},
+    {Protocol::CreateAccountRequest,
+     Serializers::CreateAccountRequest::getInstance()},
+    {Protocol::CreateAccountAccept,
+     Serializers::CreateAccountAccept::getInstance()},
+    {Protocol::CreateAccountDenied,
+     Serializers::CreateAccountDenied::getInstance()},
+    {Protocol::AuthCodeSubmit, Serializers::AuthCodeSubmit::getInstance()},
+    {Protocol::AuthCodeAccept, Serializers::AuthCodeAccept::getInstance()},
+    {Protocol::AuthCodeDenied, Serializers::AuthCodeDenied::getInstance()},
+    {Protocol::AnnounceOffline, Serializers::AnnounceOffline::getInstance()},
+    {Protocol::PrivateMessage, Serializers::PrivateMessage::getInstance()},
+    {Protocol::DiscoveryRequest,Serializers::DiscoveryRequest::getInstance()},
+    {Protocol::DiscoveryFail, Serializers::DiscoveryFail::getInstance()},
+    {Protocol::DiscoveryAccept, Serializers::DiscoveryAccept::getInstance()},
+    {Protocol::FriendRequest, Serializers::FriendRequest::getInstance()},
+    {Protocol::FriendAccept, Serializers::FriendAccept::getInstance()},
+    {Protocol::FriendDenied, Serializers::FriendDenied::getInstance()},
+    {Protocol::FriendRemoved, Serializers::FriendRemoved::getInstance()}
 };
 
 QByteArray ProtocolManager::serialize(Protocol t, const QList<QJsonValue>& v)
 {
-    qDebug() << "Trying to serialize" << static_cast<int>(t) << v << '\n';
-    
+    //qDebug() << "Trying to serialize" << static_cast<int>(t) << v << '\n';
     return (*map.at(t))(v);
 }
 

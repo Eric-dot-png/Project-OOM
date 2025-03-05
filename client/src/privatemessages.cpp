@@ -189,11 +189,3 @@ void PrivateMessages::loadPage()
     }
 }
 
-void PrivateMessages::update()
-{
-    if (currentlyMessaging.get_username() != "") 
-    {
-        //ui->textBrowser->clear();
-        //client->discover(currentlyMessaging);
-    }
-}

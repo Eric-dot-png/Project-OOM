@@ -32,6 +32,7 @@ int main(int argc, char* argv[])
     
     dbHandler::destroyInstance();
     Server::destroyInstance();
+    Serializers::destroyInstances();
     return out;
 }
 

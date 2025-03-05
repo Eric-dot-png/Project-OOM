@@ -28,7 +28,7 @@ private:
     ProtocolManager() {};
     ~ProtocolManager() {};
     
-    static std::unordered_map<Protocol, Serializer*> map;
+    static std::unordered_map<Protocol, Serializers::AbstractSerializer*> map;
 };
 
 #endif

@@ -143,7 +143,7 @@ void Client::privateMessage(const User& u, const QString& message)
 {
     if (state == ClientState::LoggedIn)
     {
-        qDebug() << "Attempting private message...";
+        qDebug() << "sending private message...";
         
         writeToServer(Protocol::PrivateMessage,
             {u.get_username(), current_user.get_username(), message});
@@ -153,7 +153,42 @@ void Client::privateMessage(const User& u, const QString& message)
         qDebug() << "Can't private message. Current state:" << state;
     }
 }
+
+void Client::friendRequest(const User& u)
+{
+    if (state == ClientState::LoggedIn)
+    {
+        qDebug() << "Sending Friend Request";
+
+        writeToServer(Protocol::FriendRequest,
+                      {current_user.get_username(), u.get_username()});
+    }
+    else
+    {
+        qDebug() << "Can't Friend Request. current state:" << state; 
+    }
+}
+
+void Client::acceptFriend(const User& u)
+{
+    if (state == ClientState::LoggedIn)
+    {
+        qDebug() << "Accepting Friend Request";
+        
+        writeToServer(Protocol::FriendAccept,
+                      {current_user.get_username(), u.get_username()});
+    }
+    else
+    {
+        qDebug() << "Can't Accept Friend Request. current state:" << state; 
+    }
+}
+
+void Client::extendMessageHistory(const User& u, unsigned int currentSize)
+{
     
+}
+
 void Client::onReply()
 {
     QByteArray data = socket->readAll();
@@ -191,9 +226,17 @@ void Client::handleLoggedInState(const QJsonObject& m)
     Protocol type = static_cast<Protocol>(m["Type"].toInt());
     switch(type)
     {
+        case Protocol::FriendRequest:
+        {
+            emit recievedFriendRequest(m["From"].toString());
+            break;
+        }
+        case Protocol::FriendRemoved:
+        {
+            emit recievedFriendRemove(m["From"].toString());
+        }
         case Protocol::PrivateMessage:
         {
-            qDebug() << "oMg i gOt a mEsSagE";
             emit recievedDM(m["From"].toString(), m["Message"].toString());
             break;
         }

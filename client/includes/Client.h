@@ -71,8 +71,14 @@ public:
     void discover(const User& u);
     
     void privateMessage(const User& u, const QString& message);
+
+    void friendRequest(const User& u);
+
+    void acceptFriend(const User& u);
+
+    void extendMessageHistory(const User& u, unsigned int currentSize);
     
-signals: // these are signals that trigger effects for the UI
+signals: 
     void connectedToServer();
     void disconnectedFromServer();
     void loginSuccess();
@@ -87,7 +93,8 @@ signals: // these are signals that trigger effects for the UI
                              const QList<QJsonObject> & messageJsonList);
     
     void recievedDM(const QString& from, const QString& msg);
-                                                            
+    void recievedFriendRequest(const QString& from);
+    void recievedFriendRemove(const QString& from);
 private slots: // these are functions that are connected to signals
     void onReply(); // this function called to handle server info
     

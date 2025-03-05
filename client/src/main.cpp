@@ -47,5 +47,7 @@ int main(int argc, char *argv[])
 
     delete mainWidget;
     Client::destroyInstance();
+    Serializers::destroyInstances();
+    
     return out;
 }
