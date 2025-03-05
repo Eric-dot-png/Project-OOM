@@ -227,6 +227,7 @@ QString dbHandler::getMessages(const QString & u1,
        << u2.toStdString() << "' and sender='" << u1.toStdString()
        << "') as T where not deleted order by sentAt desc limit "
        << start << ", " << length;
+o
     if(mysql_query(connection, ss.str().c_str()))
     {
         qDebug() << "DB failed to retrieve messages";
@@ -245,6 +246,7 @@ QString dbHandler::getMessages(const QString & u1,
                 ).toJson());
         row = mysql_fetch_row(result);
     }
+    mysql_free_result(result);
     return res.join(":;:");
 }
 

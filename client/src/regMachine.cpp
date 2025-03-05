@@ -79,7 +79,7 @@ void RegMachine::createAcc(const User& u)
     qDebug() << "attempting to register"
              << u.get_username() << u.get_password()
              << u.get_email();
-    client->writeToServer(ProtocolManager::CreateAccountRequest,
+    client->writeToServer(Protocol::CreateAccountRequest,
                           {u.get_username(), u.get_password(),
                            u.get_email()});
     emit calledCreateAcc();
@@ -88,7 +88,7 @@ void RegMachine::createAcc(const User& u)
 void RegMachine::authAcc(const User& u, const QString& code)
 {
     qDebug() << "RegMachine authAcc called!!!";
-    client->writeToServer(ProtocolManager::CreateAccountAuthCodeSubmit,
+    client->writeToServer(Protocol::AuthCodeSubmit,
                           {u.get_username(), u.get_password(), code});
     emit calledAuthAcc();
 }

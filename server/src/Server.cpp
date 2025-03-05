@@ -83,11 +83,13 @@ void Server::onNewConnection()
                  << clientSocket->socketDescriptor();
         
         QJsonObject m = ProtocolManager::deserialize(data);
+
+        Protocol type = static_cast<Protocol>(m["Type"].toInt());
         
         QByteArray x; // message to send back
-        switch(m["Type"].toInt())
+        switch(type)
         {
-            case ProtocolManager::PrivateMessage:
+            case Protocol::PrivateMessage:
             {
                 qDebug() << "Recieved private message";
                 QString to = m["To"].toString();
@@ -97,7 +99,7 @@ void Server::onNewConnection()
                     onlineUserMap[to]->write(data);
                 break;
             }
-            case ProtocolManager::DiscoveryRequest:
+            case Protocol::DiscoveryRequest:
             {
                 qDebug() << "recieved discovery request...";
                 QString usrname = m["Username"].toString();
@@ -105,19 +107,18 @@ void Server::onNewConnection()
                 if (existing_user)
                 {
                     QString messagehistory = db->getMessages(m["CurrUser"].toString(), usrname);
+                    qDebug() << "\t" << messagehistory;
                     x = ProtocolManager::serialize(
-                        ProtocolManager::DiscoveryAccept,
-                        {usrname, messagehistory}
+                        Protocol::DiscoveryAccept, {usrname, messagehistory}
                         );
                 }
                 else
-                    x = ProtocolManager::serialize(
-                        ProtocolManager::DiscoveryFail, {usrname}
-                        );
+                    x = ProtocolManager::serialize( Protocol::DiscoveryFail,
+                                                    {usrname} );
                 clientSocket->write(x);
                 break;
             }
-            case ProtocolManager::LoginRequest:
+            case Protocol::LoginRequest:
             {
                 QString usr = m["Username"].toString();
                 QString pwd = m["Password"].toString();
@@ -125,13 +126,13 @@ void Server::onNewConnection()
                 if (db->loginValidate(usr, pwd)) // if logged in
                 {
                     x = ProtocolManager::serialize(
-                        ProtocolManager::LoginAccept,{usr});
+                        Protocol::LoginAccept,{usr});
                     onlineUserMap[usr] = clientSocket;
                 }
                 else // if log in failed
                 {
                     x = ProtocolManager::serialize(
-                        ProtocolManager::LoginDenied,
+                        Protocol::LoginDenied,
                         {"account with login information does not exist"}
                         );
                 }
@@ -139,14 +140,14 @@ void Server::onNewConnection()
                 break;
             } // end of LoginRequest
                 
-            case ProtocolManager::CreateAccountAuthCodeSubmit:
+            case Protocol::AuthCodeSubmit:
             {
                 QString usr = m["Username"].toString();
                 QString code = m["Code"].toString();
                 if (!numeric(code) || code.length() != 6) // if invalid code
                 {
                     x = ProtocolManager::serialize(
-                        ProtocolManager::AccountNotAuthenticated,
+                        Protocol::AuthCodeDenied,
                         {"code not valid"} );
                 }
                 else // if valid code
@@ -155,13 +156,12 @@ void Server::onNewConnection()
                     if(success) // if email validated
                     {
                         x = ProtocolManager::serialize(
-                            ProtocolManager::AccountAuthenticated,
-                            {} );
+                            Protocol::AuthCodeAccept, {} );
                     }
                     else // if email validation failed
                     {
                         x = ProtocolManager::serialize(
-                            ProtocolManager::AccountNotAuthenticated,
+                            Protocol::AuthCodeDenied,
                             {"Unknown Error, Could not authenticate account."}
                             );
                     }
@@ -169,7 +169,7 @@ void Server::onNewConnection()
                 clientSocket->write(x);
                 break;
             } 
-            case ProtocolManager::CreateAccountRequest:
+            case Protocol::CreateAccountRequest:
             {
                 QString usr = m["Username"].toString();
                 QString pwd = m["Password"].toString();
@@ -178,7 +178,7 @@ void Server::onNewConnection()
                 if (!db->availUsername(usr)) // if username already used
                 {
                     x = ProtocolManager::serialize(
-                        ProtocolManager::CreateAccountDenied,
+                        Protocol::CreateAccountDenied,
                         {"username already Exists."} );
                 }
                 else // if open account credentials
@@ -192,27 +192,32 @@ void Server::onNewConnection()
                         int email = std::system(emailsyscall.c_str());
                         if(email == 0) // if myemail.py has no issues
                             x = ProtocolManager::serialize(
-                                ProtocolManager::CreateAccountAccept,
+                                Protocol::CreateAccountAccept,
                                 {usr,pwd} );
                         else // if myemail.py runs into issues
                         {
                             db->removeReg(usr);
                             x = ProtocolManager::serialize(
-                                ProtocolManager::CreateAccountDenied,
+                                Protocol::CreateAccountDenied,
                                 {"could not send email"});
                         }
                     }
                     else // if user creation failed
                     {
                         x = ProtocolManager::serialize(
-                            ProtocolManager::CreateAccountDenied,
+                            Protocol::CreateAccountDenied,
                             {"Unknown Error, Could not create account."}
                             );
                     }
                 } 
                 clientSocket->write(x);
                 break;
-            } 
+            }
+            default:
+            {
+                qDebug() << "Unknown request... ";
+                break;
+            }
         }
     });
 }

@@ -33,6 +33,7 @@ SOURCES += \
     src/oomwidget.cpp \
     src/Client.cpp \
     ../common/ProtocolManager.cpp \
+    ../common/protocols.cpp \
     src/applicationhandler.cpp \
     src/authenticationcode.cpp \
     src/main.cpp \
@@ -48,6 +49,7 @@ HEADERS += \
     includes/Client.h \
     ../common/ProtocolManager.h \
     includes/User.h \
+    ../common/protocols.h \
     includes/applicationhandler.h \
     includes/authenticationcode.h \
     includes/login.h \

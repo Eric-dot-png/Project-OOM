@@ -4,54 +4,31 @@
 #ifndef PROTOCOLMANAGER
 #define PROTOCOLMANAGER
 
-#include <vector>
+#include <unordered_map>
 #include <QString>
 #include <QJsonObject>
 #include <QJsonDocument>
 
-class ProtocolError{}; // occurs when too many arguments, or an
-                       // undefined MessageType is passed to serialize()
+#include "protocols.h"
 
-class ProtocolManager // CLASS IS STATIC
+class ProtocolManager
 {
-private:
-    ProtocolManager() {};
+public:
     ProtocolManager & operator=(const ProtocolManager & p) = delete;
     ProtocolManager(const ProtocolManager& p) = delete;
-    
-public:
-    enum MessageType {
-        START = '0', 
-        LoginRequest, 
-        LoginAccept, 
-        LoginDenied, 
-        CreateAccountRequest, 
-        CreateAccountAccept, 
-        CreateAccountDenied,  
-        CreateAccountAuthCodeSubmit, 
-        AccountAuthenticated,
-        AccountNotAuthenticated,
-        AnnounceIpPort,
-        AnnounceOffline,
-        PrivateMessageRequest,
-        PrivateMessageAccept,
-        PrivateMessageAcceptOffline,
-        PrivateMessageDenied,
-        PrivateMessageForward,
-        PrivateMessage,
-        DiscoveryRequest,
-        DiscoveryFail,
-        DiscoveryAccept,
-        SIZE
-    };
     
     // converts a message type list of QStrings into a QJsonObject,
     // then converts the object to QByteArray to send through sockets
     // see cpp for Json formats
-    static QByteArray serialize(MessageType t, const QStringList& argv);
+    static QByteArray serialize(Protocol t,const QList<QJsonValue>& argv);
     
     // converts QByteArray to json object
     static QJsonObject deserialize(const QByteArray& data);
+private:
+    ProtocolManager() {};
+    ~ProtocolManager() {};
+    
+    static std::unordered_map<Protocol, Serializer*> map;
 };
 
 #endif

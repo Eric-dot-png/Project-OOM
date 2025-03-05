@@ -8,12 +8,14 @@ QT += core network
 HEADERS += includes/Server.h \
            includes/dbHandler.h \
            ../common/ProtocolManager.h \
-           ../common/config.h
+           ../common/config.h \
+           ../common/protocols.h
            
 SOURCES += src/main.cpp \
            src/Server.cpp \
            src/dbHandler.cpp \
-           ../common/ProtocolManager.cpp
+           ../common/ProtocolManager.cpp \
+           ../common/protocols.cpp
            
 LIBS += -L/usr/lib64/mysql -lmysqlclient -lz -lzstd -lssl -lcrypto -lresolv -lm
 

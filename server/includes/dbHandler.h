@@ -9,8 +9,6 @@
 #include <cstdlib>
 #include <QDateTime>
 
-#include "User.h"
-
 class dbHandler
 {
 public:

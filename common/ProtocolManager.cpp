@@ -3,229 +3,32 @@
 
 #include "ProtocolManager.h"
 
-QByteArray ProtocolManager::serialize(MessageType t,
-                                      const QStringList& argv)
+std::unordered_map<Protocol, Serializer*> ProtocolManager::map = {
+    {Protocol::LoginRequest, LoginRequest::getInstance()},
+    {Protocol::LoginDenied, LoginDenied::getInstance()},
+    {Protocol::LoginAccept, LoginAccept::getInstance()},
+    {Protocol::CreateAccountRequest, CreateAccountRequest::getInstance()},
+    {Protocol::CreateAccountAccept, CreateAccountAccept::getInstance()},
+    {Protocol::CreateAccountDenied, CreateAccountDenied::getInstance()},
+    {Protocol::AuthCodeSubmit, AuthCodeSubmit::getInstance()},
+    {Protocol::AuthCodeAccept, AuthCodeAccept::getInstance()},
+    {Protocol::AuthCodeDenied, AuthCodeDenied::getInstance()},
+    {Protocol::AnnounceOffline, AnnounceOffline::getInstance()},
+    {Protocol::PrivateMessage, PrivateMessage::getInstance()},
+    {Protocol::DiscoveryRequest, DiscoveryRequest::getInstance()},
+    {Protocol::DiscoveryFail, DiscoveryFail::getInstance()},
+    {Protocol::DiscoveryAccept, DiscoveryAccept::getInstance()}
+};
+
+QByteArray ProtocolManager::serialize(Protocol t, const QList<QJsonValue>& v)
 {
-    // NOTE : the switch case below has certain cases
-    //        overlap because they behave the same. I.e.
-    //        the protocols require the same arguments
+    qDebug() << "Trying to serialize" << static_cast<int>(t) << v << '\n';
     
-    int argc = argv.size();
-    switch(t) // what type of message you want to make?
-    {
-        case AnnounceIpPort:
-        {
-            if (argc == 3)
-            {
-                QJsonObject ret({
-                        {"Type", t},
-                        {"Username", argv[0]},
-                        {"Ip", argv[1]},
-                        {"Port", argv[2]}
-                    });
-                return QJsonDocument(ret).toJson();
-            }
-            else throw(ProtocolError());
-        }
-        case AnnounceOffline:
-        {
-            if (argc == 1)
-            {
-                QJsonObject ret({
-                        {"Type", t},
-                        {"Username", argv[0]}
-                    });
-                return QJsonDocument(ret).toJson();
-            }
-            else throw(ProtocolError());
-        }
-        case PrivateMessageRequest:
-        {
-            if (argc == 3)
-            {
-                QJsonObject ret({
-                        {"Type", t},
-                        {"To", argv[0]},
-                        {"From", argv[1]},
-                        {"Message", argv[2]}
-                    });
-                return QJsonDocument(ret).toJson();
-            }
-            else throw(ProtocolError());
-        }
-        case PrivateMessageAccept:
-        {
-            if (argc == 4)
-            {
-                QJsonObject ret({
-                        {"Type", t},
-                        {"To", argv[0]},
-                        {"Ip", argv[1]},
-                        {"Port", argv[2]},
-                        {"Message", argv[3]}
-                    });
-                return QJsonDocument(ret).toJson();
-            }
-            else throw(ProtocolError());
-        }
-        case PrivateMessageAcceptOffline:
-        {
-            if (argc == 2)
-            {
-                QJsonObject ret({
-                        {"Type", t},
-                        {"To", argv[0]},
-                        {"Message", argv[1]}
-                    });
-                return QJsonDocument(ret).toJson();
-            }
-            else throw(ProtocolError());
-        }
-        case PrivateMessageDenied:
-        {
-            if (argc == 1)
-            {
-                QJsonObject ret({
-                        {"Type", t},
-                        {"Reason", argv[0]}
-                    });
-                return QJsonDocument(ret).toJson();
-            }
-            else throw(ProtocolError());
-        }
-        case PrivateMessageForward:
-        case PrivateMessage:
-        {
-            if (argc == 3)
-            {
-                QJsonObject ret({
-                        {"Type", t},
-                        {"To", argv[0]},
-                        {"From", argv[1]},
-                        {"Message", argv[2]}
-                    });
-                return QJsonDocument(ret).toJson();
-            }
-            else throw(ProtocolError());
-        }
-        case CreateAccountRequest:
-        {
-            if (argc == 3)
-            {
-                QJsonObject ret({
-                        {"Type", t}, 
-                        {"Username", argv[0]},
-                        {"Password", argv[1]},
-                        {"Email", argv[2]}
-                    });
-                return QJsonDocument(ret).toJson();
-            }
-            else throw(ProtocolError());
-        }
-        case CreateAccountAccept: 
-        case LoginRequest:
-        {
-            // in the case of CreateAccountAccept:
-            //    meant to include username and password because
-            //    when sent from server to client, client
-            //    needs access to the account
-            if (argc == 2)
-            {
-                QJsonObject ret({
-                        {"Type", t},
-                        {"Username", argv[0]},
-                        {"Password", argv[1]}
-                    });
-                return QJsonDocument(ret).toJson();
-            }
-            
-            else throw(ProtocolError());
-        }
-        case AccountNotAuthenticated:
-        case CreateAccountDenied: 
-        case LoginDenied: 
-        {
-            if (argc == 1)
-            {
-                QJsonObject ret({
-                        {"Type", t},
-                        {"Error Message", argv[0]}
-                    });
-                return QJsonDocument(ret).toJson();
-            }
-            else throw(ProtocolError());
-        }
-        case AccountAuthenticated:
-        {
-            if (argc == 0)
-            {
-                QJsonObject ret({
-                        {"Type", t},
-                    });
-                return QJsonDocument(ret).toJson();
-            }
-            else throw(ProtocolError());
-        }
-        case DiscoveryAccept:
-        {
-            if (argc == 2)
-            {
-                QJsonObject ret({
-                        {"Type", t},
-                        {"Username", argv[0]},
-                        {"Messages", argv[1]}
-                    });
-                return QJsonDocument(ret).toJson();
-            }
-            else throw(ProtocolError());
-        }
-        case DiscoveryRequest:
-        {
-            if (argc == 2)
-            {
-                QJsonObject ret({
-                        {"Type", t},
-                        {"CurrUser", argv[0]},
-                        {"Username", argv[1]}
-                    });
-                return QJsonDocument(ret).toJson();
-            }
-            else throw(ProtocolError());
-        }
-        case DiscoveryFail:
-        case LoginAccept:
-        {
-            if (argc == 1) // no argument is needed
-            {
-                QJsonObject ret({
-                        {"Type", t},
-                        {"Username", argv[0]}
-                    });
-                return QJsonDocument(ret).toJson();
-            }
-            else throw(ProtocolError());
-        }
-        case CreateAccountAuthCodeSubmit:
-        {
-            if (argc == 3)
-            {
-                QJsonObject ret({
-                        {"Type", t},
-                        {"Username", argv[0]},
-                        {"Password", argv[1]},
-                        {"Code", argv[2]}
-                    });
-                return QJsonDocument(ret).toJson();
-            }
-            else throw(ProtocolError());
-        }
-        default: throw(ProtocolError());
-    }
+    return (*map.at(t))(v);
 }
 
 QJsonObject ProtocolManager::deserialize(const QByteArray& data)
 {
-    // QByteArray -> JsonDocument -> JsonObject
     QJsonDocument doc = QJsonDocument::fromJson(data);
     return doc.object();
 }

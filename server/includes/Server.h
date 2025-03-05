@@ -17,7 +17,6 @@
 #include <QRegularExpressionMatch>
 
 #include "ProtocolManager.h"
-#include "User.h"
 #include "dbHandler.h"
 #include <unordered_map>
 

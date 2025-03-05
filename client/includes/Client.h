@@ -40,7 +40,7 @@ public:
     
     static Client * getInstance();
     static void destroyInstance();
-        
+    
     ClientState getState() const { return state; }
     User getUser() const { return current_user; }
         
@@ -52,7 +52,9 @@ public:
     // puts the client into Disconnected state
     void disconnect();
 
-    void writeToServer(ProtocolManager::MessageType, const QStringList&);
+    // sends a message from the client to the server,
+    // using protocolmanager's serialize function.
+    void writeToServer(Protocol type, const QList<QJsonValue>&);
     
     // must be in Connected state
     // puts the client into loggingin state
@@ -65,47 +67,34 @@ public:
     // must be in AuthenticatingAccount state
     // puts the client into  Connected State
     void submitAuthCode(const QString&);
-
+    
     void discover(const User& u);
     
     void privateMessage(const User& u, const QString& message);
-
+    
 signals: // these are signals that trigger effects for the UI
     void connectedToServer();
     void disconnectedFromServer();
     void loginSuccess();
     void loginFail();
-
     void accountNotCreated();
     void accountCreated();
     void accountAuthenticated();
     void accountAuthenticationFail();
     
-    void recievedDM(const QString& from, const QString& msg);
     void discoverUserFail(const QString& username);
     void discoverUserSucceed(const QString& username,
                              const QList<QJsonObject> & messageJsonList);
+    
+    void recievedDM(const QString& from, const QString& msg);
                                                             
 private slots: // these are functions that are connected to signals
     void onReply(); // this function called to handle server info
-    void onDM(); // this function called to handle dms from other users
     
 private:
     Client(QObject * parent=NULL);
     ~Client();
 
-    
-    // must be in Logged in state
-    // sends server the client's ip and port, and allows recieving of
-    // messages
-    void openListener();
-    
-    // must be in Logged in state
-    // tells the server that the client no longer listening, and
-    // stops recieving message
-    void closeListener();
-
-    
     QHostAddress getDeviceIpAddress(); // returns first non-loopback
                                        // ipv4 address
     
@@ -123,19 +112,11 @@ private:
     void handleLoggingInState(const QJsonObject& m);
     void handleCreatingAccountState(const QJsonObject& m);
     /************************************************************/
-
-    
     
     static Client * instance;
     ClientState state;
     QTcpSocket * socket; // comm with server
     User current_user;
-    QTcpServer * listener; // recieve direct messages 
-    QTcpSocket * sender; // send direct messages
-    
-    std::unordered_map<QString,
-                       std::pair<QHostAddress, quint16>> usermap;
-
 };
 
 #endif
