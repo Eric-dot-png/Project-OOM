@@ -17,10 +17,34 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `Friends`
+-- Table structure for table `FriendRequest`
 --
 
-USE DSDB;
+DROP TABLE IF EXISTS `FriendRequest`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `FriendRequest` (
+  `sender` varchar(100) NOT NULL,
+  `receiver` varchar(100) NOT NULL,
+  PRIMARY KEY (`sender`,`receiver`),
+  KEY `receiver` (`receiver`),
+  CONSTRAINT `FriendRequest_ibfk_1` FOREIGN KEY (`sender`) REFERENCES `User` (`username`),
+  CONSTRAINT `FriendRequest_ibfk_2` FOREIGN KEY (`receiver`) REFERENCES `User` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `FriendRequest`
+--
+
+LOCK TABLES `FriendRequest` WRITE;
+/*!40000 ALTER TABLE `FriendRequest` DISABLE KEYS */;
+/*!40000 ALTER TABLE `FriendRequest` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `Friends`
+--
 
 DROP TABLE IF EXISTS `Friends`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -67,6 +91,12 @@ CREATE TABLE `PrivMessage` (
 
 LOCK TABLES `PrivMessage` WRITE;
 /*!40000 ALTER TABLE `PrivMessage` DISABLE KEYS */;
+INSERT INTO `PrivMessage` VALUES
+('test1','bspat','2025-02-26 20:21:16','Hello!',0),
+('bspat','test1','2025-02-26 21:13:39','W H Y',0),
+('test1','bspat11037','2025-02-27 03:55:17','Testing 1, 2',0),
+('test1','spatty','2025-03-03 16:14:45','It all works',0),
+('test1','test10','2025-03-05 16:09:41','Test10 to test1, hello!',0);
 /*!40000 ALTER TABLE `PrivMessage` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -119,6 +149,14 @@ CREATE TABLE `User` (
 
 LOCK TABLES `User` WRITE;
 /*!40000 ALTER TABLE `User` DISABLE KEYS */;
+INSERT INTO `User` VALUES
+('bspat','2027307464','bspat11037@gmail.com',0),
+('bspat11037','2639782061','bspat11037@gmail.com',0),
+('spatty','3920916740','bspat11037@gmail.com',0),
+('test1','2327168385','bspat11037@gmail.com',0),
+('test10','1787805446','bspat11037@gmail.com',1),
+('test3','3920916740','bspat11037@gmail.com',1),
+('test4','3976054627','bspat11037@gmail.com',1);
 /*!40000 ALTER TABLE `User` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -131,4 +169,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-02-26  8:54:25
+-- Dump completed on 2025-03-05 11:46:15
