@@ -34,7 +34,8 @@ void dbHandler::destroyInstance()
     }
 }
 
-//Returns 1 if select statement where username=desired username is empty
+//Returns 1 if select statement where username=desired username from User and
+//Registration is empty
 bool dbHandler::availUsername(const QString & p)
 {
     MYSQL_RES * result;
@@ -44,7 +45,6 @@ bool dbHandler::availUsername(const QString & p)
        << p.toStdString()
        << "' union select username from Registration where username='"
        << p.toStdString() << "') as T";
-    
     if(mysql_query(connection, ss.str().c_str()))
     {
         qDebug() << mysql_error(connection);
@@ -57,6 +57,25 @@ bool dbHandler::availUsername(const QString & p)
     return avail;
 }
 
+//Checks the User table to see if desired user exists, returns as such
+bool dbHandler::userExists(const QString & user)
+{
+    MYSQL_RES * result;
+
+    std::stringstream ss;
+    ss << "select * from User where username='" << user.toStdString() << "'";
+    if(mysql_query(connection, ss.str().c_str()))
+    {
+        qDebug() << "Error in selecting from User";
+        return 0;
+    }
+    result = mysql_store_result(connection);
+    bool exists = mysql_fetch_row(result) != NULL;
+    mysql_free_result(result);
+
+    return exists;
+}
+
 //Inserts User, and returns 0 if anything goes wrong
 QString dbHandler::newUser(const QString & user, const QString & pass,
                            const QString & email, bool perm, bool autoval)
@@ -64,8 +83,6 @@ QString dbHandler::newUser(const QString & user, const QString & pass,
     std::stringstream ss;
     if(autoval) // If bypassing Registration(either testing or already validated)
     {
-        // INSERT User(username, password, email, permissions)
-        // VALUES('(username)', '(password)', '(email)', permissions)
         ss << "insert User(username, password, email, permissions) values('"
            << user.toStdString() << "', '" << pass.toStdString() << "', '"
            << email.toStdString() << "', " << perm << ")";
@@ -227,7 +244,7 @@ QString dbHandler::getMessages(const QString & u1,
        << u2.toStdString() << "' and sender='" << u1.toStdString()
        << "') as T where not deleted order by sentAt desc limit "
        << start << ", " << length;
-o
+
     if(mysql_query(connection, ss.str().c_str()))
     {
         qDebug() << "DB failed to retrieve messages";

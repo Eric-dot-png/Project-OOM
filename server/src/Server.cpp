@@ -103,7 +103,7 @@ void Server::onNewConnection()
             {
                 qDebug() << "recieved discovery request...";
                 QString usrname = m["Username"].toString();
-                bool existing_user = !db->availUsername(usrname);
+                bool existing_user = db->userExists(usrname);
                 if (existing_user)
                 {
                     QString messagehistory = db->getMessages(m["CurrUser"].toString(), usrname);
