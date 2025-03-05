@@ -47,7 +47,7 @@ HEADERS += \
     includes/oomwidget.h \
     includes/Client.h \
     ../common/ProtocolManager.h \
-    ../common/User.h \
+    includes/User.h \
     includes/applicationhandler.h \
     includes/authenticationcode.h \
     includes/login.h \

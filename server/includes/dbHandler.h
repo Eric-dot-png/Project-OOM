@@ -35,7 +35,7 @@ public:
     bool storeMessage(const QJsonObject &);
     //returns list of (length) messages separated by ":;:" beginning at start(0 is most recent message)
     QString getMessages(const QString & u1, const QString & u2,
-                        int start = 0, int length = 10);
+                        int start = 0, int length = 50);
 
     //returns 1 if friend request created
     bool addFriendRequest(const QString & from, const QString & to);
