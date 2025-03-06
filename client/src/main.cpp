@@ -13,7 +13,6 @@
 #include "Client.h"
 #include "regMachine.h"
 
-
 void customMessageHandler(QtMsgType type, const QMessageLogContext &context,
                           const QString &msg)
 {

@@ -17,6 +17,7 @@
 #include "config.h"
 #include "ProtocolManager.h"
 #include "User.h"
+#include "ClientState.h"
 
 class RegMachine;
 
@@ -25,25 +26,192 @@ class Client : public QObject
     Q_OBJECT
         
 public:
-    enum ClientState {
-        Disconnected=0,
-        Disconnecting, 
-        Connecting,
-        Connected,
-        LoggingIn,
-        LoggedIn,
-        CreatingAccount,
-    };
 
+    /*--------------------------------------------
+      ClientState Stuff
+    --------------------------------------------*/
+    
+    class AbstractState
+    {
+    public:
+        virtual void handle(const QJsonObject & m) = 0;
+    protected:
+        AbstractState() {}
+        virtual ~AbstractState() {};
+        void StateFailure(const QJsonObject & m)
+        {
+            qDebug() << "Cannot Process " << m["Type"].toInt();
+        }
+    };
+    
+    class DisconnectedState: public AbstractState
+    {
+    public:
+        static DisconnectedState * getInstance()
+        {
+            if(instance == NULL)
+                instance = new DisconnectedState();
+            return instance;
+        }
+        static void destroyInstance()
+        {
+            if(instance != NULL)
+            {
+                delete instance;
+                instance = NULL;
+            }
+        }
+        void handle(const QJsonObject & m);
+    private:
+        static DisconnectedState * instance;
+    };
+    
+    class DisconnectingState: public AbstractState
+    {
+    public:
+        static DisconnectingState * getInstance()
+        {
+            if(instance == NULL)
+                instance = new DisconnectingState();
+            return instance;
+        }
+        static void destroyInstance()
+        {
+            if(instance != NULL)
+            {
+                delete instance;
+                instance = NULL;
+            }
+        }
+        void handle(const QJsonObject & m);
+    private:
+        static DisconnectingState * instance;
+    };
+    
+    class ConnectingState: public AbstractState
+    {
+    public:
+        static ConnectingState * getInstance()
+        {
+            if(instance == NULL)
+                instance = new ConnectingState();
+            return instance;
+        }
+        static void destroyInstance()
+        {
+            if(instance != NULL)
+            {
+                delete instance;
+                instance = NULL;
+            }
+        }
+        void handle(const QJsonObject & m);
+    private:
+        static ConnectingState * instance;
+    };
+    
+    class ConnectedState: public AbstractState
+    {
+    public:
+        static ConnectedState * getInstance()
+        {
+            if(instance == NULL)
+                instance = new ConnectedState();
+            return instance;
+        }
+        static void destroyInstance()
+        {
+            if(instance != NULL)
+            {
+                delete instance;
+                instance = NULL;
+            }
+        }
+        void handle(const QJsonObject & m);
+    private:
+        static ConnectedState * instance;
+    };
+    
+    class LoggingInState: public AbstractState
+    {
+    public:
+        static LoggingInState * getInstance()
+        {
+            if(instance == NULL)
+                instance = new LoggingInState();
+            return instance;
+        }
+        static void destroyInstance()
+        {
+            if(instance != NULL)
+            {
+                delete instance;
+                instance = NULL;
+            }
+        }
+        void handle(const QJsonObject & m);
+    private:
+        static LoggingInState * instance;
+    };
+    
+    class LoggedInState: public AbstractState
+    {
+    public:
+        static LoggedInState * getInstance()
+        {
+            if(instance == NULL)
+                instance = new LoggedInState();
+            return instance;
+        }
+        static void destroyInstance()
+        {
+            if(instance != NULL)
+            {
+                delete instance;
+                instance = NULL;
+            }
+        }
+        void handle(const QJsonObject & m);
+    private:
+        static LoggedInState * instance;
+    };
+    
+    class CreatingAccountState: public AbstractState
+    {
+    public:
+        static CreatingAccountState * getInstance()
+        {
+            if(instance == NULL)
+                instance = new CreatingAccountState();
+            return instance;
+        }
+        static void destroyInstance()
+        {
+            if(instance != NULL)
+            {
+                delete instance;
+                instance = NULL;
+            }
+        }
+        void handle(const QJsonObject & m);
+    private:
+        static CreatingAccountState * instance;
+    };
+    
+    void destroyClientStates();
+
+    /*--------------------------------------------
+      Beginning of Actual Client
+    --------------------------------------------*/
     Client(Client&) = delete;
     Client& operator=(const Client&) = delete;
     
     static Client * getInstance();
     static void destroyInstance();
     
-    ClientState getState() const { return state; }
+    AbstractState * getState() const { return state; }
     User getUser() const { return current_user; }
-        
+    
     // must be in Disconnected state.
     // puts the client into Connecting state
     void connectToServer(const QHostAddress& host, int port);
@@ -77,7 +245,7 @@ public:
     void acceptFriend(const User& u);
 
     void extendMessageHistory(const User& u, unsigned int currentSize);
-    
+
 signals: 
     void connectedToServer();
     void disconnectedFromServer();
@@ -104,26 +272,11 @@ private:
 
     QHostAddress getDeviceIpAddress(); // returns first non-loopback
                                        // ipv4 address
-    
-    void sendDataToOtherClient(const QHostAddress& ip,
-                               const quint16& port,
-                               const QByteArray & data) const;
-        
-    /************************************************************
-           The following functions handle the client's state.
-           They are called inside of onReply().
 
-           Note : Eric is actively trying to remove this
-    *************************************************************/
-    void handleLoggedInState(const QJsonObject& m);
-    void handleLoggingInState(const QJsonObject& m);
-    void handleCreatingAccountState(const QJsonObject& m);
-    /************************************************************/
-    
-    static Client * instance;
-    ClientState state;
-    QTcpSocket * socket; // comm with server
     User current_user;
+    AbstractState * state;
+    static Client * instance;
+    QTcpSocket * socket; // comm with server
 };
 
 #endif

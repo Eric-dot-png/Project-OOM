@@ -41,7 +41,7 @@ SOURCES += \
     src/privatemessages.cpp \
     src/register.cpp \
     src/regMachine.cpp \
-    src/OOMTextBrowser.cpp
+    src/OOMTextBrowser.cpp 
     
 HEADERS += \
     ../common/config.h \

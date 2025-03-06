@@ -4,22 +4,172 @@
 #include "Client.h"
 #include "regMachine.h"
 
+/*------------------------------------------------
+Client State Stuff
+------------------------------------------------*/
+
+void Client::DisconnectedState::handle(const QJsonObject & m) {}
+
+void Client::DisconnectingState::handle(const QJsonObject & m) {}
+
+void Client::ConnectingState::handle(const QJsonObject & m) {}
+
+void Client::ConnectedState::handle(const QJsonObject & m) {}
+
+void Client::LoggingInState::handle(const QJsonObject & m)
+{
+    Protocol type = static_cast<Protocol>(m["Type"].toInt());
+    switch(type)
+    {
+        case Protocol::LoginAccept:
+        {
+            qDebug() << "Login Success!";
+            Client::getInstance()->state = LoggedInState::getInstance();
+            User u(m["Username"].toString(),
+                   m["Password"].toString());
+            Client::getInstance()->current_user = u;
+            qDebug() << "Username:" << u.get_username();
+            emit Client::getInstance()->loginSuccess();
+            break;
+        }
+        case Protocol::LoginDenied:
+        {
+            qDebug() << "Login Failed!";
+            Client::getInstance()->state = ConnectedState::getInstance();
+            emit Client::getInstance()->loginFail();
+            break;
+        }
+        default:
+        {
+            StateFailure(m);
+            Client::getInstance()->state = ConnectedState::getInstance();
+            break;
+        }
+    }
+}
+
+void Client::LoggedInState::handle(const QJsonObject & m)
+{
+    Protocol type = static_cast<Protocol>(m["Type"].toInt());
+    switch(type)
+    {
+        case Protocol::FriendRequest:
+        {
+            emit Client::getInstance()->recievedFriendRequest(m["From"].toString());
+            break;
+        }
+        case Protocol::FriendRemoved:
+        {
+            emit Client::getInstance()->recievedFriendRemove(m["From"].toString());
+        }
+        case Protocol::PrivateMessage:
+        {
+            emit Client::getInstance()->recievedDM(m["From"].toString(),
+                                                   m["Message"].toString());
+            break;
+        }
+        case Protocol::DiscoveryAccept:
+        {
+            QStringList messagelist = m["Messages"].toString().split(":;:");
+            QList<QJsonObject> messageJsonList;
+            for(QString str : messagelist)
+            {
+                QJsonDocument d = QJsonDocument::fromJson(str.toUtf8());
+                if(!d.isNull() && d.isObject())
+                    messageJsonList.append(d.object());
+            }
+            
+            emit Client::getInstance()->discoverUserSucceed(m["Username"].toString(), messageJsonList);
+            break;
+        }
+        case Protocol::DiscoveryFail:
+        {
+            emit Client::getInstance()->discoverUserFail(m["Username"].toString());
+            break;
+        }
+        default:
+        {
+            StateFailure(m);
+            break;
+        }
+    }
+}
+
+void Client::CreatingAccountState::handle(const QJsonObject & m)
+{
+    Protocol type = static_cast<Protocol>(m["Type"].toInt());
+    switch(type)
+    {
+        case Protocol::AuthCodeAccept:
+        {
+            Client::getInstance()->state = Client::ConnectedState::getInstance();
+            emit Client::getInstance()->accountAuthenticated();
+            break;
+        }
+        case Protocol::AuthCodeDenied:
+        {
+            emit Client::getInstance()->accountAuthenticationFail();
+            break;
+        }
+        case Protocol::CreateAccountAccept:
+        {
+            emit Client::getInstance()->accountCreated();
+            Client::getInstance()->current_user = User(m["Username"].toString(),
+                                                     m["Password"].toString());
+            break;
+        }
+        case Protocol::CreateAccountDenied:
+        {
+            emit Client::getInstance()->accountNotCreated();
+            Client::getInstance()->state = Client::ConnectedState::getInstance();
+            break;
+        }
+        default:
+        {
+            StateFailure(m);
+            break;
+        }
+    }
+}
+
+Client::DisconnectedState * Client::DisconnectedState::instance(NULL);
+Client::DisconnectingState * Client::DisconnectingState::instance(NULL);
+Client::ConnectingState * Client::ConnectingState::instance(NULL);
+Client::ConnectedState * Client::ConnectedState::instance(NULL);
+Client::LoggingInState * Client::LoggingInState::instance(NULL);
+Client::LoggedInState * Client::LoggedInState::instance(NULL);
+Client::CreatingAccountState * Client::CreatingAccountState::instance(NULL);
+
+void Client::destroyClientStates()
+{
+    DisconnectedState::destroyInstance();
+    DisconnectingState::destroyInstance();
+    ConnectingState::destroyInstance();
+    ConnectedState::destroyInstance();
+    LoggingInState::destroyInstance();
+    LoggedInState::destroyInstance();
+    CreatingAccountState::destroyInstance();
+}
+
+/*-----------------------------------------------
+Actual Client Stuff
+-----------------------------------------------*/
 Client * Client::instance(NULL);
  
 Client::Client(QObject * parent)
-    : QObject(parent), state(ClientState::Disconnected),
+    : QObject(parent), state(DisconnectedState::getInstance()),
       socket(new QTcpSocket(this)),
       current_user("None","None","None") // for now this is guest user
 {
     connect(socket, &QTcpSocket::connected, this, [&](){
         qDebug() << "Connected to Server";
-        state = ClientState::Connected;
+        state = ConnectedState::getInstance();
         emit connectedToServer();
     });
     
     connect(socket, &QTcpSocket::disconnected, this, [&](){
         qDebug() << "Disconnected from Server";
-        state = ClientState::Disconnected;
+        state = DisconnectedState::getInstance();
         emit disconnectedFromServer();
     });
         
@@ -28,8 +178,9 @@ Client::Client(QObject * parent)
     
 Client::~Client()
 {
-    if (state != ClientState::Disconnected)
+    if (state != DisconnectedState::getInstance())
         disconnect();
+    destroyClientStates();
     delete socket;
 }
 
@@ -51,11 +202,11 @@ void Client::destroyInstance()
     
 void Client::connectToServer(const QHostAddress& host, int port)
 {
-    if (state == ClientState::Disconnected)
+    if (state == DisconnectedState::getInstance())
     {
         qDebug() << "Attempting to connect to server...";
         socket->connectToHost(host,port);
-        state = ClientState::Connecting;
+        state = ConnectingState::getInstance();
     }
     else
     {
@@ -65,11 +216,11 @@ void Client::connectToServer(const QHostAddress& host, int port)
 
 void Client::disconnect()
 {
-    if (state != ClientState::Disconnected)
+    if (state != DisconnectedState::getInstance())
     {
         qDebug() << "Disconnecting from server...";
         socket->disconnectFromHost();
-        state = Disconnecting;
+        state = DisconnectingState::getInstance();
     }
     else
     {
@@ -84,12 +235,12 @@ void Client::writeToServer(Protocol type, const QList<QJsonValue>& argv)
 
 void Client::login(const User & u)
 {
-    if (state == ClientState::Connected)
+    if (state == ConnectedState::getInstance())
     {
         qDebug() << "Attempting Login...";
         writeToServer(Protocol::LoginRequest,
                       {u.get_username(), u.get_password()});
-        state = ClientState::LoggingIn;
+        state = LoggingInState::getInstance();
     }
     else
     {
@@ -99,11 +250,11 @@ void Client::login(const User & u)
     
 void Client::createAccount(const User & u)
 {
-    if (state == ClientState::Connected)
+    if (state == ConnectedState::getInstance())
     {
         RegMachine::getInstance()->createAcc(u);
         qDebug() << "Attempting Create Account...";
-        state = ClientState::CreatingAccount;
+        state = CreatingAccountState::getInstance();
     }
     else
     {
@@ -113,7 +264,7 @@ void Client::createAccount(const User & u)
     
 void Client::submitAuthCode(const QString& code)
 {
-    if (state == ClientState::CreatingAccount)
+    if (state == CreatingAccountState::getInstance())
     {
         RegMachine::getInstance()->authAcc(current_user,code);
         qDebug() << "Attempting Authentication...";
@@ -126,7 +277,7 @@ void Client::submitAuthCode(const QString& code)
 
 void Client::discover(const User& u)
 {
-    if (state == ClientState::LoggedIn)
+    if (state == LoggedInState::getInstance())
     {
         qDebug() << "Attempting discovery for" << u.get_username();
         
@@ -141,7 +292,7 @@ void Client::discover(const User& u)
 
 void Client::privateMessage(const User& u, const QString& message)
 {
-    if (state == ClientState::LoggedIn)
+    if (state == LoggedInState::getInstance())
     {
         qDebug() << "sending private message...";
         
@@ -156,7 +307,7 @@ void Client::privateMessage(const User& u, const QString& message)
 
 void Client::friendRequest(const User& u)
 {
-    if (state == ClientState::LoggedIn)
+    if (state == LoggedInState::getInstance())
     {
         qDebug() << "Sending Friend Request";
 
@@ -171,7 +322,7 @@ void Client::friendRequest(const User& u)
 
 void Client::acceptFriend(const User& u)
 {
-    if (state == ClientState::LoggedIn)
+    if (state == LoggedInState::getInstance())
     {
         qDebug() << "Accepting Friend Request";
         
@@ -184,164 +335,12 @@ void Client::acceptFriend(const User& u)
     }
 }
 
-void Client::extendMessageHistory(const User& u, unsigned int currentSize)
-{
-    
-}
-
 void Client::onReply()
 {
     QByteArray data = socket->readAll();
     qDebug() << "Received" << data << "from server.";
     
     QJsonObject m = ProtocolManager::deserialize(data);
-    
-    switch(state)
-    {
-        case ClientState::LoggedIn:
-        {
-            handleLoggedInState(m);
-            break;
-        }
-        case ClientState::LoggingIn:
-        {
-            handleLoggingInState(m);
-            break;
-        }
-        case ClientState::CreatingAccount:
-        {
-            handleCreatingAccountState(m);
-            break;
-        }
-        default:
-        {
-            qDebug() << "State Failure:" << "\nCurrentState: " << state;
-            break;
-        }
-    }
-}
 
-void Client::handleLoggedInState(const QJsonObject& m)
-{
-    Protocol type = static_cast<Protocol>(m["Type"].toInt());
-    switch(type)
-    {
-        case Protocol::FriendRequest:
-        {
-            emit recievedFriendRequest(m["From"].toString());
-            break;
-        }
-        case Protocol::FriendRemoved:
-        {
-            emit recievedFriendRemove(m["From"].toString());
-        }
-        case Protocol::PrivateMessage:
-        {
-            emit recievedDM(m["From"].toString(), m["Message"].toString());
-            break;
-        }
-        case Protocol::DiscoveryAccept:
-        {
-            QStringList messagelist = m["Messages"].toString().split(":;:");
-            QList<QJsonObject> messageJsonList;
-            for(QString str : messagelist)
-            {
-                QJsonDocument d = QJsonDocument::fromJson(str.toUtf8());
-                if(!d.isNull() && d.isObject())
-                    messageJsonList.append(d.object());
-            }
-            
-            emit discoverUserSucceed(m["Username"].toString(),
-                                     messageJsonList);
-            break;
-        }
-        case Protocol::DiscoveryFail:
-        {
-            emit discoverUserFail(m["Username"].toString());
-            break;
-        }
-        default:
-        {
-            qDebug() << "State Transition Failure:"
-                     << "\nCurrent State:" << state
-                     << "\n  Attempting transition to:"
-                     << m["Type"].toInt();
-            break;
-        }
-    }
-}
-    
-void Client::handleLoggingInState(const QJsonObject& m)
-{
-    Protocol type = static_cast<Protocol>(m["Type"].toInt());
-    switch(type)
-    {
-        case Protocol::LoginAccept:
-        {
-            qDebug() << "Login Success!";
-            state = ClientState::LoggedIn;
-            User u(m["Username"].toString(),
-                   m["Password"].toString());
-            current_user = u;
-            qDebug() << "Username:" << u.get_username();
-            emit loginSuccess();
-            break;
-        }
-        case Protocol::LoginDenied:
-        {
-            qDebug() << "Login Failed!";
-            state = ClientState::Connected;
-            emit loginFail();
-            break;
-        }
-        default:
-        {
-            qDebug() << "State Transition Failure:"
-                     << "\nCurrent State:" << state
-                     << "\n  Attempting transition to:"
-                     << m["Type"].toInt();
-            state = ClientState::Connected;
-            break;
-        }
-    }
-}
-    
-void Client::handleCreatingAccountState(const QJsonObject& m)
-{
-    Protocol type = static_cast<Protocol>(m["Type"].toInt());
-    switch(type)
-    {
-        case Protocol::AuthCodeAccept:
-        {
-            state = ClientState::Connected;
-            emit accountAuthenticated();
-            break;
-        }
-        case Protocol::AuthCodeDenied:
-        {
-            emit accountAuthenticationFail();
-            break;
-        }
-        case Protocol::CreateAccountAccept:
-        {
-            emit accountCreated();
-            current_user = User(m["Username"].toString(),
-                                m["Password"].toString());
-            break;
-        }
-        case Protocol::CreateAccountDenied:
-        {
-            emit accountNotCreated();
-            state = ClientState::Connected;
-            break;
-        }
-        default:
-        {
-            qDebug() << "State Transition Failure:"
-                     << "\nCurrent State:" << state
-                     << "\n  Attempting transition to:"
-                     << m["Type"].toInt();
-            break;
-        }
-    }
+    state->handle(m);
 }
