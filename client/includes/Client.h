@@ -17,7 +17,6 @@
 #include "config.h"
 #include "ProtocolManager.h"
 #include "User.h"
-#include "ClientState.h"
 
 class RegMachine;
 

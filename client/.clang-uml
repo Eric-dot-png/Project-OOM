@@ -8,13 +8,10 @@ diagrams:
     glob:
       - src/*.cpp
       - includes/*.h
-      - ../common/*.cpp
-      - ../common/*.h
     include:
       paths:
         - src
         - includes
-        - ../common
   regMachine_sequence_diagram:
     type: sequence
     glob:

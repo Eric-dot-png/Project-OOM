@@ -1,44 +1,4 @@
 @startuml
-class "ProtocolError" as C_0012766499065510760009
-class C_0012766499065510760009 {
-__
-}
-class "ProtocolManager" as C_0016429213831703395188
-class C_0016429213831703395188 {
--ProtocolManager() : void
--ProtocolManager(const ProtocolManager & p) = deleted : void
-..
--operator=(const ProtocolManager & p) = deleted : ProtocolManager &
-..
-{static} +deserialize(const QByteArray & data) : QJsonObject
-{static} +serialize(MessageType t, const QStringList & argv) : QByteArray
-__
-}
-enum "ProtocolManager::MessageType" as C_0008849749518693832582
-enum C_0008849749518693832582 {
-START
-LoginRequest
-LoginAccept
-LoginDenied
-CreateAccountRequest
-CreateAccountAccept
-CreateAccountDenied
-CreateAccountAuthCodeSubmit
-AccountAuthenticated
-AccountNotAuthenticated
-AnnounceIpPort
-AnnounceOffline
-PrivateMessageRequest
-PrivateMessageAccept
-PrivateMessageAcceptOffline
-PrivateMessageDenied
-PrivateMessageForward
-PrivateMessage
-DiscoveryRequest
-DiscoveryFail
-DiscoveryAccept
-SIZE
-}
 class "User" as C_0013909460443608576024
 class C_0013909460443608576024 {
 +User(const QString & u, const QString & pass = "", const QString & e = "", bool per = 0) : void
@@ -61,62 +21,171 @@ class C_0009036792685107474111 {
 ..
 +operator=(const Client &) = deleted : Client &
 ..
++acceptFriend(const User & u) : void
 +accountAuthenticated() : void
 +accountAuthenticationFail() : void
 +accountCreated() : void
 +accountNotCreated() : void
--closeListener() : void
 +connectToServer(const QHostAddress & host, int port) : void
 +connectedToServer() : void
 +createAccount(const User &) : void
++destroyClientStates() : void
 {static} +destroyInstance() : void
 +disconnect() : void
 +disconnectedFromServer() : void
 +discover(const User & u) : void
 +discoverUserFail(const QString & username) : void
 +discoverUserSucceed(const QString & username, const QList<QJsonObject> & messageJsonList) : void
++extendMessageHistory(const User & u, unsigned int currentSize) : void
++friendRequest(const User & u) : void
 -getDeviceIpAddress() : QHostAddress
 {static} +getInstance() : Client *
-+getState() const : ClientState
++getState() const : AbstractState *
 +getUser() const : User
--handleCreatingAccountState(const QJsonObject & m) : void
--handleLoggedInState(const QJsonObject & m) : void
--handleLoggingInState(const QJsonObject & m) : void
 +login(const User &) : void
++loginFail() : void
 +loginSuccess() : void
 +metaObject() const : const QMetaObject *
--onDM() : void
 -onReply() : void
--openListener() : void
 +privateMessage(const User & u, const QString & message) : void
 +qt_metacall(QMetaObject::Call, int, void **) : int
 +qt_metacast(const char *) : void *
 {static} -qt_static_metacall(QObject *, QMetaObject::Call, int, void **) : void
 +recievedDM(const QString & from, const QString & msg) : void
--sendDataToOtherClient(const QHostAddress & ip, const quint16 & port, const QByteArray & data) const : void
++recievedFriendRemove(const QString & from) : void
++recievedFriendRequest(const QString & from) : void
 +submitAuthCode(const QString &) : void
 {static} +tr(const char * s, const char * c = nullptr, int n = -1) : QString
 {static} +trUtf8(const char * s, const char * c = nullptr, int n = -1) : QString
-+writeToServer(ProtocolManager::MessageType, const QStringList &) : void
++writeToServer(Protocol type, const QList<QJsonValue> &) : void
 __
 -current_user : User
 {static} -instance : Client *
--listener : QTcpServer *
--sender : QTcpSocket *
 -socket : QTcpSocket *
--state : ClientState
+-state : AbstractState *
 {static} +staticMetaObject : const QMetaObject
--usermap : std::unordered_map<QString,std::pair<QHostAddress,quint16>>
 }
-enum "Client::ClientState" as C_0004773889359258674523
-enum C_0004773889359258674523 {
-Disconnected
-Disconnecting
-Connecting
-Connected
-LoggingIn
-LoggedIn
-CreatingAccount
+abstract "Client::AbstractState" as C_0015390605310684886627
+abstract C_0015390605310684886627 {
+#AbstractState() : void
+#StateFailure(const QJsonObject & m) : void
+{abstract} +handle(const QJsonObject & m) = 0 : void
+#~AbstractState() : void
+__
+}
+class "Client::DisconnectedState" as C_0009066011490874017264
+class C_0009066011490874017264 {
+{static} +destroyInstance() : void
+{static} +getInstance() : DisconnectedState *
++handle(const QJsonObject & m) : void
+__
+{static} -instance : DisconnectedState *
+}
+class "Client::DisconnectingState" as C_0011410188052297621975
+class C_0011410188052297621975 {
+{static} +destroyInstance() : void
+{static} +getInstance() : DisconnectingState *
++handle(const QJsonObject & m) : void
+__
+{static} -instance : DisconnectingState *
+}
+class "Client::ConnectingState" as C_0000361901938415371661
+class C_0000361901938415371661 {
+{static} +destroyInstance() : void
+{static} +getInstance() : ConnectingState *
++handle(const QJsonObject & m) : void
+__
+{static} -instance : ConnectingState *
+}
+class "Client::ConnectedState" as C_0008644728496602932417
+class C_0008644728496602932417 {
+{static} +destroyInstance() : void
+{static} +getInstance() : ConnectedState *
++handle(const QJsonObject & m) : void
+__
+{static} -instance : ConnectedState *
+}
+class "Client::LoggingInState" as C_0009196308892385799790
+class C_0009196308892385799790 {
+{static} +destroyInstance() : void
+{static} +getInstance() : LoggingInState *
++handle(const QJsonObject & m) : void
+__
+{static} -instance : LoggingInState *
+}
+class "Client::LoggedInState" as C_0008919416328821020174
+class C_0008919416328821020174 {
+{static} +destroyInstance() : void
+{static} +getInstance() : LoggedInState *
++handle(const QJsonObject & m) : void
+__
+{static} -instance : LoggedInState *
+}
+class "Client::CreatingAccountState" as C_0006892934418720742120
+class C_0006892934418720742120 {
+{static} +destroyInstance() : void
+{static} +getInstance() : CreatingAccountState *
++handle(const QJsonObject & m) : void
+__
+{static} -instance : CreatingAccountState *
+}
+class "RegMachine" as C_0001310024392510780053
+class C_0001310024392510780053 {
++RegMachine(const RegMachine &) = deleted : void
+-RegMachine() : void
+-~RegMachine() = default : void
+..
++operator=(const RegMachine &) = deleted : RegMachine &
+..
++authAcc(const User & u, const QString & code) : void
++calledAuthAcc() : void
++calledCreateAcc() : void
++createAcc(const User & u) : void
+{static} +destroyInstance() : void
++finished() : void
+{static} +getInstance() : RegMachine *
++metaObject() const : const QMetaObject *
+-onAuthenticated() : void
++qt_metacall(QMetaObject::Call, int, void **) : int
++qt_metacast(const char *) : void *
+{static} -qt_static_metacall(QObject *, QMetaObject::Call, int, void **) : void
+{static} +tr(const char * s, const char * c = nullptr, int n = -1) : QString
+{static} +trUtf8(const char * s, const char * c = nullptr, int n = -1) : QString
+__
+-client : Client *const
+{static} -instance : RegMachine *
+-m : QStateMachine *
+{static} +staticMetaObject : const QMetaObject
+}
+class "Message" as C_0014824791405600746196
+class C_0014824791405600746196 {
++Message(const QString & sender, const QString & receiver, const QString & msg) : void
+..
++get_msg() const : QString
++get_receiver() const : QString
++get_sender() const : QString
+__
+-msg : QString
+-receiver : User
+-sender : User
+}
+class "OOMTextBrowser" as C_0012896982152753567421
+class C_0012896982152753567421 {
++OOMTextBrowser(QWidget * parent = nullptr) : void
+..
++addMessageToHistory(const Message msg) : void
++appendMessage(const Message & msg, bool history) : void
++clearHistory() : void
++getMessages() const : const QVector<Message> &
++metaObject() const : const QMetaObject *
++qt_metacall(QMetaObject::Call, int, void **) : int
++qt_metacast(const char *) : void *
+{static} -qt_static_metacall(QObject *, QMetaObject::Call, int, void **) : void
+{static} +tr(const char * s, const char * c = nullptr, int n = -1) : QString
+{static} +trUtf8(const char * s, const char * c = nullptr, int n = -1) : QString
+__
+-messageList : QVector<Message>
+{static} +staticMetaObject : const QMetaObject
 }
 class "OOMWidget" as C_0014848441550523525489
 class C_0014848441550523525489 {
@@ -154,10 +223,6 @@ __
 -loginUi : Ui::Login *
 {static} +staticMetaObject : const QMetaObject
 }
-class "RegMachine" as C_0001310024392510780053
-class C_0001310024392510780053 {
-__
-}
 class "Register" as C_0007926232458949256986
 class C_0007926232458949256986 {
 +Register(QWidget * parent = nullptr) : void
@@ -179,36 +244,6 @@ class C_0007926232458949256986 {
 {static} +trUtf8(const char * s, const char * c = nullptr, int n = -1) : QString
 __
 -registerUi : Ui::Register *
-{static} +staticMetaObject : const QMetaObject
-}
-class "Message" as C_0014824791405600746196
-class C_0014824791405600746196 {
-+Message(const QString & sender, const QString & receiver, const QString & msg) : void
-..
-+get_msg() const : QString
-+get_receiver() const : QString
-+get_sender() const : QString
-__
--msg : QString
--receiver : User
--sender : User
-}
-class "OOMTextBrowser" as C_0012896982152753567421
-class C_0012896982152753567421 {
-+OOMTextBrowser(QWidget * parent = nullptr) : void
-..
-+addMessageToHistory(const Message msg) : void
-+appendMessage(const Message & msg, bool history) : void
-+clearHistory() : void
-+getMessages() const : const QVector<Message> &
-+metaObject() const : const QMetaObject *
-+qt_metacall(QMetaObject::Call, int, void **) : int
-+qt_metacast(const char *) : void *
-{static} -qt_static_metacall(QObject *, QMetaObject::Call, int, void **) : void
-{static} +tr(const char * s, const char * c = nullptr, int n = -1) : QString
-{static} +trUtf8(const char * s, const char * c = nullptr, int n = -1) : QString
-__
--messageList : QVector<Message>
 {static} +staticMetaObject : const QMetaObject
 }
 class "EnterKeyFilter" as C_0012803028418620508859
@@ -285,19 +320,33 @@ __
 -stackedWidget : QStackedWidget *
 {static} +staticMetaObject : const QMetaObject
 }
-C_0016429213831703395188 ..> C_0008849749518693832582
-C_0008849749518693832582 --+ C_0016429213831703395188
-C_0009036792685107474111 ..> C_0008849749518693832582
-C_0009036792685107474111 o-- C_0004773889359258674523 : -state
 C_0009036792685107474111 o-- C_0013909460443608576024 : -current_user
+C_0009036792685107474111 --> C_0015390605310684886627 : -state
 C_0009036792685107474111 --> C_0009036792685107474111 : -instance
-C_0004773889359258674523 --+ C_0009036792685107474111
-C_0014848441550523525489 --> C_0009036792685107474111 : #client
-C_0014848441550523525489 <|-- C_0003822774298956646229
-C_0014848441550523525489 <|-- C_0007926232458949256986
+C_0015390605310684886627 --+ C_0009036792685107474111
+C_0009066011490874017264 --+ C_0009036792685107474111
+C_0009066011490874017264 --> C_0009066011490874017264 : -instance
+C_0011410188052297621975 --+ C_0009036792685107474111
+C_0011410188052297621975 --> C_0011410188052297621975 : -instance
+C_0000361901938415371661 --+ C_0009036792685107474111
+C_0000361901938415371661 --> C_0000361901938415371661 : -instance
+C_0008644728496602932417 --+ C_0009036792685107474111
+C_0008644728496602932417 --> C_0008644728496602932417 : -instance
+C_0009196308892385799790 --+ C_0009036792685107474111
+C_0009196308892385799790 --> C_0009196308892385799790 : -instance
+C_0008919416328821020174 --+ C_0009036792685107474111
+C_0008919416328821020174 --> C_0008919416328821020174 : -instance
+C_0006892934418720742120 --+ C_0009036792685107474111
+C_0006892934418720742120 --> C_0006892934418720742120 : -instance
+C_0001310024392510780053 ..> C_0013909460443608576024
+C_0001310024392510780053 --> C_0009036792685107474111 : -client
+C_0001310024392510780053 --> C_0001310024392510780053 : -instance
 C_0014824791405600746196 o-- C_0013909460443608576024 : -sender
 C_0014824791405600746196 o-- C_0013909460443608576024 : -receiver
 C_0012896982152753567421 o-- C_0014824791405600746196 : -messageList
+C_0014848441550523525489 --> C_0009036792685107474111 : #client
+C_0014848441550523525489 <|-- C_0003822774298956646229
+C_0014848441550523525489 <|-- C_0007926232458949256986
 C_0011157448002936184542 --> C_0012803028418620508859 : -enterFilter
 C_0011157448002936184542 o-- C_0013909460443608576024 : -currentlyMessaging
 C_0014848441550523525489 <|-- C_0011157448002936184542

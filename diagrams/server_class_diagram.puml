@@ -1,83 +1,35 @@
 @startuml
-class "User" as C_0013909460443608576024
-class C_0013909460443608576024 {
-+User(const QString & u, const QString & pass = "", const QString & e = "", bool per = 0) : void
-..
-+get_email() const : QString
-+get_password() const : QString
-+get_permissions() const : bool
-+get_username() const : QString
-__
--email_ : QString
--pass_ : QString
--per_ : bool
--u_ : QString
-}
 class "dbHandler" as C_0007180728308577750051
 class C_0007180728308577750051 {
 -dbHandler() : void
 -~dbHandler() : void
 ..
 {static} +GetInstance() : dbHandler *
-+addFriend(const User &, const User &) : bool
-+availUsername(const User &) : bool
++addFriend(const QString & u1, const QString & u2) : bool
++addFriendRequest(const QString & from, const QString & to) : bool
++areFriends(const QString & u1, const QString & u2) : bool
++availUsername(const QString &) : bool
 +cleanReg() : void
 {static} +destroyInstance() : void
-+emailValidate(const User &, const QString & code) : bool
-+getFriendslist(const User &) : std::list<QString>
-+getMessages(const QString & u1, const QString & u2, int start = 0, int length = 10) : QString
-+loginValidate(const User &) : bool
-+newUser(const User &, bool autoval = 0) : QString
-+removeReg(const User &) : bool
++emailValidate(const QString & user, const QString & code) : bool
++getFriendRequests(const QString & u) : QStringList
++getFriendslist(const QString & user) : QStringList
++getMessages(const QString & u1, const QString & u2, int start = 0, int length = 50) : QString
++loginValidate(const QString & user, const QString & pass) : bool
++newUser(const QString & user, const QString & pass, const QString & email, bool perm = 0, bool autoval = 0) : QString
++removeFriend(const QString & u1, const QString & u2) : bool
++removeFriendRequest(const QString & from, const QString & to) : bool
++removeReg(const QString & user) : bool
 +storeMessage(const QJsonObject &) : bool
++userExists(const QString &) : bool
 __
 -connection : MYSQL *
 {static} -dbHandler_ : dbHandler *
 -mysql : MYSQL
 }
-class "ProtocolError" as C_0012766499065510760009
-class C_0012766499065510760009 {
-__
-}
-class "ProtocolManager" as C_0016429213831703395188
-class C_0016429213831703395188 {
--ProtocolManager() : void
--ProtocolManager(const ProtocolManager & p) = deleted : void
-..
--operator=(const ProtocolManager & p) = deleted : ProtocolManager &
-..
-{static} +deserialize(const QByteArray & data) : QJsonObject
-{static} +serialize(MessageType t, const QStringList & argv) : QByteArray
-__
-}
-enum "ProtocolManager::MessageType" as C_0008849749518693832582
-enum C_0008849749518693832582 {
-START
-LoginRequest
-LoginAccept
-LoginDenied
-CreateAccountRequest
-CreateAccountAccept
-CreateAccountDenied
-CreateAccountAuthCodeSubmit
-AccountAuthenticated
-AccountNotAuthenticated
-AnnounceIpPort
-AnnounceOffline
-PrivateMessageRequest
-PrivateMessageAccept
-PrivateMessageAcceptOffline
-PrivateMessageDenied
-PrivateMessageForward
-PrivateMessage
-DiscoveryRequest
-DiscoveryFail
-DiscoveryAccept
-SIZE
-}
 class "Server" as C_0007168929316485241399
 class C_0007168929316485241399 {
--Server(int port, QObject * parent = __null) : void
+-Server(QObject * parent = __null) : void
 -Server(const Server &) = deleted : void
 -~Server() : void
 ..
@@ -86,7 +38,6 @@ class C_0007168929316485241399 {
 {static} +destroyInstance() : void
 {static} +getInstance() : Server *
 +metaObject() const : const QMetaObject *
--numeric(const QString &) const : bool
 -onNewConnection() : void
 +qt_metacall(QMetaObject::Call, int, void **) : int
 +qt_metacast(const char *) : void *
@@ -94,19 +45,17 @@ class C_0007168929316485241399 {
 {static} +tr(const char * s, const char * c = nullptr, int n = -1) : QString
 {static} +trUtf8(const char * s, const char * c = nullptr, int n = -1) : QString
 -update() : void
+-writeToSocket(QTcpSocket * s, Protocol t, const QList<QJsonValue> & argv) : void
+-writeToUserRaw(const QString & name, const QByteArray & data) : void
 __
 -db : dbHandler *
 {static} -instance : Server *
--listener_ : QTcpServer *
--port_ : int
+-listener : QTcpServer *
+-onlineUserMap : std::unordered_map<QString,QTcpSocket *>
 {static} +staticMetaObject : const QMetaObject
 -timer : QTimer *
--usermap : std::unordered_map<QString,std::pair<QHostAddress,quint16>>
 }
-C_0007180728308577750051 ..> C_0013909460443608576024
 C_0007180728308577750051 --> C_0007180728308577750051 : -dbHandler_
-C_0016429213831703395188 ..> C_0008849749518693832582
-C_0008849749518693832582 --+ C_0016429213831703395188
 C_0007168929316485241399 --> C_0007180728308577750051 : -db
 C_0007168929316485241399 --> C_0007168929316485241399 : -instance
 
