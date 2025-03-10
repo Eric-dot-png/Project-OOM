@@ -17,99 +17,15 @@ class DMListModel : public QAbstractListModel
 public:
     explicit DMListModel(QObject *parent = nullptr);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override
-    {
-        Q_UNUSED(parent);
-        qDebug() << "rowcount() called, current size: " << dmList.size();
-        return dmList.size();
-    }
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
-    QVariant data(const QModelIndex& index, int role) const override
-    {
-        if (dmList.isEmpty())
-        {
-            qDebug() << "DMListModel::data() called but dmList is EMPTY!";
-            return QVariant();
-        }
+    QVariant data(const QModelIndex& index, int role) const override;
 
-        if (!index.isValid() || index.row() >= dmList.size())
-        {
-            qDebug() << "Invalid index accessed in DMListModel::data()";
-            return QVariant();
-        }
+    void messageReceived(const User& user, const Message msg);
 
-        qDebug() << "dmList size: " << dmList.size() << ", Accessing row:" << index.row();
-        const User &user = dmList.at(index.row());
+    QList<Message> getMessageHistory(const User &user) const;
 
-        if (!dmMap.contains(user))
-        {
-            qDebug() << "User not found in dmMap: " << user.get_username();
-            return QVariant();
-        }
-
-        const DMData& dm = dmMap[user];
-        qDebug() << "Retrieved DMData for: " << dm.user.get_username();
-
-        if (role == Qt::DisplayRole) {
-            QString msg = dm.messageHistory.isEmpty() ? "(No messages)" : dm.messageHistory.last().get_msg();
-            qDebug() << "Data: " << msg;
-            return QString("%1: %2").arg(dm.user.get_username(), msg);
-        } else if (role == Qt::UserRole) {
-            qDebug() << "Returning user object";
-            return QVariant::fromValue(dm.user);
-        } else if (role == Qt::UserRole + 1) {
-            qDebug() << "Returning username";
-            return dm.user.get_username();
-        } else if (role == Qt::UserRole + 2) {
-            qDebug() << "Returning messageHistory";
-            return QVariant::fromValue(dm.messageHistory);
-        }
-
-        qDebug() << "unhandled role in data()";
-        return QVariant();
-    }
-
-    void messageReceived(const User& user, const Message msg)
-    {
-        if (!dmMap.contains(user))
-            addUserToDMList(user);
-
-
-
-        int oldIndex = dmList.indexOf(user);
-
-        if (oldIndex > 0)
-        {
-            beginMoveRows(QModelIndex(), oldIndex, oldIndex, QModelIndex(), 0);
-            dmList.move(oldIndex, 0);
-            endMoveRows();
-        } else if (oldIndex == -1)
-        {
-            beginInsertRows(QModelIndex(), 0, 0);
-            dmList.prepend(user);
-            endInsertRows();
-        }
-
-        dmMap[user].messageHistory.append(msg);
-        emit dataChanged(index(0), index(0));
-    }
-
-    QList<Message> getMessageHistory(const User &user) const
-    {
-        return dmMap.contains(user) ? dmMap[user].messageHistory : QList<Message>();
-    }
-
-    void addUserToDMList(const User &user)
-    {
-        if (dmList.contains(user)) return;
-
-        beginInsertRows(QModelIndex(), 0, 0);
-        dmList.prepend(user);
-        dmMap[user] = {user, {}};
-        endInsertRows();
-
-        emit dataChanged(index(0), index(rowCount() - 1));
-    }
+    void addUserToDMList(const User &user);
 
 private:
     QList<User> dmList;

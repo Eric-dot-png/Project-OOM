@@ -153,6 +153,11 @@ void PrivateMessages::receivedMessage(QString from, QString amsg)
         ui->textBrowser->appendMessage(msg, 0);
         messagingList->messageReceived(User(from), msg);
     }
+    else
+    {
+        //if user doesnt have current messaging window open
+        messagingList->messageReceived(User(from), msg);
+    }
 
 
 }
