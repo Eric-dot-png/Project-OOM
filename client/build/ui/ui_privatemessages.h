@@ -19,6 +19,7 @@
 #include <QtWidgets/QListView>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QTextEdit>
+#include <QtWidgets/QUndoView>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -41,6 +42,7 @@ public:
     QComboBox *comboBox;
     QPushButton *pushButton;
     QPushButton *dd;
+    QUndoView *undoView;
 
     void setupUi(QWidget *PrivateMessages)
     {
@@ -98,6 +100,9 @@ public:
         dd = new QPushButton(groupBox);
         dd->setObjectName(QString::fromUtf8("dd"));
         dd->setGeometry(QRect(119, 90, 51, 26));
+        undoView = new QUndoView(PrivateMessages);
+        undoView->setObjectName(QString::fromUtf8("undoView"));
+        undoView->setGeometry(QRect(290, 350, 256, 192));
         QWidget::setTabOrder(textEdit, serverCombobox);
         QWidget::setTabOrder(serverCombobox, textBrowser);
 

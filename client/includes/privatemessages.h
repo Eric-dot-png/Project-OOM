@@ -16,6 +16,7 @@
 #include "oomwidget.h"
 #include "Client.h"
 #include "ui_privatemessages.h"
+#include "dmlistmodel.h"
 
 
 //#include "message.h"
@@ -60,6 +61,8 @@ private slots:
 
     //Takes the json file and parses it
     void loadPage();
+
+    void openDM(const QModelIndex &index);
     
 signals:
 
@@ -67,6 +70,8 @@ signals:
 private:
     Ui::PrivateMessages *ui;
     EnterKeyFilter *enterFilter;
+    DMListModel *messagingList;
+
 
 
 

@@ -16,11 +16,15 @@
 
 PrivateMessages::PrivateMessages(QWidget *parent)
     : OOMWidget(parent), ui(new Ui::PrivateMessages),
-      currentlyMessaging("","","")
+      currentlyMessaging("","",""),
+    messagingList(new DMListModel(this))
 {
     ui->setupUi(this);
     ui->friendNameLabel->clear();
 
+
+    ui->friendView->setModel(messagingList);
+    messagingList->addUserToDMList(User("Test"));
     
     //This allows the textbox to detect the enter key
     enterFilter = new EnterKeyFilter(this);
@@ -50,6 +54,9 @@ PrivateMessages::PrivateMessages(QWidget *parent)
         currentlyMessaging = User(username);
         qDebug() << currentlyMessaging.get_username();
 
+        //Add user to messagingList
+        messagingList->addUserToDMList(currentlyMessaging);
+
         qDebug() << messageJsonList;
 
         for (auto it = messageJsonList.rbegin(); it != messageJsonList.rend(); ++it)
@@ -62,14 +69,14 @@ PrivateMessages::PrivateMessages(QWidget *parent)
             qDebug() << to + ' ' + from + ' ' + msg;
 
             ui->textBrowser->appendMessage(Message(from, to, msg), 1);
+            messagingList->messageReceived(currentlyMessaging, Message(from, to, msg));
 
         }
 
 
-
-        qDebug() << "Done with lambda";
-        
     });
+
+    connect(ui->friendView, &QListView::clicked, this, &PrivateMessages::openDM);
 
     ui->currentUser->setText(client->getUser().get_username());
 }
@@ -79,9 +86,6 @@ PrivateMessages::~PrivateMessages()
     delete ui;
 }
 
-//function to open a window showing all users?
-//if so, need function to return list of all currently registered users.
-
 void PrivateMessages::searchUser()
 {
     ui->textBrowser->clearHistory();
@@ -90,6 +94,12 @@ void PrivateMessages::searchUser()
     User u = User(ui->searchUserTextbox->text());
 
     if (u.get_username() == client->getUser().get_username()) return;
+    if (u.get_username() == currentlyMessaging.get_username())
+    {
+        //figure out how to open message from list
+        //without clicking on them
+        return;
+    }
 
     ui->userNotFoundLabel->setText("Currently searching for: " + u.get_username());
     client->discover(u);
@@ -129,16 +139,51 @@ void PrivateMessages::onEnterKeyPressed()
     ui->textBrowser->appendMessage(Message(client->getUser().get_username(), currentlyMessaging.get_username(), msgContent), 0);
 
     ui->textEdit->clear();
-
+    messagingList->messageReceived(user, msg);
     client->privateMessage(user, msg.get_msg());
 
 
 }
 
-void PrivateMessages::receivedMessage(QString from, QString msg)
+void PrivateMessages::receivedMessage(QString from, QString amsg)
 {
+    Message msg = Message(currentlyMessaging.get_username(), client->getUser().get_username(), amsg);
     if (from == currentlyMessaging.get_username())
-        ui->textBrowser->appendMessage(Message(currentlyMessaging.get_username(), client->getUser().get_username(), msg), 0);
+    {
+        ui->textBrowser->appendMessage(msg, 0);
+        messagingList->messageReceived(User(from), msg);
+    }
+
+
+}
+
+void PrivateMessages::openDM(const QModelIndex &index)
+{
+    if (!index.isValid())
+    {
+        qDebug() << "Invalid index in openDM.";
+        return;
+    }
+
+    QVariant userData = index.data(Qt::UserRole);
+    if (!userData.isValid())
+    {
+        qDebug() << "Invalid user data in openDM.";
+        return;
+    }
+
+    currentlyMessaging = userData.value<User>();
+    qDebug() << "Switching to DM with: " << currentlyMessaging.get_username();
+
+
+    ui->friendNameLabel->setText("Now messaging: " + currentlyMessaging.get_username());
+
+    QList<Message> history = messagingList->getMessageHistory(currentlyMessaging);
+    ui->textBrowser->clear();
+    for (const Message &msg : history)
+    {
+        ui->textBrowser->appendMessage(msg, 1);
+    }
 }
 
 

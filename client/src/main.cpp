@@ -6,7 +6,10 @@
 
 #include <QApplication>
 #include <QDebug>
+#include <QMetaType>
 
+
+#include "OOMmetatypes.h"
 #include "config.h"
 #include "applicationhandler.h"
 #include "oomwidget.h"
@@ -21,8 +24,16 @@ void customMessageHandler(QtMsgType type, const QMessageLogContext &context,
     }
 }
 
+void declareOOMtypes()
+{
+    qRegisterMetaType<Message>("Message");
+    qRegisterMetaType<QList<Message>>("QList<Message>");
+    qRegisterMetaType<User>("User");
+}
+
 int main(int argc, char *argv[])
 {
+
     if (DEBUG_MODE)
     {
         // Show debug information
@@ -30,6 +41,8 @@ int main(int argc, char *argv[])
         QLoggingCategory::setFilterRules("*.debug=true");
     }
     
+    declareOOMtypes();
+
     //Main app
     QApplication a(argc, argv);
     

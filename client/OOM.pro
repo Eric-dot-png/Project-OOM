@@ -24,13 +24,13 @@ OBJECTS_DIR = $$BUILD_DIR/obj  # .o files
 run.target = run
 run.commands = ./build/bin/a.out
 QMAKE_EXTRA_TARGETS += run
-          
 
 SOURCES += $$files(src/*.cpp, true) \
            $$files(../common/*.cpp, true)
 
 HEADERS += $$files(includes/*.h, true) \
-           $$files(../common/*.h, true)
+           $$files(../common/*.h, true) \
+           includes/OOMmetatypes.h
 
 FORMS   += $$files(forms/*.ui, true)
            

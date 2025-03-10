@@ -2,6 +2,7 @@
 #define USER_H
 
 #include <QtCore>
+#include <QMetaType>
 
 class User
 {
@@ -32,6 +33,17 @@ public:
     {
         return per_;
     }
+
+    //QVariant needs these idfk why. it wont compile without them
+    //Also qHash below
+    User() = default;
+    User(const User &other) = default;
+    bool operator==(const User &o) const
+    {
+        return u_ == o.u_;
+    }
+
+
     
 private:
     QString u_;
@@ -40,4 +52,10 @@ private:
     bool per_;
 };
 
+inline uint qHash(const User &key, uint seed = 0)
+{
+    return qHash(key.get_username(), seed);
+}
+
+Q_DECLARE_METATYPE(User)
 #endif
