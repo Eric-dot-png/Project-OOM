@@ -147,7 +147,7 @@ void PrivateMessages::onEnterKeyPressed()
 
 void PrivateMessages::receivedMessage(QString from, QString amsg)
 {
-    Message msg = Message(currentlyMessaging.get_username(), client->getUser().get_username(), amsg);
+    Message msg = Message(User(from).get_username(), client->getUser().get_username(), amsg);
     if (from == currentlyMessaging.get_username())
     {
         ui->textBrowser->appendMessage(msg, 0);
