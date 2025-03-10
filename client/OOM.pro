@@ -1,5 +1,4 @@
-INCLUDEPATH += ../common \
-			   includes
+INCLUDEPATH += ../common/includes includes
 
 TEMPLATE = app
 
@@ -7,11 +6,9 @@ QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += c++17 console
+CONFIG += c++17 console 
 
 BUILD_DIR = $$PWD/build
-
-
             
 QMAKE_MKDIR = mkdir -p
 QMAKE_CLEAN += $$BUILD_DIR
@@ -28,43 +25,15 @@ run.target = run
 run.commands = ./build/bin/a.out
 QMAKE_EXTRA_TARGETS += run
           
-SOURCES += \
-    src/message.cpp \
-    src/oomwidget.cpp \
-    src/Client.cpp \
-    ../common/ProtocolManager.cpp \
-    ../common/protocols.cpp \
-    src/applicationhandler.cpp \
-    src/authenticationcode.cpp \
-    src/main.cpp \
-    src/login.cpp \
-    src/privatemessages.cpp \
-    src/register.cpp \
-    src/regMachine.cpp \
-    src/OOMTextBrowser.cpp 
-    
-HEADERS += \
-    ../common/config.h \
-    includes/oomwidget.h \
-    includes/Client.h \
-    ../common/ProtocolManager.h \
-    includes/User.h \
-    ../common/protocols.h \
-    includes/applicationhandler.h \
-    includes/authenticationcode.h \
-    includes/login.h \
-    includes/privatemessages.h \
-    includes/register.h \
-    includes/regMachine.h \
-    includes/message.h \
-    includes/OOMTextBrowser.h
 
-FORMS += \
-    forms/authenticationcode.ui \
-    forms/login.ui \
-    forms/privatemessages.ui \
-    forms/register.ui
+SOURCES += $$files(src/*.cpp, true) \
+           $$files(../common/*.cpp, true)
 
+HEADERS += $$files(includes/*.h, true) \
+           $$files(../common/*.h, true)
+
+FORMS   += $$files(forms/*.ui, true)
+           
 TARGET = ./a.out
     
 #qnx: target.path = /tmp/$${TARGET}/bin

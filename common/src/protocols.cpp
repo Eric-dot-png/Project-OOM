@@ -7,7 +7,7 @@ namespace Serializers
 {
     QByteArray AbstractSerializer:: serializeUtil(Protocol t,
                                          const QList<QJsonValue>& argv,
-                                          const QStringList& argn)
+                                         const QStringList& argn)
     {
         if (argv.size() != argn.size()) throw(ProtocolError());
         else
@@ -20,25 +20,6 @@ namespace Serializers
             return QJsonDocument(ret).toJson();
         }
     }
-
-    LoginRequest * LoginRequest::instance(NULL);
-    LoginAccept * LoginAccept::instance(NULL);
-    LoginDenied * LoginDenied::instance(NULL);
-    CreateAccountRequest * CreateAccountRequest::instance(NULL);
-    CreateAccountAccept * CreateAccountAccept::instance(NULL);
-    CreateAccountDenied * CreateAccountDenied::instance(NULL);
-    AuthCodeSubmit * AuthCodeSubmit::instance(NULL);
-    AuthCodeAccept * AuthCodeAccept::instance(NULL);
-    AuthCodeDenied * AuthCodeDenied::instance(NULL);
-    AnnounceOffline * AnnounceOffline::instance(NULL);
-    PrivateMessage * PrivateMessage::instance(NULL);
-    DiscoveryRequest * DiscoveryRequest::instance(NULL);
-    DiscoveryAccept * DiscoveryAccept::instance(NULL);
-    DiscoveryFail * DiscoveryFail::instance(NULL);
-    FriendRequest * FriendRequest::instance(NULL);
-    FriendAccept * FriendAccept::instance(NULL);
-    FriendDenied * FriendDenied::instance(NULL);
-    FriendRemoved * FriendRemoved::instance(NULL);
     
     void destroyInstances()
     {

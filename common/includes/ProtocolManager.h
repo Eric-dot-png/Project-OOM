@@ -11,18 +11,21 @@
 
 #include "protocols.h"
 
+// This class is static. No instances of it should be made. It's purpose
+// is to handle the serialization and deserialization of messages
+// accross the network. See protocols.cpp for specific message types.
 class ProtocolManager
 {
 public:
     ProtocolManager & operator=(const ProtocolManager & p) = delete;
     ProtocolManager(const ProtocolManager& p) = delete;
-    
-    // converts a message type list of QStrings into a QJsonObject,
-    // then converts the object to QByteArray to send through sockets
-    // see cpp for Json formats
+
+    // Serializes arguments into byte array based on the protocol.
+    //    uses map to map protocol type to protocol serializer, then
+    //    uses that serializer to serialize message.
     static QByteArray serialize(Protocol t,const QList<QJsonValue>& argv);
     
-    // converts QByteArray to json object
+    // converts QByteArray to back to json object
     static QJsonObject deserialize(const QByteArray& data);
 private:
     ProtocolManager() {};

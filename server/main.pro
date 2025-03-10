@@ -1,21 +1,14 @@
-INCLUDEPATH += ../common /usr/include/mysql -m64 \
-				includes
+INCLUDEPATH += ../common/includes /usr/include/mysql -m64 includes
 CONFIG += console
 TEMPLATE = app
 TARGET = ./a.out
 QT += core network
 
-HEADERS += includes/Server.h \
-           includes/dbHandler.h \
-           ../common/ProtocolManager.h \
-           ../common/config.h \
-           ../common/protocols.h
-           
-SOURCES += src/main.cpp \
-           src/Server.cpp \
-           src/dbHandler.cpp \
-           ../common/ProtocolManager.cpp \
-           ../common/protocols.cpp
+SOURCES += $$files(src/*.cpp, true) \
+           $$files(../common/src/*.cpp, true)
+
+HEADERS += $$files(includes/*.h, true) \
+           $$files(../common/includes/*.h, true)
            
 LIBS += -L/usr/lib64/mysql -lmysqlclient -lz -lzstd -lssl -lcrypto -lresolv -lm
 

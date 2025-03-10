@@ -1,8 +1,9 @@
-// file : ProtocolManager.h
-// name : eric
+// file : ProtocolManager.cpp
+// name : eric garcia
 
 #include "ProtocolManager.h"
 
+// protocol serializer instance map
 std::unordered_map<Protocol,
                    Serializers::AbstractSerializer*> ProtocolManager::map = {
     {Protocol::LoginRequest, Serializers::LoginRequest::getInstance()},
@@ -30,7 +31,6 @@ std::unordered_map<Protocol,
 
 QByteArray ProtocolManager::serialize(Protocol t, const QList<QJsonValue>& v)
 {
-    //qDebug() << "Trying to serialize" << static_cast<int>(t) << v << '\n';
     return (*map.at(t))(v);
 }
 
