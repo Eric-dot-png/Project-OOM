@@ -4,8 +4,7 @@
 #include <QWidget>
 #include "Client.h"
 
-class OOMWidget : public QWidget
-{
+class OOMWidget : public QWidget {
     Q_OBJECT
 public:
     explicit OOMWidget(QWidget *parent = nullptr)
@@ -18,6 +17,8 @@ public:
 
 protected:
     static Client *client;
+    OOMWidget(const OOMWidget&) = default;
+    OOMWidget& operator=(const OOMWidget&) = default;
 
 };
 

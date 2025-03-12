@@ -21,7 +21,7 @@ PrivateMessages::PrivateMessages(QWidget *parent)
 {
     ui->setupUi(this);
     ui->friendNameLabel->clear();
-
+    client->getFriendsList(client->getUser());
 
     ui->friendView->setModel(messagingList);
     messagingList->addUserToDMList(User("Test"));
@@ -52,12 +52,12 @@ PrivateMessages::PrivateMessages(QWidget *parent)
         ui->userNotFoundLabel->clear();
         ui->friendNameLabel->setText("Now messaging: " + username);
         currentlyMessaging = User(username);
-        qDebug() << currentlyMessaging.get_username();
+        //qDebug() << currentlyMessaging.get_username();
 
         //Add user to messagingList
         messagingList->addUserToDMList(currentlyMessaging);
 
-        qDebug() << messageJsonList;
+        //qDebug() << messageJsonList;
 
         for (auto it = messageJsonList.rbegin(); it != messageJsonList.rend(); ++it)
         {
@@ -66,19 +66,71 @@ PrivateMessages::PrivateMessages(QWidget *parent)
             QString from = obj["From"].toString();
             QString msg = obj["Message"].toString();
 
-            qDebug() << to + ' ' + from + ' ' + msg;
+            //qDebug() << to + ' ' + from + ' ' + msg;
 
             ui->textBrowser->appendMessage(Message(from, to, msg), 1);
             messagingList->messageReceived(currentlyMessaging, Message(from, to, msg));
-
         }
+        showAddFriendButton();
+    });
 
+
+    //Retrieve friends list and friend requests,
+
+    connect(client, &Client::sendFriendRequestList, this, [=](const QString usr, const QStringList& list)
+    {
+
+        if (usr == currentlyMessaging.get_username())
+            currentlyMessaging.setFriendRequestList(list);
+        else if (usr == client->getUser().get_username())
+            client->getUser().setFriendRequestList(list);
+    });
+
+    connect(client, &Client::sendFriendList, this, [=](const QString& usr, const QStringList& list) {
+        //qDebug() << "Setting friendlist.";
+        if (usr == currentlyMessaging.get_username())
+        {
+            //qDebug() << "Setting currentlyMessaging friend list as: " << list;
+            currentlyMessaging.setFriendList(list);
+        }
+        else if (usr == client->getUser().get_username())
+        {
+            qDebug() << "Setting client friendlist as: " << list;
+            client->getUser().setFriendList(list);
+        }
+    });
+
+
+    connect(ui->denyButton, &QPushButton::clicked, this, [=](){
+
+        //qDebug() << "Friends list: \n" << client->getUser().getFriendsList();
+        for (const QString& frnd : client->getUser().getFriendsList())
+            qDebug() << frnd << '\n';
+
+    });
+
+    connect(ui->addFriendButton, &QPushButton::clicked, this, &PrivateMessages::sendFriendRequest);
+
+    connect(ui->acceptButton, &QPushButton::clicked, this, [=](){
+        client->acceptFriend(User(ui->friendRequestComboBox->currentText()));
 
     });
 
     connect(ui->friendView, &QListView::clicked, this, &PrivateMessages::openDM);
 
     ui->currentUser->setText(client->getUser().get_username());
+
+    connect(client, &Client::recievedFriendRequest, this, [=](const QString& from)
+    {
+        ui->friendRequestComboBox->addItem(from);
+    });
+
+    for (const QString& usr : client->getUser().getFriendRequestList())
+        ui->friendRequestComboBox->addItem(usr);
+
+    //populate friend combobox when retrieved...
+
+
 }
 
 PrivateMessages::~PrivateMessages()
@@ -86,11 +138,18 @@ PrivateMessages::~PrivateMessages()
     delete ui;
 }
 
+void PrivateMessages::showAddFriendButton()
+{
+    if (client->getUser().getFriendsList().contains(currentlyMessaging.get_username()))
+        ui->addFriendButton->hide();
+    else ui->addFriendButton->show();
+}
+
 void PrivateMessages::searchUser()
 {
     ui->textBrowser->clearHistory();
     ui->textBrowser->clear();
-    qDebug() << "Searching for user: " << ui->searchUserTextbox->text();
+    //qDebug() << "Searching for user: " << ui->searchUserTextbox->text();
     User u = User(ui->searchUserTextbox->text());
 
     if (u.get_username() == client->getUser().get_username()) return;
@@ -127,7 +186,7 @@ QString PrivateMessages::formatClientMessage()
 
 void PrivateMessages::onEnterKeyPressed()
 {
-    qDebug() << "Sending message: " << ui->textEdit->toPlainText();
+    //qDebug() << "Sending message: " << ui->textEdit->toPlainText();
 
     QString fullMsg = formatClientMessage();
     QString msgContent = ui->textEdit->toPlainText();
@@ -178,11 +237,11 @@ void PrivateMessages::openDM(const QModelIndex &index)
     }
 
     currentlyMessaging = userData.value<User>();
-    qDebug() << "Switching to DM with: " << currentlyMessaging.get_username();
+    //qDebug() << "Switching to DM with: " << currentlyMessaging.get_username();
 
 
     ui->friendNameLabel->setText("Now messaging: " + currentlyMessaging.get_username());
-
+    showAddFriendButton();
     QList<Message> history = messagingList->getMessageHistory(currentlyMessaging);
     ui->textBrowser->clear();
     for (const Message &msg : history)
@@ -191,6 +250,21 @@ void PrivateMessages::openDM(const QModelIndex &index)
     }
 }
 
+void PrivateMessages::sendFriendRequest()
+{
+    qDebug() << "Friend request button clicked.";
+    //disgustingly long
+    // If currently messaging isnt in friends list
+    // AND You dont have friend request from them
+    // AND they dont have friend request from you
+    if (   !client->getUser().getFriendsList().contains(currentlyMessaging.get_username())
+        && !client->getUser().getFriendRequestList().contains(currentlyMessaging.get_username())
+        && !currentlyMessaging.getFriendRequestList().contains(client->getUser().get_username()))
+    {
+        qDebug() << "Sending friend request.";
+        client->friendRequest(currentlyMessaging);
+    }
+}
 
 
 //Not used, will be used later for servers!

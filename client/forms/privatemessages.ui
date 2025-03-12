@@ -33,9 +33,9 @@
    <property name="geometry">
     <rect>
      <x>260</x>
-     <y>110</y>
+     <y>160</y>
      <width>481</width>
-     <height>421</height>
+     <height>371</height>
     </rect>
    </property>
   </widget>
@@ -43,7 +43,7 @@
    <property name="geometry">
     <rect>
      <x>260</x>
-     <y>90</y>
+     <y>140</y>
      <width>441</width>
      <height>18</height>
     </rect>
@@ -52,7 +52,7 @@
     <string>friendName</string>
    </property>
   </widget>
-  <widget class="QComboBox" name="serverCombobox">
+  <widget class="QComboBox" name="friendCombobox">
    <property name="geometry">
     <rect>
      <x>100</x>
@@ -65,7 +65,7 @@
     <string extracomment="Pick a server tp view"/>
    </property>
    <property name="placeholderText">
-    <string>Choose a Server...</string>
+    <string>Friends</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="searchUserTextbox">
@@ -165,7 +165,7 @@
    <property name="title">
     <string>Pending friend requests</string>
    </property>
-   <widget class="QComboBox" name="comboBox">
+   <widget class="QComboBox" name="friendRequestComboBox">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -175,7 +175,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="acceptButton">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -188,7 +188,7 @@
      <string>Accept</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="dd">
+   <widget class="QPushButton" name="denyButton">
     <property name="geometry">
      <rect>
       <x>119</x>
@@ -205,11 +205,24 @@
   <widget class="QUndoView" name="undoView">
    <property name="geometry">
     <rect>
-     <x>290</x>
-     <y>350</y>
+     <x>970</x>
+     <y>400</y>
      <width>256</width>
      <height>192</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="addFriendButton">
+   <property name="geometry">
+    <rect>
+     <x>260</x>
+     <y>110</y>
+     <width>91</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>+ Add friend</string>
    </property>
   </widget>
  </widget>
@@ -222,7 +235,7 @@
  </customwidgets>
  <tabstops>
   <tabstop>textEdit</tabstop>
-  <tabstop>serverCombobox</tabstop>
+  <tabstop>friendCombobox</tabstop>
   <tabstop>textBrowser</tabstop>
  </tabstops>
  <resources/>

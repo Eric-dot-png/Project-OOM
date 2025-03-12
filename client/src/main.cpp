@@ -8,8 +8,6 @@
 #include <QDebug>
 #include <QMetaType>
 
-
-#include "OOMmetatypes.h"
 #include "config.h"
 #include "applicationhandler.h"
 #include "oomwidget.h"

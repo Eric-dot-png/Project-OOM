@@ -29,8 +29,7 @@ SOURCES += $$files(src/*.cpp, true) \
            $$files(../common/*.cpp, true)
 
 HEADERS += $$files(includes/*.h, true) \
-           $$files(../common/*.h, true) \
-           includes/OOMmetatypes.h
+           $$files(../common/*.h, true)
 
 FORMS   += $$files(forms/*.ui, true)
            

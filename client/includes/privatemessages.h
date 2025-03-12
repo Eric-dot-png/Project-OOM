@@ -72,17 +72,15 @@ private:
     EnterKeyFilter *enterFilter;
     DMListModel *messagingList;
 
-
-
-
-
     //scuffed for now
     User currentlyMessaging;
 
     QString formatClientMessage();
     QString formatOtherMessage();
     void searchUser();
+    void sendFriendRequest();
     void receivedMessage(QString from, QString msg);
+    void showAddFriendButton();
 
 };
 

@@ -34,7 +34,7 @@ public:
     
     //AbstractState * getState() const { return state; }
     User getUser() const { return current_user; }
-    
+    User& getUser() { return current_user; }
     // must be in Disconnected state.
     // puts the client into Connecting state
     void connectToServer(const QHostAddress& host, int port);
@@ -72,6 +72,9 @@ public:
 
     void extendMessageHistory(const User& u, unsigned int currentSize);
 
+    void getFriendsList(const User& u);
+    void getFriendRequestList(const User& u);
+
 signals: 
     void connectedToServer();
     void disconnectedFromServer();
@@ -89,6 +92,10 @@ signals:
     void recievedDM(const QString& from, const QString& msg);
     void recievedFriendRequest(const QString& from);
     void recievedFriendRemove(const QString& from);
+
+    void sendFriendRequestList(const QString& user, const QStringList& list);
+    void sendFriendList(const QString& user, const QStringList& list);
+
 private slots: // these are functions that are connected to signals
     void onReply(); // this function called to handle server info
 private:

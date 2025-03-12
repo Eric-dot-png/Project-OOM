@@ -3,6 +3,7 @@
 
 #include "Client.h"
 #include "regMachine.h"
+#include "User.h"
 
 Client * Client::instance(NULL);
  
@@ -200,6 +201,36 @@ void Client::onReply()
     state->handle(m);
 }
 
+void Client::getFriendRequestList(const User &u)
+{
+    if (state == LoggedInState::getInstance())
+    {
+        qDebug() << "Getting friend Request List.";
+
+        writeToServer(Protocol::FriendRequestList,
+                      {u.get_username(), ""});
+    }
+    else
+    {
+        qDebug() << "Can't get friend request list. Current state:" << state;
+    }
+}
+
+void Client::getFriendsList(const User &u)
+{
+    if (state == LoggedInState::getInstance())
+    {
+        qDebug() << "Getting friend list.";
+
+        writeToServer(Protocol::FriendList,
+                      {u.get_username(), ""});
+    }
+    else
+    {
+        qDebug() << "Can't get friend list. Current state:" << state;
+    }
+}
+
 /*------------------------------------------------
 Client State Stuff
 ------------------------------------------------*/
@@ -266,6 +297,56 @@ void Client::LoggedInState::handle(const QJsonObject & m)
     Protocol type = static_cast<Protocol>(m["Type"].toInt());
     switch(type)
     {
+        case Protocol::FriendListAccept:
+        {
+            //qDebug() << "Protocol::FriendListAccept";
+            QString usr = m["From"].toString();
+            QStringList list = {};
+            if (m["List"].isArray()) {
+                QJsonArray jarray = m["List"].toArray();
+                for (const QJsonValue &value : jarray)
+                {
+
+                    if (value.isString())
+                    {
+                        //qDebug() << value.toString();
+                        list.append(value.toString());
+                    }
+                }
+            }
+            else
+            {
+                qDebug() << "List not retrieved...";
+                break;
+            }
+            //qDebug() << "List:" << list;
+            emit Client::getInstance()->sendFriendList(usr, list);
+            break;
+        }
+        case Protocol::FriendRequestListAccept:
+        {
+            //qDebug() << "Protocol::FriendRequestListAccept";
+            QString usr = m["From"].toString();
+            QStringList list;
+            if (m["List"].isArray()) {
+                QJsonArray jarray = m["List"].toArray();
+                for (const QJsonValue &value : jarray)
+                {
+                    if (value.isString())
+                        list.append(value.toString());
+                }
+            }
+            else
+            {
+                qDebug() << "List not retrieved...";
+                break;
+            }
+            emit Client::getInstance()->sendFriendRequestList(usr, list);
+            break;
+        }
+        case Protocol::FriendRequestListFailed:
+        case Protocol::FriendListFailed:
+            break;
         case Protocol::FriendRequest:
         {
             emit Client::getInstance()->recievedFriendRequest(m["From"].toString());

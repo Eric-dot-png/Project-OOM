@@ -32,8 +32,8 @@ ApplicationHandler::ApplicationHandler(QWidget *parent)
     stackedWidget->addWidget(RegisterWidget);
     stackedWidget->addWidget(AuthenticationWidget);
 
-    PrivateMessagesWidget = new PrivateMessages(this);
-    stackedWidget->addWidget(PrivateMessagesWidget);
+    // PrivateMessagesWidget = new PrivateMessages(this);
+    // stackedWidget->addWidget(PrivateMessagesWidget);
     
     stackedWidget->setCurrentIndex(0); // login page
 
@@ -56,19 +56,19 @@ ApplicationHandler::ApplicationHandler(QWidget *parent)
      */
 
     //Goto Login form -> PrivateMessages form
-    connect(LoginWidget, &Login::loginSuccess, this, [=]() {
+    // connect(LoginWidget, &Login::loginSuccess, this, [=]() {
 
-        if (!PrivateMessagesWidget) {
-        }
+    //     if (!PrivateMessagesWidget) {
+    //     }
 
-        qDebug() << "Logged in, going to private messages form...";
-        switchToWidget(stackedWidget->indexOf(PrivateMessagesWidget));
+    //     qDebug() << "Logged in, going to private messages form...";
+    //     switchToWidget(stackedWidget->indexOf(PrivateMessagesWidget));
 
-        //Login, register and auth are done, mark for deletion
-        LoginWidget->deleteLater();
-        RegisterWidget->deleteLater();
-        AuthenticationWidget->deleteLater();
-    });
+    //     //Login, register and auth are done, mark for deletion
+    //     LoginWidget->deleteLater();
+    //     RegisterWidget->deleteLater();
+    //     AuthenticationWidget->deleteLater();
+    // });
 
     //Goto Login form -> Register form
     connect(LoginWidget, &Login::registerRequested, this, [=]() {
@@ -111,6 +111,7 @@ ApplicationHandler::ApplicationHandler(QWidget *parent)
             PrivateMessagesWidget = new PrivateMessages(this);
             stackedWidget->addWidget(PrivateMessagesWidget);
         }
+
         qDebug() << "clientside loggedin";
         switchToWidget(stackedWidget->indexOf(PrivateMessagesWidget));
 
