@@ -85,10 +85,12 @@ void Server::onNewConnection()
         QJsonObject m = ProtocolManager::deserialize(data);
         
         Protocol type = static_cast<Protocol>(m["Type"].toInt());
+
         switch(type)
         {
             case Protocol::FriendRequest:
             {
+                //qDebug() << m["From"].toString() << ' ' << m["To"].toString();
                 bool succ = db->addFriendRequest(m["From"].toString(),
                                                  m["To"].toString());
                 writeToUserRaw(m["To"].toString(), data);
@@ -96,6 +98,7 @@ void Server::onNewConnection()
             }
             case Protocol::FriendAccept:
             {
+                //qDebug() << m["From"].toString() << ' ' << m["To"].toString();
                 bool succ = db->addFriend(m["From"].toString(), m["To"].toString());
                 writeToUserRaw(m["To"].toString(), data);
                 break;
@@ -207,6 +210,54 @@ void Server::onNewConnection()
                                {"Unknown Error, Could not create account."}); 
                     }
                 } 
+                break;
+            }
+            case Protocol::FriendList:
+            {
+                //qDebug() << "Protocol::FriendList";
+                QString usr = m["From"].toString();
+                QStringList list = db->getFriendslist(usr);
+                for (const QString &s : list)
+                {
+                    qDebug() << s << '\n';
+                }
+                QJsonArray jarray;
+                for (const QString &str : list)
+                    jarray.append(str);
+                QJsonValue j = jarray;
+                if (!jarray.isEmpty())
+                {
+                    writeToSocket(client, Protocol::FriendListAccept, {usr, j});
+                }
+                else
+                {
+                    writeToSocket(client, Protocol::FriendListFailed, {usr, j});
+                }
+
+                break;
+            }
+            case Protocol::FriendRequestList:
+            {
+                //qDebug() << "Protocol::FriendRequestList";
+                QString usr = m["From"].toString();
+                QStringList list = db->getFriendRequests(usr);
+                for (const QString &s : list)
+                {
+                    qDebug() << s << '\n';
+                }
+                QJsonArray jarray;
+                for (const QString &str : list)
+                    jarray.append(str);
+                QJsonValue j = jarray;
+                if (!jarray.isEmpty())
+                {
+                    writeToSocket(client, Protocol::FriendRequestListAccept, {usr, j});
+                }
+                else
+                {
+                    writeToSocket(client, Protocol::FriendRequestListFailed, {usr, j});
+                }
+
                 break;
             }
             default:

@@ -1,4 +1,4 @@
-/*M!999999\- enable the sandbox mode */ 
+--/*M!999999\- enable the sandbox mode */ 
 -- MariaDB dump 10.19  Distrib 10.11.10-MariaDB, for Linux (x86_64)
 --
 -- Host: localhost    Database: DSDB

@@ -35,7 +35,13 @@ enum class Protocol
     FriendRequest, 
     FriendAccept,
     FriendDenied,
-    FriendRemoved 
+    FriendRemoved,
+    FriendList,
+    FriendListAccept,
+    FriendListFailed,
+    FriendRequestList,
+    FriendRequestListAccept,
+    FriendRequestListFailed
 };
 
 /*
@@ -317,6 +323,87 @@ namespace Serializers
         QByteArray operator()(const QList<QJsonValue>& argv)
         {
             return serializeUtil(Protocol::FriendRemoved,argv,{"From", "To"});
+        }
+    };
+
+    class FriendList : public AbstractSerializer,
+                          public Singleton<FriendList>
+    {
+        friend class Singleton<FriendList>;
+    private:
+        FriendList() = default;
+    public:
+        QByteArray operator()(const QList<QJsonValue>& argv)
+        {
+            return serializeUtil(Protocol::FriendList,argv,{"From", "List"});
+        }
+    };
+
+
+    class FriendListAccept : public AbstractSerializer,
+                              public Singleton<FriendListAccept>
+    {
+        friend class Singleton<FriendListAccept>;
+    private:
+        FriendListAccept() = default;
+    public:
+        QByteArray operator()(const QList<QJsonValue>& argv)
+        {
+            return serializeUtil(Protocol::FriendListAccept,argv,{"From", "List"});
+        }
+    };
+
+    class FriendListFailed : public AbstractSerializer,
+                             public Singleton<FriendListFailed>
+    {
+        friend class Singleton<FriendListFailed>;
+    private:
+        FriendListFailed() = default;
+    public:
+        QByteArray operator()(const QList<QJsonValue>& argv)
+        {
+            return serializeUtil(Protocol::FriendListFailed,argv,{"From", "List"});
+        }
+    };
+
+
+    class FriendRequestList : public AbstractSerializer,
+                          public Singleton<FriendRequestList>
+    {
+        friend class Singleton<FriendRequestList>;
+    private:
+        FriendRequestList() = default;
+    public:
+        QByteArray operator()(const QList<QJsonValue>& argv)
+        {
+            return serializeUtil(Protocol::FriendRequestList,argv,{"From", "List"});
+        }
+    };
+
+
+    class FriendRequestListAccept : public AbstractSerializer,
+                              public Singleton<FriendRequestListAccept>
+    {
+        friend class Singleton<FriendRequestListAccept>;
+    private:
+        FriendRequestListAccept() = default;
+    public:
+        QByteArray operator()(const QList<QJsonValue>& argv)
+        {
+            return serializeUtil(Protocol::FriendRequestListAccept,argv,{"From", "List"});
+        }
+    };
+
+    class FriendRequestListFailed : public AbstractSerializer,
+                                    public Singleton<FriendRequestListFailed>
+    {
+        friend class Singleton<FriendRequestListFailed>;
+    private:
+        FriendRequestListFailed() = default;
+    public:
+        QByteArray operator()(const QList<QJsonValue>& argv)
+        {
+            return serializeUtil(Protocol::FriendRequestListFailed,argv,{"From", "List"});
         }
     };
 

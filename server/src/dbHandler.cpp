@@ -336,7 +336,7 @@ bool dbHandler::addFriend(const QString & u1, const QString & u2)
     
     std::stringstream ss;
     ss << "insert Friends(u1, u2) values('" << u1.toStdString() << "', '"
-       << u2.toStdString() << "'";
+       << u2.toStdString() << "')";
     if(mysql_query(connection, ss.str().c_str()))
     {
         qDebug() << "Failed to insert Friendship";

@@ -26,7 +26,13 @@ std::unordered_map<Protocol,
     {Protocol::FriendRequest, Serializers::FriendRequest::getInstance()},
     {Protocol::FriendAccept, Serializers::FriendAccept::getInstance()},
     {Protocol::FriendDenied, Serializers::FriendDenied::getInstance()},
-    {Protocol::FriendRemoved, Serializers::FriendRemoved::getInstance()}
+    {Protocol::FriendRemoved, Serializers::FriendRemoved::getInstance()},
+    {Protocol::FriendList, Serializers::FriendList::getInstance()},
+    {Protocol::FriendListAccept, Serializers::FriendListAccept::getInstance()},
+    {Protocol::FriendListFailed, Serializers::FriendListFailed::getInstance()},
+    {Protocol::FriendRequestList, Serializers::FriendRequestList::getInstance()},
+    {Protocol::FriendRequestListAccept, Serializers::FriendRequestListAccept::getInstance()},
+    {Protocol::FriendRequestListFailed, Serializers::FriendRequestListFailed::getInstance()}
 };
 
 QByteArray ProtocolManager::serialize(Protocol t, const QList<QJsonValue>& v)
