@@ -122,7 +122,7 @@ public:
 #if QT_CONFIG(whatsthis)
         friendCombobox->setWhatsThis(QString());
 #endif // QT_CONFIG(whatsthis)
-        friendCombobox->setPlaceholderText(QCoreApplication::translate("PrivateMessages", "Friends", nullptr));
+        friendCombobox->setPlaceholderText(QCoreApplication::translate("PrivateMessages", "Click to view friends!", nullptr));
         label->setText(QCoreApplication::translate("PrivateMessages", "Search User:", nullptr));
         userNotFoundLabel->setText(QString());
         currentUser->setText(QCoreApplication::translate("PrivateMessages", "TextLabel", nullptr));

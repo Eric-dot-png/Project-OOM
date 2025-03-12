@@ -21,7 +21,7 @@ PrivateMessages::PrivateMessages(QWidget *parent)
 {
     ui->setupUi(this);
     ui->friendNameLabel->clear();
-    client->getFriendsList(client->getUser());
+    //client->getFriendsList(client->getUser());
 
     ui->friendView->setModel(messagingList);
     messagingList->addUserToDMList(User("Test"));
@@ -125,10 +125,20 @@ PrivateMessages::PrivateMessages(QWidget *parent)
         ui->friendRequestComboBox->addItem(from);
     });
 
-    for (const QString& usr : client->getUser().getFriendRequestList())
-        ui->friendRequestComboBox->addItem(usr);
 
-    //populate friend combobox when retrieved...
+    QTimer::singleShot(1000, this, [this]() {
+        if (!client) return;
+
+        for (const QString& usr : client->getUser().getFriendRequestList())
+            ui->friendRequestComboBox->addItem(usr);
+
+        for (const QString& usr : client->getUser().getFriendsList())
+        {
+            qDebug() << "in populate combobox... inserting " << usr;
+            ui->friendCombobox->addItem(usr);
+        }
+    });
+
 
 
 }

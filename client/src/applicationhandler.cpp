@@ -106,7 +106,7 @@ ApplicationHandler::ApplicationHandler(QWidget *parent)
 
     //Login -> Private message, mark widgets that wont be used for deletion
     connect(client, &Client::loginSuccess, this, [=]() {
-
+        client->getFriendsList(client->getUser());
         if (!PrivateMessagesWidget) {
             PrivateMessagesWidget = new PrivateMessages(this);
             stackedWidget->addWidget(PrivateMessagesWidget);

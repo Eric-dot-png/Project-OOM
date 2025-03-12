@@ -62,10 +62,10 @@
     </rect>
    </property>
    <property name="whatsThis">
-    <string extracomment="Pick a server tp view"/>
+    <string/>
    </property>
    <property name="placeholderText">
-    <string>Friends</string>
+    <string>Click to view friends!</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="searchUserTextbox">
