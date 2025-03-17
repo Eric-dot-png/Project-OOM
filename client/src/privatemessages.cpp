@@ -1,6 +1,12 @@
-//Name: Alex Franke
-//File: privateMessages.cpp
-//OOM Project
+// Name: Alex Franke
+// File: privateMessages.cpp
+// OOM Project
+//
+// Description: This file defines the PrivateMessages class, which manages the private messaging
+//              functionality in a Discord-like Qt application. It interacts with the Client class
+//              for network communication (sending/receiving messages), displays ongoing
+//              conversations, and handles user interactions (searching for users, sending friend
+//              requests, etc.).
 
 #include <QFile>
 #include <QJsonDocument>
@@ -14,209 +20,218 @@
 #include "User.h"
 #include "message.h"
 
+// Constructor for PrivateMessages. Sets up UI elements, signals, and slots.
 PrivateMessages::PrivateMessages(QWidget *parent)
     : OOMWidget(parent), ui(new Ui::PrivateMessages),
       currentlyMessaging("","",""),
-    messagingList(new DMListModel(this))
+      messagingList(new DMListModel(this))
 {
-    ui->setupUi(this);
-    ui->friendNameLabel->clear();
-    //client->getFriendsList(client->getUser());
+    ui->setupUi(this);                  // Sets up the UI from the .ui file
+    ui->friendNameLabel->clear();       // Clears label that shows who the user is currently messaging
 
+    // Model to display the list of users the client is messaging
     ui->friendView->setModel(messagingList);
+
+    // Adds a placeholder user to test the messaging list
     messagingList->addUserToDMList(User("Test"));
-    
-    //This allows the textbox to detect the enter key
+
+    // Sets up a custom event filter to detect the Enter key in the text-edit area
     enterFilter = new EnterKeyFilter(this);
     ui->textEdit->installEventFilter(enterFilter);
 
-    //Connect enter key
+    // Connect the custom Enter key press signal to the onEnterKeyPressed slot
     connect(enterFilter, &EnterKeyFilter::enterPressed, this, &PrivateMessages::onEnterKeyPressed);
 
-    //Detect enter key
+    // Detect Enter key press for the search user line-edit
     connect(ui->searchUserTextbox, &QLineEdit::returnPressed, this, &PrivateMessages::searchUser);
 
-    //Show message when there is an incoming message
+    // Handle incoming direct messages (sent from the Client object)
     connect(client, &Client::recievedDM, this, &PrivateMessages::receivedMessage);
 
-
-    //If searching for a user fails
+    // If searching for a user fails, display an error message
     connect(client, &Client::discoverUserFail, this, [=](const QString& username){
         ui->userNotFoundLabel->setText("User " + username +  " not found!");
         ui->friendNameLabel->clear();
     });
 
-    //If searching for a user succeeds
+    // If searching for a user succeeds, load the conversation with that user
     connect(client, &Client::discoverUserSucceed, this, [=](const QString& username, const QList<QJsonObject> & messageJsonList){
-
         ui->userNotFoundLabel->clear();
         ui->friendNameLabel->setText("Now messaging: " + username);
-        currentlyMessaging = User(username);
-        //qDebug() << currentlyMessaging.get_username();
 
-        //Add user to messagingList
+        // Update the user we are currently messaging
+        currentlyMessaging = User(username);
+
+        // Add the found user to the messaging list
         messagingList->addUserToDMList(currentlyMessaging);
 
-        //qDebug() << messageJsonList;
-
+        // Populate the text browser with the returned messages (server history)
         for (auto it = messageJsonList.rbegin(); it != messageJsonList.rend(); ++it)
         {
             QJsonObject obj = *it;
-            QString to = obj["To"].toString();
+            QString to   = obj["To"].toString();
             QString from = obj["From"].toString();
-            QString msg = obj["Message"].toString();
+            QString msg  = obj["Message"].toString();
 
-            //qDebug() << to + ' ' + from + ' ' + msg;
-
+            // Append each message to the text browser
             ui->textBrowser->appendMessage(Message(from, to, msg), 1);
+            // Also update the model with the new message
             messagingList->messageReceived(currentlyMessaging, Message(from, to, msg));
         }
+
+        // Show or hide the Add Friend button depending on whether the user is already a friend
         showAddFriendButton();
     });
 
-
-    //Retrieve friends list and friend requests,
-
+    // Handle friend request lists and actual friend lists
     connect(client, &Client::sendFriendRequestList, this, [=](const QString usr, const QStringList& list)
     {
-
+        // If we receive a list for the user we are currently messaging, update them
         if (usr == currentlyMessaging.get_username())
             currentlyMessaging.setFriendRequestList(list);
+        // If we receive a list for our own user, update the client's friend request list
         else if (usr == client->getUser().get_username())
             client->getUser().setFriendRequestList(list);
     });
 
+    // Handle receiving an updated friend list
     connect(client, &Client::sendFriendList, this, [=](const QString& usr, const QStringList& list) {
-        //qDebug() << "Setting friendlist.";
         if (usr == currentlyMessaging.get_username())
         {
-            //qDebug() << "Setting currentlyMessaging friend list as: " << list;
+            // Update the friend list of the user we are currently messaging
             currentlyMessaging.setFriendList(list);
         }
         else if (usr == client->getUser().get_username())
         {
+            // Update the friend list of our own user object
             qDebug() << "Setting client friendlist as: " << list;
             client->getUser().setFriendList(list);
         }
     });
 
-
+    // Test button to show friend list in debug; the logic is incomplete
     connect(ui->denyButton, &QPushButton::clicked, this, [=](){
-
-        //qDebug() << "Friends list: \n" << client->getUser().getFriendsList();
         for (const QString& frnd : client->getUser().getFriendsList())
             qDebug() << frnd << '\n';
-
     });
 
+    // Connect the Add Friend button to the function that sends a friend request
     connect(ui->addFriendButton, &QPushButton::clicked, this, &PrivateMessages::sendFriendRequest);
 
+    // Accept button to accept a friend request from the friendRequestComboBox
     connect(ui->acceptButton, &QPushButton::clicked, this, [=](){
         client->acceptFriend(User(ui->friendRequestComboBox->currentText()));
-
     });
 
+    // Handle selecting a user from the friendView (on the left list) to open the DM window
     connect(ui->friendView, &QListView::clicked, this, &PrivateMessages::openDM);
 
+    // Display the current user's username
     ui->currentUser->setText(client->getUser().get_username());
 
+    // Handle receiving a friend request, adds that request to the friendRequestComboBox
     connect(client, &Client::recievedFriendRequest, this, [=](const QString& from)
     {
         ui->friendRequestComboBox->addItem(from);
     });
 
-
+    // After a short delay, populate friend requests and friend lists in the UI
     QTimer::singleShot(1000, this, [this]() {
         if (!client) return;
 
+        // Populate friend requests
         for (const QString& usr : client->getUser().getFriendRequestList())
             ui->friendRequestComboBox->addItem(usr);
 
+        // Populate friend list
         for (const QString& usr : client->getUser().getFriendsList())
         {
             qDebug() << "in populate combobox... inserting " << usr;
             ui->friendCombobox->addItem(usr);
         }
     });
-
-
-
 }
 
+// Destructor: Cleans up the UI.
 PrivateMessages::~PrivateMessages()
 {
     delete ui;
 }
 
+// Checks if the currentlyMessaging user is already a friend. Shows or hides the Add Friend button accordingly.
 void PrivateMessages::showAddFriendButton()
 {
     if (client->getUser().getFriendsList().contains(currentlyMessaging.get_username()))
         ui->addFriendButton->hide();
-    else ui->addFriendButton->show();
+    else
+        ui->addFriendButton->show();
 }
 
+// Initiates a server request to search for another user by username.
+// Clears the current conversation text and sets up for the discovered user's messages.
 void PrivateMessages::searchUser()
 {
     ui->textBrowser->clearHistory();
     ui->textBrowser->clear();
-    //qDebug() << "Searching for user: " << ui->searchUserTextbox->text();
+
     User u = User(ui->searchUserTextbox->text());
 
+    // Prevent searching for yourself
     if (u.get_username() == client->getUser().get_username()) return;
+    // If this user is the one we are already messaging, do nothing
     if (u.get_username() == currentlyMessaging.get_username())
-    {
-        //figure out how to open message from list
-        //without clicking on them
         return;
-    }
 
+    // Indicate that we are searching
     ui->userNotFoundLabel->setText("Currently searching for: " + u.get_username());
     client->discover(u);
-
 }
 
+// Helper to format messages from other users, not fully implemented here
 QString PrivateMessages::formatOtherMessage()
 {
-    //get from client/server
     QString otherMsg = "";
-
     QString user = currentlyMessaging.get_username();
-
     return "<b>" + user + "</b>:<br>" + otherMsg;
 }
 
+// Helper to format messages from the client user before sending
 QString PrivateMessages::formatClientMessage()
 {
-    QString msg = ui->textEdit->toMarkdown();
+    QString msg  = ui->textEdit->toMarkdown();
     QString user = client->getUser().get_username();
-
     return "<b>" + user + "</b>:<br>" + msg;
-
 }
 
+// Called when the user presses Enter in the text-edit box.
+// Sends the typed message to the server and updates the UI.
 void PrivateMessages::onEnterKeyPressed()
 {
-    //qDebug() << "Sending message: " << ui->textEdit->toPlainText();
-
-    QString fullMsg = formatClientMessage();
+    // Build and display the client-formatted message
+    QString fullMsg    = formatClientMessage();
     QString msgContent = ui->textEdit->toPlainText();
 
-    Message msg = Message(client->getUser().get_username(), currentlyMessaging.get_username(), msgContent);
+    // Create a Message object to store from/to content
+    Message msg(client->getUser().get_username(), currentlyMessaging.get_username(), msgContent);
 
-    QString user = currentlyMessaging.get_username();
+    // Append the new message to the text browser
+    ui->textBrowser->appendMessage(msg, 0);
 
-    ui->textBrowser->appendMessage(Message(client->getUser().get_username(), currentlyMessaging.get_username(), msgContent), 0);
-
+    // Clear the typed text and record the message in the DM list
     ui->textEdit->clear();
-    messagingList->messageReceived(user, msg);
-    client->privateMessage(user, msg.get_msg());
+    messagingList->messageReceived(currentlyMessaging.get_username(), msg);
 
-
+    // Send the message to the server
+    client->privateMessage(currentlyMessaging.get_username(), msg.get_msg());
 }
 
+// Called when a message arrives from the server. If the user is currently being messaged,
+// display it immediately; otherwise just record it in the DM list.
 void PrivateMessages::receivedMessage(QString from, QString amsg)
 {
-    Message msg = Message(User(from).get_username(), client->getUser().get_username(), amsg);
+    Message msg(from, client->getUser().get_username(), amsg);
+
+    // If the incoming message is from the user we are currently chatting with, display it
     if (from == currentlyMessaging.get_username())
     {
         ui->textBrowser->appendMessage(msg, 0);
@@ -224,13 +239,13 @@ void PrivateMessages::receivedMessage(QString from, QString amsg)
     }
     else
     {
-        //if user doesnt have current messaging window open
+        // Otherwise, store it in the message list so it can be viewed later
         messagingList->messageReceived(User(from), msg);
     }
-
-
 }
 
+// Called when the user clicks on someone in the friendView. Opens the DM session with that user
+// and populates the text browser with existing message history.
 void PrivateMessages::openDM(const QModelIndex &index)
 {
     if (!index.isValid())
@@ -246,12 +261,13 @@ void PrivateMessages::openDM(const QModelIndex &index)
         return;
     }
 
+    // Retrieve the User object from the model
     currentlyMessaging = userData.value<User>();
-    //qDebug() << "Switching to DM with: " << currentlyMessaging.get_username();
-
 
     ui->friendNameLabel->setText("Now messaging: " + currentlyMessaging.get_username());
     showAddFriendButton();
+
+    // Load all past messages from the messaging list
     QList<Message> history = messagingList->getMessageHistory(currentlyMessaging);
     ui->textBrowser->clear();
     for (const Message &msg : history)
@@ -260,13 +276,12 @@ void PrivateMessages::openDM(const QModelIndex &index)
     }
 }
 
+// Sends a friend request to the user if they are not already a friend and
+// if there are no pending friend requests in either direction.
 void PrivateMessages::sendFriendRequest()
 {
     qDebug() << "Friend request button clicked.";
-    //disgustingly long
-    // If currently messaging isnt in friends list
-    // AND You dont have friend request from them
-    // AND they dont have friend request from you
+    // Condition to ensure we only send a friend request if it is appropriate
     if (   !client->getUser().getFriendsList().contains(currentlyMessaging.get_username())
         && !client->getUser().getFriendRequestList().contains(currentlyMessaging.get_username())
         && !currentlyMessaging.getFriendRequestList().contains(client->getUser().get_username()))
@@ -276,11 +291,10 @@ void PrivateMessages::sendFriendRequest()
     }
 }
 
-
-//Not used, will be used later for servers!
+// Example of how future implementations might load messages from a file or other source.
+// Currently not used for servers, but left here for reference.
 void PrivateMessages::loadPage()
 {
-    //deserialize?
     QFile jsonFile("test.json");
 
     if (!jsonFile.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -300,26 +314,18 @@ void PrivateMessages::loadPage()
         return;
     }
 
-
-
     QJsonArray jsonArray = doc.array();
 
+    // Example of iterating through JSON data
     for (const QJsonValue &value : jsonArray)
     {
         if (!value.isObject()) continue;
 
         QJsonObject obj = value.toObject();
-        QString to = obj["To"].toString();
+        QString to   = obj["To"].toString();
         QString from = obj["From"].toString();
-        QString msg = obj["Message"].toString();
-
-
-        //Gotta figure this out
-        //Have to make new User objects for 'from' and 'to'.
-        //Or have to use existing objects but idk how to "find" them
-        //Message message(from, to, msg);
+        QString msg  = obj["Message"].toString();
 
         qDebug() << "To:" << to << "| From:" << from <<"| Msg:" << msg;
     }
 }
-
