@@ -112,12 +112,12 @@
     <rect>
      <x>260</x>
      <y>20</y>
-     <width>58</width>
+     <width>101</width>
      <height>18</height>
     </rect>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string>yourUsername</string>
    </property>
   </widget>
   <widget class="QListView" name="friendView">
@@ -131,6 +131,9 @@
    </property>
   </widget>
   <widget class="QListView" name="serverView">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -168,7 +171,7 @@
    <widget class="QComboBox" name="friendRequestComboBox">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>30</x>
       <y>30</y>
       <width>121</width>
       <height>26</height>

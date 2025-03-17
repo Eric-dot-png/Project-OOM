@@ -40,7 +40,7 @@ public:
         label->setGeometry(QRect(130, 140, 131, 18));
         submitButton = new QPushButton(authenticationCode);
         submitButton->setObjectName(QString::fromUtf8("submitButton"));
-        submitButton->setGeometry(QRect(180, 210, 80, 26));
+        submitButton->setGeometry(QRect(150, 200, 80, 26));
         submitButton->setCursor(QCursor(Qt::PointingHandCursor));
         authFailedLabel = new QLabel(authenticationCode);
         authFailedLabel->setObjectName(QString::fromUtf8("authFailedLabel"));

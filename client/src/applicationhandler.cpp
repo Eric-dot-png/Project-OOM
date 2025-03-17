@@ -55,21 +55,6 @@ ApplicationHandler::ApplicationHandler(QWidget *parent)
      * Each connect function is a transition to a new form
      */
 
-    //Goto Login form -> PrivateMessages form
-    // connect(LoginWidget, &Login::loginSuccess, this, [=]() {
-
-    //     if (!PrivateMessagesWidget) {
-    //     }
-
-    //     qDebug() << "Logged in, going to private messages form...";
-    //     switchToWidget(stackedWidget->indexOf(PrivateMessagesWidget));
-
-    //     //Login, register and auth are done, mark for deletion
-    //     LoginWidget->deleteLater();
-    //     RegisterWidget->deleteLater();
-    //     AuthenticationWidget->deleteLater();
-    // });
-
     //Goto Login form -> Register form
     connect(LoginWidget, &Login::registerRequested, this, [=]() {
         if (!RegisterWidget) {

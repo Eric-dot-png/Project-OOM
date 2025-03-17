@@ -5,6 +5,7 @@
 //OOM project
 
 #include <QApplication>
+#include <QStyleFactory>
 #include <QDebug>
 #include <QMetaType>
 
@@ -13,6 +14,24 @@
 #include "oomwidget.h"
 #include "Client.h"
 #include "regMachine.h"
+
+void applyStyleSheet(const QString &styleSheetPath) {
+    QFile file(styleSheetPath);
+    qDebug() << "Resource Path Test:" << QFile(":/stylesheets/stylesheets/lightmode.qss").exists();
+    if (!file.exists()) {
+        qDebug() << "Stylesheet file does not exist:" << styleSheetPath;
+        return;
+    }
+
+
+    if (file.open(QFile::ReadOnly | QFile::Text)) {
+        QTextStream stream(&file);
+        qApp->setStyleSheet(stream.readAll());
+        file.close();
+    } else {
+        qDebug() << "Failed to load stylesheet:" << styleSheetPath;
+    }
+}
 
 void customMessageHandler(QtMsgType type, const QMessageLogContext &context,
                           const QString &msg)
@@ -43,6 +62,8 @@ int main(int argc, char *argv[])
 
     //Main app
     QApplication a(argc, argv);
+    QApplication::setStyle(QStyleFactory::create("Fusion"));
+    applyStyleSheet(":/stylesheets/stylesheets/lightmode.qss");
     
     Client * c = Client::getInstance();
     OOMWidget::setClient(c);

@@ -39,7 +39,7 @@ public:
         Login->resize(800, 600);
         label = new QLabel(Login);
         label->setObjectName(QString::fromUtf8("label"));
-        label->setGeometry(QRect(240, 230, 81, 20));
+        label->setGeometry(QRect(240, 230, 71, 20));
         label_2 = new QLabel(Login);
         label_2->setObjectName(QString::fromUtf8("label_2"));
         label_2->setGeometry(QRect(240, 280, 91, 20));
@@ -61,7 +61,7 @@ public:
         authFailedLabel = new QLabel(Login);
         authFailedLabel->setObjectName(QString::fromUtf8("authFailedLabel"));
         authFailedLabel->setEnabled(false);
-        authFailedLabel->setGeometry(QRect(460, 230, 231, 41));
+        authFailedLabel->setGeometry(QRect(460, 200, 231, 71));
         authFailedLabel->setCursor(QCursor(Qt::ArrowCursor));
         authFailedLabel->setWordWrap(true);
         passwordTextbox = new QLineEdit(Login);

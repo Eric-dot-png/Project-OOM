@@ -79,12 +79,13 @@ public:
         userNotFoundLabel->setWordWrap(true);
         currentUser = new QLabel(PrivateMessages);
         currentUser->setObjectName(QString::fromUtf8("currentUser"));
-        currentUser->setGeometry(QRect(260, 20, 58, 18));
+        currentUser->setGeometry(QRect(260, 20, 101, 18));
         friendView = new QListView(PrivateMessages);
         friendView->setObjectName(QString::fromUtf8("friendView"));
         friendView->setGeometry(QRect(100, 50, 151, 561));
         serverView = new QListView(PrivateMessages);
         serverView->setObjectName(QString::fromUtf8("serverView"));
+        serverView->setEnabled(false);
         serverView->setGeometry(QRect(0, 50, 101, 561));
         label_2 = new QLabel(PrivateMessages);
         label_2->setObjectName(QString::fromUtf8("label_2"));
@@ -94,7 +95,7 @@ public:
         groupBox->setGeometry(QRect(970, 70, 191, 131));
         friendRequestComboBox = new QComboBox(groupBox);
         friendRequestComboBox->setObjectName(QString::fromUtf8("friendRequestComboBox"));
-        friendRequestComboBox->setGeometry(QRect(10, 30, 121, 26));
+        friendRequestComboBox->setGeometry(QRect(30, 30, 121, 26));
         acceptButton = new QPushButton(groupBox);
         acceptButton->setObjectName(QString::fromUtf8("acceptButton"));
         acceptButton->setGeometry(QRect(20, 90, 51, 26));
@@ -125,7 +126,7 @@ public:
         friendCombobox->setPlaceholderText(QCoreApplication::translate("PrivateMessages", "Click to view friends!", nullptr));
         label->setText(QCoreApplication::translate("PrivateMessages", "Search User:", nullptr));
         userNotFoundLabel->setText(QString());
-        currentUser->setText(QCoreApplication::translate("PrivateMessages", "TextLabel", nullptr));
+        currentUser->setText(QCoreApplication::translate("PrivateMessages", "yourUsername", nullptr));
         label_2->setText(QCoreApplication::translate("PrivateMessages", "Listen for right click", nullptr));
         groupBox->setTitle(QCoreApplication::translate("PrivateMessages", "Pending friend requests", nullptr));
         acceptButton->setText(QCoreApplication::translate("PrivateMessages", "Accept", nullptr));
