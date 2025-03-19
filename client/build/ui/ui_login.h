@@ -48,11 +48,11 @@ public:
         label_3->setGeometry(QRect(240, 330, 271, 20));
         loginButton = new QPushButton(Login);
         loginButton->setObjectName(QString::fromUtf8("loginButton"));
-        loginButton->setGeometry(QRect(470, 280, 83, 29));
+        loginButton->setGeometry(QRect(470, 280, 83, 31));
         loginButton->setCursor(QCursor(Qt::PointingHandCursor));
         registerButton = new QPushButton(Login);
         registerButton->setObjectName(QString::fromUtf8("registerButton"));
-        registerButton->setGeometry(QRect(310, 360, 83, 29));
+        registerButton->setGeometry(QRect(310, 360, 83, 31));
         registerButton->setCursor(QCursor(Qt::PointingHandCursor));
         registerNotImplementedLabel = new QLabel(Login);
         registerNotImplementedLabel->setObjectName(QString::fromUtf8("registerNotImplementedLabel"));

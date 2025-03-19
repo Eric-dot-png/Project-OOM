@@ -81,6 +81,7 @@ private:
     void sendFriendRequest();
     void receivedMessage(QString from, QString msg);
     void showAddFriendButton();
+    void showEvent(QShowEvent *event);
 
 };
 

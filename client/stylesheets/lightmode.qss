@@ -5,6 +5,42 @@ QWidget {
 
 QPushButton {
 	background-color: #f0f0f0;
-	border: 1px solid gray;
+	color: #4d4d4d;
+	border: none;
+	padding: 8px 5px;
+	border-radius: 10px;	
+}
+
+QPushButton:hover {
+	background-color: #9c9c9c
+	color: black;
+}
+
+QPushButton:pressed {
+	background-color: #474a48
+	color: black;
+}
+
+QListView {
+	padding: 5px;
+}
+
+QGroupBox {
+	padding: 5px;
+}
+
+QComboBox {
+	padding: 5px;
+}
+
+QLineEdit {
+	padding: 5px;
+}
+
+QTextEdit {
+	padding: 5px;
+}
+
+QLabel {
 	padding: 5px;
 }

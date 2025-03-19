@@ -32,8 +32,8 @@ ApplicationHandler::ApplicationHandler(QWidget *parent)
     stackedWidget->addWidget(RegisterWidget);
     stackedWidget->addWidget(AuthenticationWidget);
 
-    // PrivateMessagesWidget = new PrivateMessages(this);
-    // stackedWidget->addWidget(PrivateMessagesWidget);
+    PrivateMessagesWidget = new PrivateMessages(this);
+    stackedWidget->addWidget(PrivateMessagesWidget);
     
     stackedWidget->setCurrentIndex(0); // login page
 
@@ -91,11 +91,13 @@ ApplicationHandler::ApplicationHandler(QWidget *parent)
 
     //Login -> Private message, mark widgets that wont be used for deletion
     connect(client, &Client::loginSuccess, this, [=]() {
+
+        // if (!PrivateMessagesWidget) {
+        //     PrivateMessagesWidget = new PrivateMessages(this);
+        //     stackedWidget->addWidget(PrivateMessagesWidget);
+        // }
+
         client->getFriendsList(client->getUser());
-        if (!PrivateMessagesWidget) {
-            PrivateMessagesWidget = new PrivateMessages(this);
-            stackedWidget->addWidget(PrivateMessagesWidget);
-        }
 
         qDebug() << "clientside loggedin";
         switchToWidget(stackedWidget->indexOf(PrivateMessagesWidget));

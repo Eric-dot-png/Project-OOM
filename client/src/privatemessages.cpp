@@ -134,8 +134,12 @@ PrivateMessages::PrivateMessages(QWidget *parent)
     {
         ui->friendRequestComboBox->addItem(from);
     });
+}
 
-    // After a short delay, populate friend requests and friend lists in the UI
+void PrivateMessages::showEvent(QShowEvent *event) {
+    QWidget::showEvent(event);
+    qDebug() << "Showing privatemessages";
+    //
     QTimer::singleShot(1000, this, [this]() {
         if (!client) return;
 

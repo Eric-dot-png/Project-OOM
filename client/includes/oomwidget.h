@@ -11,6 +11,7 @@ public:
         : QWidget(parent) {}
 
     void startApp();
+    void reloadStyleSheet();
 
     static void setClient(Client *c) { client = c; }
     static Client *getClient() { return client; }

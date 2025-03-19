@@ -19,7 +19,6 @@
 #include <QtWidgets/QListView>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QTextEdit>
-#include <QtWidgets/QUndoView>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -42,7 +41,6 @@ public:
     QComboBox *friendRequestComboBox;
     QPushButton *acceptButton;
     QPushButton *denyButton;
-    QUndoView *undoView;
     QPushButton *addFriendButton;
 
     void setupUi(QWidget *PrivateMessages)
@@ -92,7 +90,7 @@ public:
         label_2->setGeometry(QRect(50, 160, 191, 41));
         groupBox = new QGroupBox(PrivateMessages);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
-        groupBox->setGeometry(QRect(970, 70, 191, 131));
+        groupBox->setGeometry(QRect(550, 20, 191, 131));
         friendRequestComboBox = new QComboBox(groupBox);
         friendRequestComboBox->setObjectName(QString::fromUtf8("friendRequestComboBox"));
         friendRequestComboBox->setGeometry(QRect(30, 30, 121, 26));
@@ -102,9 +100,6 @@ public:
         denyButton = new QPushButton(groupBox);
         denyButton->setObjectName(QString::fromUtf8("denyButton"));
         denyButton->setGeometry(QRect(119, 90, 51, 26));
-        undoView = new QUndoView(PrivateMessages);
-        undoView->setObjectName(QString::fromUtf8("undoView"));
-        undoView->setGeometry(QRect(970, 400, 256, 192));
         addFriendButton = new QPushButton(PrivateMessages);
         addFriendButton->setObjectName(QString::fromUtf8("addFriendButton"));
         addFriendButton->setGeometry(QRect(260, 110, 91, 26));
