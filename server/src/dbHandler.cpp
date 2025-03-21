@@ -366,9 +366,15 @@ bool dbHandler::addFriend(const QString & u1, const QString & u2)
 
     // Remove any friend requests in either direction
     if (!removeFriendRequest(u1, u2))
+    {
+        mysql_query(connection, "rollback");
         return 0;
+    }
     if (!removeFriendRequest(u2, u1))
+    {
+        mysql_query(connection, "rollback");
         return 0;
+    }
     
     // Insert a friendship record
     std::stringstream ss;

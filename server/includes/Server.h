@@ -41,6 +41,23 @@ private:
     void writeToUserRaw(const QString& name, const QByteArray& data);
     void writeToSocket(QTcpSocket * s, Protocol t,
                        const QList<QJsonValue>& argv);
+
+    /*----------------------------------------------------------------
+      onNewConnection Functions
+    ----------------------------------------------------------------*/
+    void handleFriendRequest(const QJsonObject &, const QByteArray &);
+    void handleFriendAccept(const QJsonObject &, const QByteArray &);
+    void handleFriendRemoved(QTcpSocket *, const QJsonObject &,
+                             const QByteArray &);
+    // ^^ !! ^^ NOT IMPLEMENTED ^^ !! ^^
+    void handlePrivateMessage(const QJsonObject &,
+                              const QByteArray &);
+    void handleDiscoveryRequest(QTcpSocket *, const QJsonObject &);
+    void handleLoginRequest(QTcpSocket *, const QJsonObject &);
+    void handleAuthCodeSubmit(QTcpSocket *, const QJsonObject &);
+    void handleCreateAccountRequest(QTcpSocket *, const QJsonObject &);
+    void handleFriendList(QTcpSocket *, const QJsonObject &);
+    void handleFriendRequestList(QTcpSocket *, const QJsonObject &);
     
     static Server * instance;
 

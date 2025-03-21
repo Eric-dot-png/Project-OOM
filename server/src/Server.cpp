@@ -113,179 +113,52 @@ void Server::onNewConnection()
         {
             case Protocol::FriendRequest:
             {
-                // Insert a friend request into the database, then forward the message
-                // to the recipient if they're online.
-                db->addFriendRequest(m["From"].toString(), m["To"].toString());
-                writeToUserRaw(m["To"].toString(), data);
+                handleFriendRequest(m, data);
                 break;
             }
             case Protocol::FriendAccept:
             {
-                // Finalize friendship, then notify the recipient if they're online.
-                db->addFriend(m["From"].toString(), m["To"].toString());
-                writeToUserRaw(m["To"].toString(), data);
+                handleFriendAccept(m, data);
                 break;
             }
             case Protocol::FriendRemoved:
             {
-                // Placeholder for friend removal logic (not fully implemented)
+                handleFriendRemoved(client, m, data);
                 break;
             }
             case Protocol::PrivateMessage:
             {
-                // Store the private message in the database, then pass it to the recipient.
-                db->storeMessage(m);
-                writeToUserRaw(m["To"].toString(), data);
+                handlePrivateMessage(m, data);
                 break;
             }
             case Protocol::DiscoveryRequest:
             {
-                // Check if the requested user exists, then retrieve or fail to retrieve
-                // the message history.
-                QString usrname = m["Username"].toString();
-                bool existing_user = db->userExists(usrname);
-                if (existing_user)
-                {
-                    QString msgHist = db->getMessages(m["CurrUser"].toString(),
-                                                      usrname);
-                    writeToSocket(client, Protocol::DiscoveryAccept,
-                                  {usrname, msgHist});
-                }
-                else
-                {
-                    writeToSocket(client, Protocol::DiscoveryFail, {usrname});
-                }
+                handleDiscoveryRequest(client, m);
                 break;
             }
             case Protocol::LoginRequest:
             {
-                // Validate the user's login credentials via the database
-                QString usr = m["Username"].toString();
-                QString pwd = pwdHash(m["Password"].toString());
-
-                if (db->loginValidate(usr, pwd))
-                {
-                    // If valid, notify the client and mark the user as online
-                    writeToSocket(client, Protocol::LoginAccept, {usr});
-                    onlineUserMap[usr] = client;
-                }
-                else
-                {
-                    // If invalid, send a login failure message to the client
-                    writeToSocket(client, Protocol::LoginDenied,
-                                  {"Account with login information DNE"});
-                }
+                handleLoginRequest(client, m);
                 break;
             }
             case Protocol::AuthCodeSubmit:
             {
-                // Validate a user's registration code for email verification
-                QString usr  = m["Username"].toString();
-                QString code = m["Code"].toString();
-
-                // If code is non-numeric or not 6 digits long, fail immediately
-                if (!numeric(code) || code.length() != 6)
-                {
-                    writeToSocket(client, Protocol::AuthCodeDenied,
-                                  {"Invalid Code"});
-                }
-                else
-                {
-                    // Check database for match; if success, accept; otherwise deny
-                    bool success = db->emailValidate(usr, code);
-                    if (success)
-                        writeToSocket(client, Protocol::AuthCodeAccept, {});
-                    else
-                        writeToSocket(client, Protocol::AuthCodeDenied,
-                            {"Unknown Error, Could not authenticate account."});
-                }
+                handleAuthCodeSubmit(client, m);
                 break;
             }
             case Protocol::CreateAccountRequest:
             {
-                // Create a new account in the database, then optionally send an email
-                // with the validation code if not auto-validated.
-                QString usr   = m["Username"].toString();
-                QString pwd   = pwdHash(m["Password"].toString());
-                QString email = m["Email"].toString();
-
-                // Ensure username doesn't already exist
-                if (!db->availUsername(usr))
-                {
-                    writeToSocket(client, Protocol::CreateAccountDenied,
-                                  {"Username already exists."});
-                }
-                else
-                {
-                    // If newUser() returns a code, it's pending validation
-                    QString code = db->newUser(usr, pwd, email);
-                    if (code != "")
-                    {
-                        // Attempt to send a validation email
-                        std::string emailsyscall = "python3 src/myemail.py "
-                            + email.toStdString() + ' ' + code.toStdString();
-                        int emailStatus = std::system(emailsyscall.c_str());
-
-                        if (emailStatus == 0)
-                        {
-                            // If success, notify the client
-                            writeToSocket(client, Protocol::CreateAccountAccept,
-                                          {usr, pwd});
-                        }
-                        else
-                        {
-                            // If email sending fails, remove registration record
-                            // and inform the client
-                            db->removeReg(usr);
-                            writeToSocket(client, Protocol::CreateAccountDenied,
-                                          {"Could not send email."});
-                        }
-                    }
-                    else
-                    {
-                        // If newUser() returns an empty string, account creation failed
-                        writeToSocket(client, Protocol::CreateAccountDenied,
-                                      {"Unknown Error, Could not create account."});
-                    }
-                }
+                handleCreateAccountRequest(client, m);
                 break;
             }
             case Protocol::FriendList:
             {
-                // Retrieve the friend list for a user and send it back to the client
-                QString usr = m["From"].toString();
-                QStringList list = db->getFriendslist(usr);
-
-                QJsonArray jarray;
-                for (const QString &str : list)
-                    jarray.append(str);
-                QJsonValue j = jarray;
-
-                // If there's at least one friend, send FriendListAccept; otherwise, FriendListFailed
-                if (!jarray.isEmpty())
-                    writeToSocket(client, Protocol::FriendListAccept, {usr, j});
-                else
-                    writeToSocket(client, Protocol::FriendListFailed, {usr, j});
-
+                handleFriendList(client, m);
                 break;
             }
             case Protocol::FriendRequestList:
             {
-                // Retrieve all friend requests for the given user
-                QString usr = m["From"].toString();
-                QStringList list = db->getFriendRequests(usr);
-
-                QJsonArray jarray;
-                for (const QString &str : list)
-                    jarray.append(str);
-                QJsonValue j = jarray;
-
-                // If there's at least one request, send FriendRequestListAccept; otherwise, FriendRequestListFailed
-                if (!jarray.isEmpty())
-                    writeToSocket(client, Protocol::FriendRequestListAccept, {usr, j});
-                else
-                    writeToSocket(client, Protocol::FriendRequestListFailed, {usr, j});
-
+                handleFriendRequestList(client, m);
                 break;
             }
             default:
@@ -316,4 +189,188 @@ void Server::writeToSocket(QTcpSocket * socket, Protocol type,
     {
         socket->write(ProtocolManager::serialize(type,argv));
     }
+}
+
+/*--------------------------------------------------------------------
+  Logic for onNewConnection
+--------------------------------------------------------------------*/
+void Server::handleFriendRequest(const QJsonObject & m,
+                                 const QByteArray & data)
+{
+    // Insert a friend request into the database, then forward the message
+    // to the recipient if they're online.
+    db->addFriendRequest(m["From"].toString(), m["To"].toString());
+    writeToUserRaw(m["To"].toString(), data);
+}
+
+void Server::handleFriendAccept(const QJsonObject & m,
+                                const QByteArray & data)
+{
+    // Finalize friendship, then notify the recipient if they're online.
+    db->addFriend(m["From"].toString(), m["To"].toString());
+    writeToUserRaw(m["To"].toString(), data);
+}
+
+void Server::handleFriendRemoved(QTcpSocket * client, const QJsonObject & m,
+                                 const QByteArray & data)
+{
+    // Placeholder for friend removal logic (not fully implemented)
+}
+
+void Server::handlePrivateMessage(const QJsonObject & m,
+                                  const QByteArray & data)
+{
+    // Store the private message in the database, then pass it to the recipient.
+    db->storeMessage(m);
+    writeToUserRaw(m["To"].toString(), data);
+}
+
+void Server::handleDiscoveryRequest(QTcpSocket * client,
+                                    const QJsonObject & m)
+{
+    // Check if the requested user exists, then retrieve or fail to retrieve
+    // the message history.
+    QString usrname = m["Username"].toString();
+    bool existing_user = db->userExists(usrname);
+    if (existing_user)
+    {
+        QString msgHist = db->getMessages(m["CurrUser"].toString(),
+                                          usrname);
+        writeToSocket(client, Protocol::DiscoveryAccept,
+                      {usrname, msgHist});
+    }
+    else
+    {
+        writeToSocket(client, Protocol::DiscoveryFail, {usrname});
+    }
+}
+
+void Server::handleLoginRequest(QTcpSocket * client, const QJsonObject & m)
+{
+    // Validate the user's login credentials via the database
+    QString usr = m["Username"].toString();
+    QString pwd = pwdHash(m["Password"].toString());
+    
+    if (db->loginValidate(usr, pwd))
+    {
+        // If valid, notify the client and mark the user as online
+        writeToSocket(client, Protocol::LoginAccept, {usr});
+        onlineUserMap[usr] = client;
+    }
+    else
+    {
+        // If invalid, send a login failure message to the client
+        writeToSocket(client, Protocol::LoginDenied,
+                      {"Account with login information DNE"});
+    }
+}
+void Server::handleAuthCodeSubmit(QTcpSocket * client, const QJsonObject & m)
+{
+    // Validate a user's registration code for email verification
+    QString usr  = m["Username"].toString();
+    QString code = m["Code"].toString();
+    
+    // If code is non-numeric or not 6 digits long, fail immediately
+    if (!numeric(code) || code.length() != 6)
+    {
+        writeToSocket(client, Protocol::AuthCodeDenied,
+                      {"Invalid Code"});
+    }
+    else
+    {
+        // Check database for match; if success, accept; otherwise deny
+        bool success = db->emailValidate(usr, code);
+        if (success)
+            writeToSocket(client, Protocol::AuthCodeAccept, {});
+        else
+            writeToSocket(client, Protocol::AuthCodeDenied,
+                          {"Unknown Error, Could not authenticate account."});
+    }
+}
+
+void Server::handleCreateAccountRequest(QTcpSocket * client,
+                                        const QJsonObject & m)
+{
+    // Create a new account in the database, then optionally send an email
+    // with the validation code if not auto-validated.
+    QString usr   = m["Username"].toString();
+    QString pwd   = pwdHash(m["Password"].toString());
+    QString email = m["Email"].toString();
+    
+    // Ensure username doesn't already exist
+    if (!db->availUsername(usr))
+    {
+        writeToSocket(client, Protocol::CreateAccountDenied,
+                      {"Username already exists."});
+    }
+    else
+    {
+        // If newUser() returns a code, it's pending validation
+        QString code = db->newUser(usr, pwd, email);
+        if (code != "")
+        {
+            // Attempt to send a validation email
+            std::string emailsyscall = "python3 src/myemail.py "
+                + email.toStdString() + ' ' + code.toStdString();
+            int emailStatus = std::system(emailsyscall.c_str());
+            
+            if (emailStatus == 0)
+            {
+                // If success, notify the client
+                writeToSocket(client, Protocol::CreateAccountAccept,
+                              {usr, pwd});
+            }
+            else
+            {
+                // If email sending fails, remove registration record
+                // and inform the client
+                db->removeReg(usr);
+                writeToSocket(client, Protocol::CreateAccountDenied,
+                              {"Could not send email."});
+            }
+        }
+        else
+        {
+            // If newUser() returns an empty string, account creation failed
+            writeToSocket(client, Protocol::CreateAccountDenied,
+                          {"Unknown Error, Could not create account."});
+        }
+    }
+}
+
+void Server::handleFriendList(QTcpSocket * client, const QJsonObject & m)
+{
+    // Retrieve the friend list for a user and send it back to the client
+    QString usr = m["From"].toString();
+    QStringList list = db->getFriendslist(usr);
+    
+    QJsonArray jarray;
+    for (const QString &str : list)
+        jarray.append(str);
+    QJsonValue j = jarray;
+    
+    // If there's at least one friend, send FriendListAccept; otherwise, FriendListFailed
+    if (!jarray.isEmpty())
+        writeToSocket(client, Protocol::FriendListAccept, {usr, j});
+    else
+        writeToSocket(client, Protocol::FriendListFailed, {usr, j});
+}
+
+void Server::handleFriendRequestList(QTcpSocket * client,
+                                     const QJsonObject & m)
+{
+    // Retrieve all friend requests for the given user
+    QString usr = m["From"].toString();
+    QStringList list = db->getFriendRequests(usr);
+    
+    QJsonArray jarray;
+    for (const QString &str : list)
+        jarray.append(str);
+    QJsonValue j = jarray;
+    
+    // If there's at least one request, send FriendRequestListAccept; otherwise, FriendRequestListFailed
+    if (!jarray.isEmpty())
+        writeToSocket(client, Protocol::FriendRequestListAccept, {usr, j});
+    else
+        writeToSocket(client, Protocol::FriendRequestListFailed, {usr, j});
 }
