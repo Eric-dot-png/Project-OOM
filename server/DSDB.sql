@@ -1,4 +1,4 @@
---/*M!999999\- enable the sandbox mode */ 
+/*M!999999\- enable the sandbox mode */ 
 -- MariaDB dump 10.19  Distrib 10.11.10-MariaDB, for Linux (x86_64)
 --
 -- Host: localhost    Database: DSDB
@@ -16,11 +16,11 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
+use DSDB;
+
 --
 -- Table structure for table `FriendRequest`
 --
-
-use DSDB;
 
 DROP TABLE IF EXISTS `FriendRequest`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -68,6 +68,87 @@ LOCK TABLES `Friends` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `GroupInfo`
+--
+
+DROP TABLE IF EXISTS `GroupInfo`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `GroupInfo` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `owner` varchar(100) NOT NULL,
+  `name` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `owner` (`owner`,`name`),
+  CONSTRAINT `GroupInfo_ibfk_1` FOREIGN KEY (`owner`) REFERENCES `User` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `GroupInfo`
+--
+
+LOCK TABLES `GroupInfo` WRITE;
+/*!40000 ALTER TABLE `GroupInfo` DISABLE KEYS */;
+/*!40000 ALTER TABLE `GroupInfo` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `GroupMember`
+--
+
+DROP TABLE IF EXISTS `GroupMember`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `GroupMember` (
+  `groupId` int(11) NOT NULL,
+  `user` varchar(100) NOT NULL,
+  PRIMARY KEY (`groupId`,`user`),
+  KEY `user` (`user`),
+  CONSTRAINT `GroupMember_ibfk_1` FOREIGN KEY (`groupId`) REFERENCES `GroupInfo` (`id`),
+  CONSTRAINT `GroupMember_ibfk_2` FOREIGN KEY (`user`) REFERENCES `User` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `GroupMember`
+--
+
+LOCK TABLES `GroupMember` WRITE;
+/*!40000 ALTER TABLE `GroupMember` DISABLE KEYS */;
+/*!40000 ALTER TABLE `GroupMember` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `GroupMessage`
+--
+
+DROP TABLE IF EXISTS `GroupMessage`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `GroupMessage` (
+  `groupId` int(11) NOT NULL,
+  `sender` varchar(100) NOT NULL,
+  `sentAt` timestamp NULL DEFAULT current_timestamp(),
+  `message` text NOT NULL,
+  `deleted` tinyint(1) DEFAULT 0,
+  KEY `groupId` (`groupId`),
+  KEY `sender` (`sender`),
+  CONSTRAINT `GroupMessage_ibfk_1` FOREIGN KEY (`groupId`) REFERENCES `GroupInfo` (`id`),
+  CONSTRAINT `GroupMessage_ibfk_2` FOREIGN KEY (`sender`) REFERENCES `User` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `GroupMessage`
+--
+
+LOCK TABLES `GroupMessage` WRITE;
+/*!40000 ALTER TABLE `GroupMessage` DISABLE KEYS */;
+/*!40000 ALTER TABLE `GroupMessage` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `PrivMessage`
 --
 
@@ -93,12 +174,6 @@ CREATE TABLE `PrivMessage` (
 
 LOCK TABLES `PrivMessage` WRITE;
 /*!40000 ALTER TABLE `PrivMessage` DISABLE KEYS */;
-INSERT INTO `PrivMessage` VALUES
-('test1','bspat','2025-02-26 20:21:16','Hello!',0),
-('bspat','test1','2025-02-26 21:13:39','W H Y',0),
-('test1','bspat11037','2025-02-27 03:55:17','Testing 1, 2',0),
-('test1','spatty','2025-03-03 16:14:45','It all works',0),
-('test1','test10','2025-03-05 16:09:41','Test10 to test1, hello!',0);
 /*!40000 ALTER TABLE `PrivMessage` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -151,14 +226,6 @@ CREATE TABLE `User` (
 
 LOCK TABLES `User` WRITE;
 /*!40000 ALTER TABLE `User` DISABLE KEYS */;
-INSERT INTO `User` VALUES
-('bspat','2027307464','bspat11037@gmail.com',0),
-('bspat11037','2639782061','bspat11037@gmail.com',0),
-('spatty','3920916740','bspat11037@gmail.com',0),
-('test1','2327168385','bspat11037@gmail.com',0),
-('test10','1787805446','bspat11037@gmail.com',1),
-('test3','3920916740','bspat11037@gmail.com',1),
-('test4','3976054627','bspat11037@gmail.com',1);
 /*!40000 ALTER TABLE `User` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -171,4 +238,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-05 11:46:15
+-- Dump completed on 2025-03-24  8:36:49
