@@ -56,11 +56,6 @@ public:
     void acceptFriend(const User& u);
     
     void extendMessageHistory(const User& u, quint32 currentSize);
-
-    // these are no longer needed.
-    void getFriendsList(const User& u);
-
-    void getFriendRequestList(const User& u);
     
 signals: 
     void connectedToServer();
@@ -95,8 +90,6 @@ private:
     NetworkManager * nw;
     
     User current_user;
-    QStringList friends;
-    QStringList friendRequests;
     
     class AbstractState;
     

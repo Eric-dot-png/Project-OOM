@@ -250,8 +250,8 @@ void Client::initializeSession(const QString& user,
 {
     state = LoggedInState::getInstance();
     current_user = User(user);
-    friends = fs;
-    friendRequests = frs;
+    current_user.setFriendList(fs);
+    current_user.setFriendRequestList(frs);
     emit loginSuccess();
 }
 

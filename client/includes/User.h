@@ -45,7 +45,7 @@ public:
     {
         friendRequestList = list;
     }
-
+    
     const QStringList& getFriendRequestList()
     {
         return friendRequestList;
