@@ -5,8 +5,6 @@
 #include <QWidget>
 #include <QMetaType>
 
-
-
 class User
 {
 
@@ -85,6 +83,8 @@ inline uint qHash(const User &key, uint seed = 0)
 {
     return qHash(key.get_username(), seed);
 }
+
+const User GUEST("Guest");
 
 Q_DECLARE_METATYPE(User)
 #endif

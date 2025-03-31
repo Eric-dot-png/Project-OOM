@@ -4,53 +4,38 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#include <unordered_map>
-#include <stdexcept>
-
-#include <QNetworkInterface>
-#include <QHostAddress>
-#include <QTcpServer>
-#include <QTcpSocket>
 #include <QObject>
 #include <QDebug>
 
 #include "config.h"
 #include "singleton.h"
-#include "ProtocolManager.h"
 #include "User.h"
+#include "NetworkManager.h"
 
-class RegMachine; // see regMachine.cpp
-
-class Client : public QObject
+class Client : public QObject, public Singleton<Client>
 {
     Q_OBJECT
-        
+    friend class Singleton<Client>;
 public:
     Client(Client&) = delete;
     Client& operator=(const Client&) = delete;
     
-    static Client * getInstance();
-    static void destroyInstance();
-    
     //AbstractState * getState() const { return state; }
-    User getUser() const { return current_user; }
+    const User& getUser() const { return current_user; }
     User& getUser() { return current_user; }
+
     // must be in Disconnected state.
     // puts the client into Connecting state
     void connectToServer(const QHostAddress& host, int port);
-
+    
     // must not be in Disconnected state
     // puts the client into Disconnected state
     void disconnect();
-
-    // sends a message from the client to the server,
-    // using protocolmanager's serialize function.
-    void writeToServer(Protocol type, const QList<QJsonValue>&);
     
     // must be in Connected state
     // puts the client into loggingin state
     void login(const User &);
-
+    
     // must be in Connected state
     // puts the client into CreatingAccount state
     void createAccount(const User &);
@@ -69,12 +54,14 @@ public:
     void friendRequest(const User& u);
     
     void acceptFriend(const User& u);
+    
+    void extendMessageHistory(const User& u, quint32 currentSize);
 
-    void extendMessageHistory(const User& u, unsigned int currentSize);
-
+    // these are no longer needed.
     void getFriendsList(const User& u);
-    void getFriendRequestList(const User& u);
 
+    void getFriendRequestList(const User& u);
+    
 signals: 
     void connectedToServer();
     void disconnectedFromServer();
@@ -84,41 +71,40 @@ signals:
     void accountCreated();
     void accountAuthenticated();
     void accountAuthenticationFail();
-    
     void discoverUserFail(const QString& username);
     void discoverUserSucceed(const QString& username,
                              const QList<QJsonObject> & messageJsonList);
-    
     void recievedDM(const QString& from, const QString& msg);
     void recievedFriendRequest(const QString& from);
     void recievedFriendRemove(const QString& from);
-
-    void sendFriendRequestList(const QString& user, const QStringList& list);
-    void sendFriendList(const QString& user, const QStringList& list);
-
+    void extendMsgSucceed(const QString& user,const QList<QJsonObject>& msgs);
+                                                                             
 private slots: // these are functions that are connected to signals
-    void onReply(); // this function called to handle server info
+    void initializeSession(const QString& username,
+                           const QStringList& friends,
+                           const QStringList& friendRqs);
+    void initializeDMs(const QString& user, const QString& msgs);
+    
 private:
     Client();
     ~Client();
     
-    QHostAddress getDeviceIpAddress(); // returns first non-loopback
-                                       // ipv4 address
-
+    NetworkManager * nw;
+    
+    User current_user;
+    QStringList friends;
+    QStringList friendRequests;
+    
     class AbstractState;
     
     AbstractState * state;
-    QTcpSocket * socket;
-    User current_user;
-    static Client * instance;
     
-    /*
-      ClientState Objects.
-      These Objects are used to follow the State Design pattern.
-      Basically, handle messages differently depending on the current state.
-      Each object has a handle() function that handles the message recieved
-      from the server.
-    */
+    // ClientState Objects.
+    // These Objects are used to follow the State Design pattern.
+    // Basically, handle messages differently depending on the current state.
+    // Each object has a handle() function that handles the message recieved
+    // from the server.
+    
     class AbstractState
     {
     public:

@@ -107,10 +107,21 @@ void Server::onNewConnection()
         QJsonObject m = ProtocolManager::deserialize(data);
         
         Protocol type = static_cast<Protocol>(m["Type"].toInt());
-
+        
         // Check the protocol type to decide which operation to perform
         switch(type)
         {
+            case Protocol::ExtendMessageHistory:
+            {
+                bool existing_user = db->userExists(usrname);
+                if (existing_user)
+                {
+                    QString msgHist = db->getMessages(
+                        m["CurrUser"].toString(), usrname);
+                }
+                
+                break;
+            }
             case Protocol::FriendRequest:
             {
                 handleFriendRequest(m, data);

@@ -41,7 +41,10 @@ enum class Protocol
     FriendListFailed,
     FriendRequestList,
     FriendRequestListAccept,
-    FriendRequestListFailed
+    FriendRequestListFailed,
+    ExtendMessageHistory,
+    ExtendMessageHistoryAccept,
+    ExtendMessageHistoryDenied
 };
 
 /*
@@ -312,7 +315,7 @@ namespace Serializers
             return serializeUtil(Protocol::FriendDenied,argv,{"From", "To"});
         }
     };
-
+    
     class FriendRemoved : public AbstractSerializer,
                           public Singleton<FriendRemoved>
     {
@@ -403,10 +406,53 @@ namespace Serializers
     public:
         QByteArray operator()(const QList<QJsonValue>& argv)
         {
-            return serializeUtil(Protocol::FriendRequestListFailed,argv,{"From", "List"});
+            return serializeUtil(Protocol::FriendRequestListFailed,argv,
+                                 {"From", "List"});
         }
     };
 
+    class ExtendMessageHistory : public AbstractSerializer,
+                                 public Singleton<ExtendMessageHistory>
+    {
+        friend class Singleton<ExtendMessageHistory>;
+    private:
+        ExtendMessageHistory() = default;
+    public:
+        QByteArray operator()(const QList<QJsonValue>& argv)
+        {
+            return serializeUtil(Protocol::ExtendMessageHistory, argv,
+                                 {"CurrUser", "Username", "Start"});
+        }  
+    };
+
+    class ExtendMessageHistoryAccept : public AbstractSerializer,
+                                 public Singleton<ExtendMessageHistoryAccept>
+    {
+        friend class Singleton<ExtendMessageHistoryAccept>;
+    private:
+        ExtendMessageHistoryAccept() = default;
+    public:
+        QByteArray operator()(const QList<QJsonValue>& argv)
+        {
+            return serializeUtil(Protocol::ExtendMessageHistoryAccept,
+                                 argv, {"Username", "Messages"});
+        }
+    };
+    
+    class ExtendMessageHistoryDenied : public AbstractSerializer,
+                                 public Singleton<ExtendMessageHistoryDenied>
+    {
+        friend class Singleton<ExtendMessageHistoryDenied>;
+    private:
+        ExtendMessageHistoryDenied() = default;
+    public:
+        QByteArray operator()(const QList<QJsonValue>& argv)
+        {
+            return serializeUtil(Protocol::ExtendMessageHistoryDenied,
+                                 argv, {"Username", "Messages"});
+        }
+    };
+    
     // destroy all serializer instances. called in the bottom of both main.cpp
     void destroyInstances();
 };

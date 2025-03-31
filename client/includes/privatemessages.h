@@ -18,10 +18,6 @@
 #include "ui_privatemessages.h"
 #include "dmlistmodel.h"
 
-
-//#include "message.h"
-
-
 /*
  *  QT does not natively allow pressing enter to submit a textbox.
  *  This class checks for button press events and if the enter button

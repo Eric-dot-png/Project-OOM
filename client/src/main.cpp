@@ -13,7 +13,6 @@
 #include "applicationhandler.h"
 #include "oomwidget.h"
 #include "Client.h"
-#include "regMachine.h"
 
 void applyStyleSheet(const QString &styleSheetPath) {
     QFile file(styleSheetPath);
@@ -22,8 +21,7 @@ void applyStyleSheet(const QString &styleSheetPath) {
         qDebug() << "Stylesheet file does not exist:" << styleSheetPath;
         return;
     }
-
-
+    
     if (file.open(QFile::ReadOnly | QFile::Text)) {
         QTextStream stream(&file);
         qApp->setStyleSheet(stream.readAll());
@@ -50,7 +48,6 @@ void declareOOMtypes()
 
 int main(int argc, char *argv[])
 {
-
     if (DEBUG_MODE)
     {
         // Show debug information
@@ -70,9 +67,6 @@ int main(int argc, char *argv[])
     
     OOMWidget *mainWidget = new OOMWidget();
     mainWidget->startApp();
-
-    RegMachine::getInstance();
-    
     
     int out = a.exec();
 

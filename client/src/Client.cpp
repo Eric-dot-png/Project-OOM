@@ -1,66 +1,70 @@
-// file : Client.cpp
-// name : eric garcia
-// Description: This file implements the Client class in a Discord-like chat application using Qt as the graphical interface.
-//              It handles the communication with the server (connection, disconnection, sending requests, and receiving responses),
-//              manages user authentication (login, account creation, etc.), and maintains different client states to reflect the
-//              current stage of interaction with the server.
-
 #include "Client.h"
-#include "regMachine.h"
-#include "User.h"
 
-// Static member holding the singleton instance of Client
-Client * Client::instance(NULL);
- 
-// Constructor: Initializes the Client object with default states, socket, and sets a guest user.
 Client::Client()
-    : QObject(NULL), state(DisconnectedState::getInstance()),
-      socket(new QTcpSocket(this)),
-      current_user("None","None","None") // for now this is guest user
+    : nw(NetworkManager::getInstance()),
+      state(DisconnectedState::getInstance()),
+      current_user(GUEST)
 {
-    // When the socket is successfully connected to the server, update the state to ConnectedState.
-    connect(socket, &QTcpSocket::connected, this, [&](){
-        qDebug() << "Connected to Server";
+    connect(nw, &NetworkManager::connected, this, [&](){
         state = ConnectedState::getInstance();
         emit connectedToServer();
     });
 
-    // When the socket is disconnected from the server, update the state to DisconnectedState.
-    connect(socket, &QTcpSocket::disconnected, this, [&](){
-        qDebug() << "Disconnected from Server";
+    connect(nw, &NetworkManager::disconnected, this, [&](){
         state = DisconnectedState::getInstance();
         emit disconnectedFromServer();
     });
+    
+    connect(nw, &NetworkManager::loginValid, this, &Client::initializeSession);
+    
+    connect(nw, &NetworkManager::loginInvalid, this, [&](){
+        state = ConnectedState::getInstance();
+        qDebug() << "Client : Entered Connected State";
+        emit loginFail();
+    });
 
-    // When the socket has data ready to be read, call onReply() to process the server's message.
-    connect(socket, &QTcpSocket::readyRead, this, &Client::onReply);
+    connect(nw, &NetworkManager::accSetupFail, this, [&](){
+        state = ConnectedState::getInstance();
+        emit accountNotCreated();
+    });
+    
+    connect(nw, &NetworkManager::accSetupPass, this, [&](const QString& usr, const QString& pwd){
+        current_user = User(usr,pwd);
+        emit accountCreated();
+    });
+
+    connect(nw, &NetworkManager::accAuthPass, this, [&](){
+        state = ConnectedState::getInstance();
+        emit accountAuthenticated();
+    });
+    
+    connect(nw, &NetworkManager::accAuthFail, this, [&](){
+        emit accountAuthenticationFail();
+    });
+    
+    connect(nw, &NetworkManager::userDNE, this, [&](const QString& u){
+        emit discoverUserFail(u);
+    });
+
+    connect(nw, &NetworkManager::pmHistoryFound, this,&Client::initializeDMs);
+    
+    connect(nw, &NetworkManager::detectedPM, this, [&](const QString& u, const QString& msg){
+        emit recievedDM(u,msg);
+    });
+
+    connect(nw, &NetworkManager::detectedFriendReq, this, [&](const QString& u){
+        emit recievedFriendRequest(u);
+    });
+
+    connect(nw, &NetworkManager::detectedFriendRM, this, [&](const QString& u){
+        emit recievedFriendRemove(u);
+    });
 }
 
-// Destructor: If not disconnected, disconnects from the server and cleans up resources.
 Client::~Client()
 {
-    if (state != DisconnectedState::getInstance())
-        disconnect();
+    nw->disconnect();
     destroyClientStates();
-    delete socket;
-}
-
-// Retrieves the singleton instance of this Client class, creating it if needed.
-Client * Client::getInstance()
-{
-    if (instance == NULL)
-        instance = new Client();
-    return instance;
-}
-
-// Destroys the singleton instance, deleting it and resetting to NULL.
-void Client::destroyInstance()
-{
-    if (instance != NULL)
-    {
-        delete instance;
-        instance = NULL;
-    }
 }
 
 // Attempts to connect to the server using the specified host address and port, transitioning to ConnectingState.
@@ -69,7 +73,7 @@ void Client::connectToServer(const QHostAddress& host, int port)
     if (state == DisconnectedState::getInstance())
     {
         qDebug() << "Attempting to connect to server...";
-        socket->connectToHost(host,port);
+        nw->connect();
         state = ConnectingState::getInstance();
     }
     else
@@ -84,7 +88,7 @@ void Client::disconnect()
     if (state != DisconnectedState::getInstance())
     {
         qDebug() << "Disconnecting from server...";
-        socket->disconnectFromHost();
+        nw->disconnect();
         state = DisconnectingState::getInstance();
     }
     else
@@ -93,20 +97,13 @@ void Client::disconnect()
     }
 }
 
-// Serializes and writes data to the server using the specified protocol and arguments.
-void Client::writeToServer(Protocol type, const QList<QJsonValue>& argv)
-{
-    socket->write(ProtocolManager::serialize(type,argv));
-}
-
 // Sends a login request to the server with the given user's credentials, switching to LoggingInState.
 void Client::login(const User & u)
 {
     if (state == ConnectedState::getInstance())
     {
         qDebug() << "Attempting Login...";
-        writeToServer(Protocol::LoginRequest,
-                      {u.get_username(), u.get_password()});
+        nw->validateLogin(u.get_username(), u.get_password());
         state = LoggingInState::getInstance();
     }
     else
@@ -120,7 +117,7 @@ void Client::createAccount(const User & u)
 {
     if (state == ConnectedState::getInstance())
     {
-        RegMachine::getInstance()->createAcc(u);
+        nw->setupAcc(u.get_username(), u.get_password(), u.get_email());
         qDebug() << "Attempting Create Account...";
         state = CreatingAccountState::getInstance();
     }
@@ -135,7 +132,8 @@ void Client::submitAuthCode(const QString& code)
 {
     if (state == CreatingAccountState::getInstance())
     {
-        RegMachine::getInstance()->authAcc(current_user,code);
+        nw->authAcc(current_user.get_username(),
+                    current_user.get_password(), code);
         qDebug() << "Attempting Authentication...";
     }
     else
@@ -150,8 +148,7 @@ void Client::discover(const User& u)
     if (state == LoggedInState::getInstance())
     {
         qDebug() << "Attempting discovery for" << u.get_username();
-        writeToServer(Protocol::DiscoveryRequest,
-                      {current_user.get_username(), u.get_username()});
+        nw->pmHistory(current_user.get_username(), u.get_username());
     }
     else
     {
@@ -165,8 +162,7 @@ void Client::privateMessage(const User& u, const QString& message)
     if (state == LoggedInState::getInstance())
     {
         qDebug() << "sending private message...";
-        writeToServer(Protocol::PrivateMessage,
-            {u.get_username(), current_user.get_username(), message});
+        nw->forwardPM(u.get_username(), current_user.get_username(), message);
     }
     else
     {
@@ -180,8 +176,7 @@ void Client::friendRequest(const User& u)
     if (state == LoggedInState::getInstance())
     {
         qDebug() << "Sending Friend Request";
-        writeToServer(Protocol::FriendRequest,
-                      {current_user.get_username(), u.get_username()});
+        nw->forwardFriendReq(u.get_username(), current_user.get_username());
     }
     else
     {
@@ -195,8 +190,8 @@ void Client::acceptFriend(const User& u)
     if (state == LoggedInState::getInstance())
     {
         qDebug() << "Accepting Friend Request";
-        writeToServer(Protocol::FriendAccept,
-                      {current_user.get_username(), u.get_username()});
+
+        qDebug() << "Mega Broken!";
     }
     else
     {
@@ -205,20 +200,20 @@ void Client::acceptFriend(const User& u)
 }
 
 // Placeholder to extend a user's message history in the UI or logs.
-void Client::extendMessageHistory(const User& u, unsigned int currentSize)
+void Client::extendMessageHistory(const User& u, quint32 currentSize)
 {
-    qDebug() << "not implimented yet";
-}
-
-// Called when there is data available from the server, deserializes the data, and passes it to the current state.
-void Client::onReply()
-{
-    QByteArray data = socket->readAll();
-    qDebug() << "Received" << data << "from server.";
-
-    QJsonObject m = ProtocolManager::deserialize(data);
-
-    state->handle(m);
+    //qDebug() << "not implimented yet";
+    if (state == LoggedInState::getInstance())
+    {
+        qint64 size = static_cast<qint64>(currentSize);
+        qDebug() << "Extending message history";
+        // writeToServer(Protocol::ExtendMessageHistory,
+        //               {current_user.get_username(), u.get_username(), size});
+    }
+    else
+    {
+        qDebug() << "Can't Extend message history, not in logged in state";
+    }
 }
 
 // Requests the list of pending friend requests for the given user.
@@ -227,8 +222,8 @@ void Client::getFriendRequestList(const User &u)
     if (state == LoggedInState::getInstance())
     {
         qDebug() << "Getting friend Request List.";
-        writeToServer(Protocol::FriendRequestList,
-                      {u.get_username(), ""});
+        // writeToServer(Protocol::FriendRequestList,
+        //               {u.get_username(), ""});
     }
     else
     {
@@ -242,8 +237,6 @@ void Client::getFriendsList(const User &u)
     if (state == LoggedInState::getInstance())
     {
         qDebug() << "Getting friend list.";
-        writeToServer(Protocol::FriendList,
-                      {u.get_username(), ""});
     }
     else
     {
@@ -251,9 +244,29 @@ void Client::getFriendsList(const User &u)
     }
 }
 
-/*------------------------------------------------
-Client State Stuff
-------------------------------------------------*/
+void Client::initializeSession(const QString& user,
+                               const QStringList& fs,
+                               const QStringList& frs)
+{
+    state = LoggedInState::getInstance();
+    current_user = User(user);
+    friends = fs;
+    friendRequests = frs;
+    emit loginSuccess();
+}
+
+void Client::initializeDMs(const QString& user, const QString& msgs)
+{
+    QStringList messagelist = msgs.split(":;:");
+    QList<QJsonObject> messageJsonList;
+    for(const QString& str : messagelist)
+    {
+        QJsonDocument d = QJsonDocument::fromJson(str.toUtf8());
+        if(!d.isNull() && d.isObject())
+            messageJsonList.append(d.object());
+    } 
+    emit discoverUserSucceed(user, messageJsonList);
+}
 
 // Base state function: Called when a state cannot handle the given message.
 void Client::AbstractState::StateFailure(const QJsonObject& m)
@@ -262,8 +275,8 @@ void Client::AbstractState::StateFailure(const QJsonObject& m)
 }
 
 // DisconnectedState, DisconnectingState, ConnectingState, ConnectedState:
-// These states do not process any messages, so they default to calling StateFailure.
-
+// These states do not process any messages, so they default to calling
+// StateFailure.
 void Client::DisconnectedState::handle(const QJsonObject & m)
 {
     StateFailure(m);
@@ -323,6 +336,20 @@ void Client::LoggedInState::handle(const QJsonObject & m)
     Protocol type = static_cast<Protocol>(m["Type"].toInt());
     switch(type)
     {
+        case Protocol::ExtendMessageHistoryAccept:
+        {
+            qDebug() << "Recieved extension.";
+            QStringList messagelist = m["Messages"].toString().split(":;:");
+            QList<QJsonObject> msgs;
+            for(QString str : messagelist)
+            {
+                QJsonDocument d = QJsonDocument::fromJson(str.toUtf8());
+                if(!d.isNull() && d.isObject())
+                    msgs.append(d.object());
+            }
+            emit Client::getInstance()->extendMsgSucceed(m["Username"].toString(), msgs);
+            break;
+        }
         case Protocol::FriendListAccept:
         {
             // Retrieve the list of friends from the server.
@@ -367,6 +394,7 @@ void Client::LoggedInState::handle(const QJsonObject & m)
             emit Client::getInstance()->sendFriendRequestList(usr, list);
             break;
         }
+        case Protocol::ExtendMessageHistoryDenied:
         case Protocol::FriendRequestListFailed:
         case Protocol::FriendListFailed:
             // Could handle error messages if needed.
@@ -381,6 +409,11 @@ void Client::LoggedInState::handle(const QJsonObject & m)
         {
             // The current user has been removed from someone's friend list.
             emit Client::getInstance()->recievedFriendRemove(m["From"].toString());
+            break;
+        }
+        case Protocol::FriendAccept:
+        {
+            
             break;
         }
         case Protocol::PrivateMessage:
