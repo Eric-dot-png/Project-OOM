@@ -111,17 +111,17 @@ void Server::onNewConnection()
         // Check the protocol type to decide which operation to perform
         switch(type)
         {
-            case Protocol::ExtendMessageHistory:
-            {
-                bool existing_user = db->userExists(usrname);
-                if (existing_user)
-                {
-                    QString msgHist = db->getMessages(
-                        m["CurrUser"].toString(), usrname);
-                }
+            // case Protocol::ExtendMessageHistory:
+            // {
+            //     bool existing_user = db->userExists(usrname);
+            //     if (existing_user)
+            //     {
+            //         QString msgHist = db->getMessages(
+            //             m["CurrUser"].toString(), usrname);
+            //     }
                 
-                break;
-            }
+            //     break;
+            // }
             case Protocol::FriendRequest:
             {
                 handleFriendRequest(m, data);
