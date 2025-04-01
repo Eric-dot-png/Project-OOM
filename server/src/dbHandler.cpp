@@ -53,8 +53,8 @@ bool dbHandler::availUsername(const QString & p)
     // for any rows matching the given username.
     ss << "select * from (select username from User where username='"
        << p.toStdString()
-       << "' union select username from Registration where username='"
-       << p.toStdString() << "') as T";
+       << "' and not deleted union select username from Registration where "
+       << "username='" << p.toStdString() << "') as T";
     if (mysql_query(connection, ss.str().c_str()))
     {
         qDebug() << mysql_error(connection);
@@ -75,7 +75,8 @@ bool dbHandler::userExists(const QString & user)
     MYSQL_RES * result;
 
     std::stringstream ss;
-    ss << "select * from User where username='" << user.toStdString() << "'";
+    ss << "select * from User where username='" << user.toStdString()
+       << "' and not deleted";
     if (mysql_query(connection, ss.str().c_str()))
     {
         qDebug() << "Error in selecting from User";
@@ -158,7 +159,7 @@ bool dbHandler::emailValidate(const QString & user, const QString & code)
     }
     QString pass = row[1];
     QString email = row[2];
-    bool perm = row[3];
+    bool perm = row[3] == "1";
     mysql_free_result(result);
 
     // Begin a MySQL transaction
@@ -198,7 +199,7 @@ bool dbHandler::loginValidate(const QString & user, const QString & pass)
 
     std::stringstream ss;
     ss << "select * from User where username='" << user.toStdString()
-       << "' and password='" << pass.toStdString() << "'";
+       << "' and password='" << pass.toStdString() << "' and not deleted";
     if (mysql_query(connection, ss.str().c_str()))
         return 0;
 
@@ -241,7 +242,7 @@ bool dbHandler::storeMessage(const QJsonObject & m)
        << m["To"].toString().toStdString() << "', '"
        << m["From"].toString().toStdString() << "', '"
        << m["Message"].toString().toStdString() << "')";
-    if (mysql_query(connection, ss.str().c_str()))
+    if(mysql_query(connection, ss.str().c_str()))
     {
         qDebug() << "Could not save new message" << mysql_error(connection);
         return 0;
@@ -250,9 +251,44 @@ bool dbHandler::storeMessage(const QJsonObject & m)
     return 1;
 }
 
-// Retrieves a list of messages between two users, in descending order of timestamp,
-// returning them in a specific format, separated by ':;:'.
-QString dbHandler::getMessages(const QString & u1,
+// Stores a group message in the GroupMessage table.
+bool dbHandler::storeGroupMessage(const QJsonObject & m)
+{
+    MYSQL_RES * result;
+    MYSQL_ROW row;
+    std::stringstream ss;
+
+    //get groupId
+    ss << "select id from GroupInfo where owner='"
+       << m["Owner"].toString().toStdString() << "' and name='"
+       << m["Group"].toString().toStdString() << "'";
+    if(mysql_query(connection, ss.str().c_str()))
+    {
+        qDebug() << "Could not find Group: " << mysql_error(connection);
+        return 0;
+    }
+    result = mysql_store_result(connection);
+    row = mysql_fetch_row(result);
+    QString id = row[0];
+    mysql_free_result(result);
+    ss.flush();
+
+    //store message
+    ss << "insert GroupMessage(groupId, sender, message) values("
+       << id.toStdString() << ", '" << m["From"].toString().toStdString()
+       << "', '" << m["Message"].toString().toStdString() << "')";
+    if(mysql_query(connection, ss.str().c_str()))
+    {
+        qDebug() << "Could not save new group message: "
+                 << mysql_error(connection);
+        return 0;
+    }
+   
+    return 1;
+}
+
+// Retrieves a list of messages between two users, in descending order of timestamp
+QJsonArray dbHandler::getMessages(const QString & u1,
                                const QString & u2,
                                int start, int length)
 {
@@ -272,28 +308,67 @@ QString dbHandler::getMessages(const QString & u1,
     if (mysql_query(connection, ss.str().c_str()))
     {
         qDebug() << "DB failed to retrieve messages";
-        return "";
+        return {};
     }
 
     result = mysql_store_result(connection);
     row = mysql_fetch_row(result);
-    QStringList res;
-    // Collect each row's data in JSON form, then push to a QStringList.
+    QJsonArray res;
+    // Collect each row's data in JSON form, then push to a QJsonArray.
     while (row != NULL)
     {
-        res.push_back(QJsonDocument(
-            QJsonObject({
+        res.push_back(QJsonObject({
                 {"To",        row[0]},
                 {"From",      row[1]},
                 {"Timestamp", row[2]},
                 {"Message",   row[3]}
-            })
-        ).toJson());
+            }));
         row = mysql_fetch_row(result);
     }
     mysql_free_result(result);
-    // Messages are joined with ':;:' delimiter and returned
-    return res.join(":;:");
+    return res;
+}
+
+QJsonArray dbHandler::getGroupMessages(const QString & owner,
+                                        const QString & name,
+                                        int start, int length)
+{
+    MYSQL_RES * result;
+    MYSQL_ROW row;
+
+    // Query selects all messages that aren't marked deleted
+    // and orders them descending by sentAt. The limit is for pagination or partial retrieval.
+    std::stringstream ss;
+    ss << "select owner, name, sender, sentAt, message from GroupInfo join "
+       << "GroupMessage on id=groupId where owner='" << owner.toStdString()
+       << "' and name='" << name.toStdString()
+       << "' where not deleted order by sentAt desc limit " << start << ", "
+       << length;
+
+    if (mysql_query(connection, ss.str().c_str()))
+    {
+        qDebug() << "DB failed to retrieve group messages";
+        return {};
+    }
+
+    result = mysql_store_result(connection);
+    row = mysql_fetch_row(result);
+    QJsonArray res;
+    // Collect each row's data in JSON form
+    while (row != NULL)
+    {
+        res.push_back(QJsonObject({
+                    {"Owner",     row[0]},
+                    {"Group",     row[1]},
+                    {"From",      row[2]},
+                    {"Timestamp", row[3]},
+                    {"Message",   row[4]}
+            }));
+        row = mysql_fetch_row(result);
+    }
+    mysql_free_result(result);
+
+    return res;
 }
 
 // Adds a friend request record in the FriendRequest table.
@@ -458,4 +533,93 @@ bool dbHandler::areFriends(const QString & u1, const QString & u2)
     mysql_free_result(result);
 
     return res;
+}
+
+//creates a new group in db
+bool dbHandler::newGroup(const QString & u, const QString & name)
+{
+    std::stringstream ss;
+    ss << "insert GroupInfo(owner, name) values('" << u.toStdString()
+       << "', '" << name.toStdString() << "')";
+    if(mysql_query(connection, ss.str().c_str()))
+    {
+        qDebug() << "Couldn't insert new group\n";
+        return 0;
+    }
+    return 1;
+}
+
+//returns groups of user in Owner:Name format
+QStringList dbHandler::getGroups(const QString & u)
+{
+    MYSQL_RES * result;
+    MYSQL_ROW row;
+    QStringList ret;
+
+    std::stringstream ss;
+    ss << "select owner, name from GroupInfo join GroupMember on id=groupId "
+       << "where user='" << u.toStdString() << "'";
+    if (mysql_query(connection, ss.str().c_str()))
+    {
+        qDebug() << "select fail in getGroups()";
+        return {};
+    }
+    
+    result = mysql_store_result(connection);
+    row = mysql_fetch_row(result);
+    // Each row is one group
+    while (row != NULL)
+    {
+        QString t = row[0];
+        t += ":";
+        t += row[1];
+        ret.push_back(t);
+        row = mysql_fetch_row(result);
+    }
+    mysql_free_result(result);
+
+    return ret;
+}
+
+QStringList dbHandler::getGroupMembers(const QString & owner,
+                                       const QString & name)
+{
+    MYSQL_RES * result;
+    MYSQL_ROW row;
+    QStringList ret;
+
+    std::stringstream ss;
+    //select groupid
+    ss << "select id from GroupInfo where owner='" << owner.toStdString()
+       << "' and name='" << name.toStdString() << "'";
+    if(mysql_query(connection, ss.str().c_str()))
+    {
+        qDebug() << "group select fail";
+        return {};
+    }
+    result = mysql_store_result(connection);
+    row = mysql_fetch_row(result);
+    QString id = row[0];
+    mysql_free_result(result);
+    ss.flush();
+    
+    //select members
+    ss << "select user from GroupMember where groupId=" << id.toStdString();
+    if (mysql_query(connection, ss.str().c_str()))
+    {
+        qDebug() << "select fail in getGroupMembers()";
+        return {};
+    }
+    
+    result = mysql_store_result(connection);
+    row = mysql_fetch_row(result);
+    // Each row is one group
+    while (row != NULL)
+    {
+        ret.push_back(row[0]);
+        row = mysql_fetch_row(result);
+    }
+    mysql_free_result(result);
+
+    return ret;
 }

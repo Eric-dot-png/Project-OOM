@@ -62,7 +62,7 @@ NetworkManager::NetworkManager()
     
     emitMap[Protocol::DiscoveryAccept] = [&](const QJsonObject& m){
         emit pmHistoryFound(m["Username"].toString(),
-                            m["Messages"].toString());
+                            m["Messages"].toArray());
     };
     
     emitMap[Protocol::PrivateMessage] = [&](const QJsonObject& m){
@@ -78,7 +78,7 @@ NetworkManager::NetworkManager()
     };
 
     emitMap[Protocol::ExtendMessageHistoryAccept] = [&](const QJsonObject& m){
-        emit moreMessages(m["Username"].toString(), m["Messages"].toString());
+        emit moreMessages(m["Username"].toString(), m["Messages"].toArray());
     };
 
     emitMap[Protocol::ExtendMessageHistoryDenied] = [&](const QJsonObject& m){

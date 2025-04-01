@@ -15,7 +15,7 @@ public:
     static void destroyInstance();
 
     /*--------------------------------------------
-      USER CREATION/VALIDATION FUNCTIONS
+      USER CREATION/VALIDATION/DELETION FUNCTIONS
     --------------------------------------------*/
     //Checks if username is already used
     bool availUsername(const QString &);
@@ -26,6 +26,8 @@ public:
                     const QString & email, bool perm = 0, bool autoval = 0);
     //Validates user, returns 0 if something went wrong
     bool emailValidate(const QString & user, const QString & code);
+    //Removes user, returns 0 if something went wrong
+    //bool deleteUser(const QString & u);
     //Returns 1 if login credentials match a user
     bool loginValidate(const QString & user, const QString & pass);
     //Returns 1 if registration credentials are removed
@@ -36,12 +38,17 @@ public:
     /*--------------------------------------------
       MESSAGING FUNCTIONS
     --------------------------------------------*/
-    //returns 1 if stored messages updated
+    //returns 1 if stored private message
     bool storeMessage(const QJsonObject &);
+    //returns 1 if stored group message
+    bool storeGroupMessage(const QJsonObject &);
     //returns list of (length) messages separated by ":;:" beginning at start(0 is most recent message)
-    QString getMessages(const QString & u1, const QString & u2,
-                        int start = 0, int length = 50);
-
+    QJsonArray getMessages(const QString & u1, const QString & u2,
+                           int start = 0, int length = 50);
+    //same as getMessages but for groups
+    QJsonArray getGroupMessages(const QString & owner, const QString & name,
+                             int start = 0, int length = 50);
+    
     /*--------------------------------------------
       FRIEND FUNCTIONS
     --------------------------------------------*/
@@ -59,6 +66,18 @@ public:
     QStringList getFriendslist(const QString & user);
     //returns 1 if friendship exists
     bool areFriends(const QString & u1, const QString & u2);
+
+    /*--------------------------------------------
+      GROUP FUNCTIONS
+    --------------------------------------------*/
+    //returns 1 if new Group stored
+    bool newGroup(const QString & u, const QString & name);
+    //returns 1 if group deleted
+    //bool deleteGroup(const QString & u, const QString & name);
+    //Returns groups
+    QStringList getGroups(const QString & u);
+    //Returns list of group members
+    QStringList getGroupMembers(const QString & owner, const QString & name);
     
 private:
     dbHandler();

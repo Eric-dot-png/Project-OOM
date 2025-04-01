@@ -51,9 +51,9 @@ Client::Client()
     connect(nw, &NetworkManager::pmHistoryFound,this,&Client::initializeDMs);
     
     
-    connect(nw, &NetworkManager::detectedPM, this, [&](const QString& u, const QString& msg){
-        emit recievedDM(u,msg);
-    });
+    // connect(nw, &NetworkManager::detectedPM, this, [&](const QString& u, const QString& msg){
+    //     emit recievedDM(u,msg);
+    // });
 
     connect(nw, &NetworkManager::detectedFriendReq, this, [&](const QString& u){
         emit recievedFriendRequest(u);
@@ -274,21 +274,17 @@ void Client::initializeSession(const QString& user,
     emit loginSuccess();
 }
 
-void Client::initializeDMs(const QString& user, const QString& messages)
+void Client::initializeDMs(const QString& user, const QJsonArray & messages)
 {
     qDebug() << "Initializing dms";
     qDebug() << messages;
-    QStringList messagelist = messages.split(":;:");
-    qDebug() << messagelist;
-    QList<QJsonObject> messageJsonList;
-    for(const QString& str : messagelist)
-    {
-        QJsonDocument d = QJsonDocument::fromJson(str.toUtf8());
-        if(!d.isNull() && d.isObject())
-            messageJsonList.append(d.object());
-    }
-    qDebug() << messageJsonList;
-    emit discoverUserSucceed(user, messageJsonList);
+    // for(const QJsonObject & str : messages)
+    // {
+    //     QJsonDocument d = QJsonDocument::fromJson(str.toUtf8());
+    //     if(!d.isNull() && d.isObject())
+    //         messageJsonList.append(d.object());
+    // }
+    emit discoverUserSucceed(user, messages);
 }
 
 // Base state function: Called when a state cannot handle the given message.
@@ -362,15 +358,21 @@ void Client::LoggedInState::handle(const QJsonObject & m)
         case Protocol::ExtendMessageHistoryAccept:
         {
             qDebug() << "Recieved extension.";
-            QStringList messagelist = m["Messages"].toString().split(":;:");
-            QList<QJsonObject> msgs;
-            for(QString str : messagelist)
+            if(m["Messages"].isArray())
             {
-                QJsonDocument d = QJsonDocument::fromJson(str.toUtf8());
-                if(!d.isNull() && d.isObject())
-                    msgs.append(d.object());
+                QJsonArray messagelist = m["Messages"].toArray();
+            // for(QString str : messagelist)
+            // {
+            //     QJsonDocument d = QJsonDocument::fromJson(str.toUtf8());
+            //     if(!d.isNull() && d.isObject())
+            //         msgs.append(d.object());
+            // }
+                emit Client::getInstance()->extendMsgSucceed(m["Username"].toString(), messagelist);
             }
-            emit Client::getInstance()->extendMsgSucceed(m["Username"].toString(), msgs);
+            else
+            {
+                qDebug() << "Messages not retrieved...";
+            }
             break;
         }
         case Protocol::FriendListAccept:
@@ -449,15 +451,22 @@ void Client::LoggedInState::handle(const QJsonObject & m)
         case Protocol::DiscoveryAccept:
         {
             // Discovery request succeeded, handle the returned message data.
-            QStringList messagelist = m["Messages"].toString().split(":;:");
-            QList<QJsonObject> messageJsonList;
-            for(QString str : messagelist)
+            if(m["Messages"].isArray())
             {
-                QJsonDocument d = QJsonDocument::fromJson(str.toUtf8());
-                if(!d.isNull() && d.isObject())
-                    messageJsonList.append(d.object());
+                QJsonArray messagelist = m["Messages"].toArray();
+            // QList<QJsonObject> messageJsonList;
+            // for(QString str : messagelist)
+            // {
+            //     QJsonDocument d = QJsonDocument::fromJson(str.toUtf8());
+            //     if(!d.isNull() && d.isObject())
+            //         messageJsonList.append(d.object());
+            // }
+                emit Client::getInstance()->discoverUserSucceed(m["Username"].toString(), messagelist);
             }
-            emit Client::getInstance()->discoverUserSucceed(m["Username"].toString(), messageJsonList);
+            else
+            {
+                qDebug() << "discovery messages not found...";
+            }
             break;
         }
         case Protocol::DiscoveryFail:

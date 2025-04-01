@@ -72,20 +72,20 @@ signals:
     void accountAuthenticationFail();
     void discoverUserFail(const QString& username);
     void discoverUserSucceed(const QString& username,
-                             const QList<QJsonObject> & messageJsonList);
+                             const QJsonArray & messageJsonList);
     void recievedDM(const QString& from, const QString& msg);
     void recievedFriendRequest(const QString& from);
     void recievedFriendRemove(const QString& from);
     void sendFriendRequestList(const QString& user, const QStringList& list);
     void sendFriendList(const QString& user, const QStringList& list);
     
-    void extendMsgSucceed(const QString& user,const QList<QJsonObject>& msgs);
+    void extendMsgSucceed(const QString& user,const QJsonArray & msgs);
                                                                              
 private slots: // these are functions that are connected to signals
     void initializeSession(const QString& username,
                            const QStringList& friends,
                            const QStringList& friendRqs);
-    void initializeDMs(const QString& user, const QString& msgs);
+    void initializeDMs(const QString& user, const QJsonArray & msgs);
     
 private:
     Client();

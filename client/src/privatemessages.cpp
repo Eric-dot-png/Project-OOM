@@ -55,7 +55,7 @@ PrivateMessages::PrivateMessages(QWidget *parent)
     });
 
     // If searching for a user succeeds, load the conversation with that user
-    connect(client, &Client::discoverUserSucceed, this, [=](const QString& username, const QList<QJsonObject> & messageJsonList){
+    connect(client, &Client::discoverUserSucceed, this, [=](const QString& username, const QJsonArray & messageJsonList){
         ui->userNotFoundLabel->clear();
         ui->friendNameLabel->setText("Now messaging: " + username);
 
@@ -66,9 +66,8 @@ PrivateMessages::PrivateMessages(QWidget *parent)
         messagingList->addUserToDMList(currentlyMessaging);
 
         // Populate the text browser with the returned messages (server history)
-        for (auto it = messageJsonList.rbegin(); it != messageJsonList.rend(); ++it)
+        for (auto obj : messageJsonList)
         {
-            QJsonObject obj = *it;
             QString to   = obj["To"].toString();
             QString from = obj["From"].toString();
             QString msg  = obj["Message"].toString();

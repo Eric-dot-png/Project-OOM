@@ -16,8 +16,6 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-use DSDB;
-
 --
 -- Table structure for table `FriendRequest`
 --
@@ -174,6 +172,8 @@ CREATE TABLE `PrivMessage` (
 
 LOCK TABLES `PrivMessage` WRITE;
 /*!40000 ALTER TABLE `PrivMessage` DISABLE KEYS */;
+INSERT INTO `PrivMessage` VALUES
+('test1','test2','2025-04-01 21:49:56','DOES THIS WORK???',0);
 /*!40000 ALTER TABLE `PrivMessage` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -215,8 +215,9 @@ CREATE TABLE `User` (
   `username` varchar(100) NOT NULL,
   `password` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
-  `permissions` tinyint(1) NOT NULL,
-  PRIMARY KEY (`username`)
+  `permissions` tinyint(1) NOT NULL DEFAULT 0,
+  `deleted` tinyint(1) NOT NULL DEFAULT 0,
+  KEY `username` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -226,6 +227,9 @@ CREATE TABLE `User` (
 
 LOCK TABLES `User` WRITE;
 /*!40000 ALTER TABLE `User` DISABLE KEYS */;
+INSERT INTO `User` VALUES
+('test1','1809192717','bspat11037@gmail.com',0,0),
+('test2','1713550986','bspat11037@gmail.com',0,0);
 /*!40000 ALTER TABLE `User` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -238,4 +242,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-24  8:36:49
+-- Dump completed on 2025-04-01 14:52:22

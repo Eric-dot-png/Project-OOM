@@ -261,8 +261,8 @@ void Server::handleDiscoveryRequest(QTcpSocket * client,
     bool existing_user = db->userExists(usrname);
     if (existing_user)
     {
-        QString msgHist = db->getMessages(m["CurrUser"].toString(),
-                                          usrname);
+        QJsonArray msgHist = db->getMessages(m["CurrUser"].toString(),
+                                             usrname);
         writeToSocket(client, Protocol::DiscoveryAccept,
                       {usrname, msgHist});
     }
@@ -416,7 +416,7 @@ void Server::handleExtendMessageHistory(QTcpSocket * client,
         QString requester = m["CurrUser"].toString();
         qint64 start = m["Start"].toInt();
 
-        QString msgs = db->getMessages(requester, usrname, start);
+        QJsonArray msgs = db->getMessages(requester, usrname, start);
         writeToSocket(client, Protocol::ExtendMessageHistoryAccept,
                       {usrname, msgs});
     }

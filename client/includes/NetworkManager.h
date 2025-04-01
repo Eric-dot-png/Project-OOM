@@ -67,11 +67,11 @@ signals:
     void accAuthPass();
     void accAuthFail();
     void userDNE(const QString& user);
-    void pmHistoryFound(const QString& user, const QString& messages);
-    void detectedPM(const QString& from, const QString& message);
+    void pmHistoryFound(const QString& user, const QJsonArray & messages);
+    void detectedPM(const QString& from, const QString & message);
     void detectedFriendReq(const QString& from);
     void detectedFriendRM(const QString& from);
-    void moreMessages(const QString& user, const QString& messages);
+    void moreMessages(const QString& user, const QJsonArray & messages);
     void failedMoreMessages(const QString& user);
 private:
     QTcpSocket * socket;
