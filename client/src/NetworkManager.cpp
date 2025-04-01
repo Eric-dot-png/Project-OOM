@@ -62,7 +62,7 @@ NetworkManager::NetworkManager()
     
     emitMap[Protocol::DiscoveryAccept] = [&](const QJsonObject& m){
         emit pmHistoryFound(m["Username"].toString(),
-                            m["Messsages"].toString());
+                            m["Messages"].toString());
     };
     
     emitMap[Protocol::PrivateMessage] = [&](const QJsonObject& m){
@@ -75,6 +75,14 @@ NetworkManager::NetworkManager()
 
     emitMap[Protocol::FriendRemoved] = [&](const QJsonObject& m){
         emit detectedFriendRM(m["From"].toString());
+    };
+
+    emitMap[Protocol::ExtendMessageHistoryAccept] = [&](const QJsonObject& m){
+        emit moreMessages(m["Username"].toString(), m["Messages"].toString());
+    };
+
+    emitMap[Protocol::ExtendMessageHistoryDenied] = [&](const QJsonObject& m){
+        emit failedMoreMessages(m["Username"].toString());
     };
 }
 
@@ -130,6 +138,32 @@ void NetworkManager::forwardFriendReq(const QString& to, const QString& from)
     const
 {
     writeToServer(Protocol::FriendRequest, {from, to});
+}
+
+
+void NetworkManager::forwardFriendAccept(const QString& to,
+                                         const QString& from) const
+{
+    writeToServer(Protocol::FriendAccept, {from, to});
+}
+
+void NetworkManager::forwardFriendDeny(const QString& to, const QString& from)
+    const
+{
+    writeToServer(Protocol::FriendDenied, {from, to});
+}
+
+void NetworkManager::forwardFriendRemove(const QString& to,
+                                         const QString& from) const
+{
+    writeToServer(Protocol::FriendRemoved, {from, to});
+}
+
+void NetworkManager::requestMoreMessages(const QString& to,
+                                         const QString& from,
+                                         const qint64 current_amount) const
+{
+    writeToServer(Protocol::ExtendMessageHistory, {from,to,current_amount});
 }
 
 void NetworkManager::writeToServer(Protocol type,

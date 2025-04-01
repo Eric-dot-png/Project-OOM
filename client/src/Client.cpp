@@ -16,6 +16,8 @@ Client::Client()
     });
     
     connect(nw, &NetworkManager::loginValid, this, &Client::initializeSession);
+
+
     
     connect(nw, &NetworkManager::loginInvalid, this, [&](){
         state = ConnectedState::getInstance();
@@ -45,8 +47,9 @@ Client::Client()
     connect(nw, &NetworkManager::userDNE, this, [&](const QString& u){
         emit discoverUserFail(u);
     });
-
-    connect(nw, &NetworkManager::pmHistoryFound, this,&Client::initializeDMs);
+    
+    connect(nw, &NetworkManager::pmHistoryFound,this,&Client::initializeDMs);
+    
     
     connect(nw, &NetworkManager::detectedPM, this, [&](const QString& u, const QString& msg){
         emit recievedDM(u,msg);
@@ -187,60 +190,76 @@ void Client::friendRequest(const User& u)
 // Accepts a friend request from another user.
 void Client::acceptFriend(const User& u)
 {
-    if (state == LoggedInState::getInstance())
+    if (state == LoggedInState::getInstance() &&
+        current_user.getFriendRequestList().contains(u.get_username()))
     {
         qDebug() << "Accepting Friend Request";
-
-        qDebug() << "Mega Broken!";
+        current_user.removeFriendRequest(u.get_username());
+        current_user.addFriend(u.get_username());
+        nw->forwardFriendAccept(u.get_username(),current_user.get_username());
+    }
+    else if (state != LoggedInState::getInstance())
+    {
+        qDebug() << "Can't Accept Friend Request. current state:" << state; 
     }
     else
     {
-        qDebug() << "Can't Accept Friend Request. current state:" << state; 
+        qDebug() << u.get_username() << " is not requesting to be friend.";
+    }
+}
+
+void Client::denyFriend(const User& u)
+{
+    if (state == LoggedInState::getInstance() &&
+        current_user.getFriendRequestList().contains(u.get_username()))
+    {
+        qDebug() << "Denying Friend Request";
+        current_user.removeFriendRequest(u.get_username());
+        nw->forwardFriendDeny(u.get_username(), current_user.get_username());
+    }
+    else if (state != LoggedInState::getInstance())
+    {
+        qDebug() << "Can't Deny Friend Request. current state:" << state; 
+    }
+    else
+    {
+        qDebug() << u.get_username() << " is not requesting to be friend.";
+    }
+}
+
+// Removes a friend from both users (this one and u)
+void Client::removeFriend(const User& u)
+{
+    if (state == LoggedInState::getInstance() &&
+        current_user.getFriendsList().contains(u.get_username()))
+    {
+        qDebug() << "Removing Friend";
+        current_user.removeFriend(u.get_username());
+        nw->forwardFriendRemove(u.get_username(),current_user.get_username());
+    }
+    else if (state != LoggedInState::getInstance())
+    {
+        qDebug() << "Can't remove friend. current state:" << state;
+    }
+    else
+    {
+        qDebug() << u.get_username() << "is not on friendslist.";
     }
 }
 
 // Placeholder to extend a user's message history in the UI or logs.
 void Client::extendMessageHistory(const User& u, quint32 currentSize)
 {
-    //qDebug() << "not implimented yet";
     if (state == LoggedInState::getInstance())
     {
         qint64 size = static_cast<qint64>(currentSize);
         qDebug() << "Extending message history";
-        // writeToServer(Protocol::ExtendMessageHistory,
-        //               {current_user.get_username(), u.get_username(), size});
+        nw->requestMoreMessages(u.get_username(), current_user.get_username(),
+                                currentSize);
     }
     else
     {
         qDebug() << "Can't Extend message history, not in logged in state";
-    }
-}
-
-// Requests the list of pending friend requests for the given user.
-void Client::getFriendRequestList(const User &u)
-{
-    if (state == LoggedInState::getInstance())
-    {
-        qDebug() << "Getting friend Request List.";
-        // writeToServer(Protocol::FriendRequestList,
-        //               {u.get_username(), ""});
-    }
-    else
-    {
-        qDebug() << "Can't get friend request list. Current state:" << state;
-    }
-}
-
-// Requests the list of all friends for the given user.
-void Client::getFriendsList(const User &u)
-{
-    if (state == LoggedInState::getInstance())
-    {
-        qDebug() << "Getting friend list.";
-    }
-    else
-    {
-        qDebug() << "Can't get friend list. Current state:" << state;
     }
 }
 
@@ -255,16 +274,20 @@ void Client::initializeSession(const QString& user,
     emit loginSuccess();
 }
 
-void Client::initializeDMs(const QString& user, const QString& msgs)
+void Client::initializeDMs(const QString& user, const QString& messages)
 {
-    QStringList messagelist = msgs.split(":;:");
+    qDebug() << "Initializing dms";
+    qDebug() << messages;
+    QStringList messagelist = messages.split(":;:");
+    qDebug() << messagelist;
     QList<QJsonObject> messageJsonList;
     for(const QString& str : messagelist)
     {
         QJsonDocument d = QJsonDocument::fromJson(str.toUtf8());
         if(!d.isNull() && d.isObject())
             messageJsonList.append(d.object());
-    } 
+    }
+    qDebug() << messageJsonList;
     emit discoverUserSucceed(user, messageJsonList);
 }
 

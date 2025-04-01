@@ -48,12 +48,16 @@ public:
     // exists to private message, if they do, their
     // message history is sent as well as their username
     void discover(const User& u);
-
+    
     void privateMessage(const User& u, const QString& message);
     
     void friendRequest(const User& u);
     
     void acceptFriend(const User& u);
+
+    void denyFriend(const User& u);
+    
+    void removeFriend(const User& u);
     
     void extendMessageHistory(const User& u, quint32 currentSize);
     

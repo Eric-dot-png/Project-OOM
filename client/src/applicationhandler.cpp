@@ -97,7 +97,7 @@ ApplicationHandler::ApplicationHandler(QWidget *parent)
         //     stackedWidget->addWidget(PrivateMessagesWidget);
         // }
 
-        client->getFriendsList(client->getUser());
+        //client->getFriendsList(client->getUser());
 
         qDebug() << "clientside loggedin";
         switchToWidget(stackedWidget->indexOf(PrivateMessagesWidget));

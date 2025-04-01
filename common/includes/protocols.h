@@ -106,7 +106,8 @@ namespace Serializers
     public:
         QByteArray operator()(const QList<QJsonValue>& argv)
         {
-            return serializeUtil(Protocol::LoginAccept, argv, {"Username"});
+            return serializeUtil(Protocol::LoginAccept, argv, {"Username",
+                                 "FriendsList", "FriendRequestList"});
         }
     };
 
@@ -449,7 +450,7 @@ namespace Serializers
         QByteArray operator()(const QList<QJsonValue>& argv)
         {
             return serializeUtil(Protocol::ExtendMessageHistoryDenied,
-                                 argv, {"Username", "Messages"});
+                                 argv, {"Username"});
         }
     };
     

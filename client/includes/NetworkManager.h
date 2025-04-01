@@ -34,20 +34,28 @@ public:
     void disconnect();
     
     void validateLogin(const QString& usr, const QString& pwd) const;
-
+    
     void setupAcc(const QString& usr, const QString& pwd,
                   const QString& eml) const;
     
     void authAcc(const QString& usr, const QString & pwd,
                     const QString& code) const;
-
+    
     void pmHistory(const QString& usr1, const QString& usr2) const;
     
     void forwardPM(const QString& to, const QString& from,
                    const QString& content) const;
-
-    void forwardFriendReq(const QString& to, const QString& from) const;
     
+    void forwardFriendReq(const QString& to, const QString& from) const;
+
+    void forwardFriendAccept(const QString& to, const QString& from) const;
+
+    void forwardFriendDeny(const QString& to, const QString& from) const;
+
+    void forwardFriendRemove(const QString& to, const QString& from) const;
+
+    void requestMoreMessages(const QString& to, const QString& from,
+                             const qint64 current_amount) const; 
 signals:
     void connected();
     void disconnected();
@@ -59,10 +67,12 @@ signals:
     void accAuthPass();
     void accAuthFail();
     void userDNE(const QString& user);
-    void pmHistoryFound(const QString& user, const QString& content);
+    void pmHistoryFound(const QString& user, const QString& messages);
     void detectedPM(const QString& from, const QString& message);
     void detectedFriendReq(const QString& from);
     void detectedFriendRM(const QString& from);
+    void moreMessages(const QString& user, const QString& messages);
+    void failedMoreMessages(const QString& user);
 private:
     QTcpSocket * socket;
     std::unordered_map<Protocol,std::function<void(QJsonObject)>> emitMap;

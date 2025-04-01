@@ -27,6 +27,16 @@ bool numeric(const QString & s)
     return 1;
 }
 
+QJsonArray toJArray(const QStringList& li)
+{
+    QJsonArray ret;
+    
+    for (const QString& v : li)
+        ret.append(v);
+    
+    return ret;
+}
+
 // Static pointer for the singleton instance of Server
 Server * Server::instance(NULL);
 
@@ -111,17 +121,11 @@ void Server::onNewConnection()
         // Check the protocol type to decide which operation to perform
         switch(type)
         {
-            // case Protocol::ExtendMessageHistory:
-            // {
-            //     bool existing_user = db->userExists(usrname);
-            //     if (existing_user)
-            //     {
-            //         QString msgHist = db->getMessages(
-            //             m["CurrUser"].toString(), usrname);
-            //     }
-                
-            //     break;
-            // }
+            case Protocol::ExtendMessageHistory:
+            {
+                handleExtendMessageHistory(client, m);
+                break;
+            }
             case Protocol::FriendRequest:
             {
                 handleFriendRequest(m, data);
@@ -130,6 +134,11 @@ void Server::onNewConnection()
             case Protocol::FriendAccept:
             {
                 handleFriendAccept(m, data);
+                break;
+            }
+            case Protocol::FriendDenied:
+            {
+                handleFriendDenied(m, data);
                 break;
             }
             case Protocol::FriendRemoved:
@@ -222,10 +231,17 @@ void Server::handleFriendAccept(const QJsonObject & m,
     writeToUserRaw(m["To"].toString(), data);
 }
 
+void Server::handleFriendDenied(const QJsonObject& m, const QByteArray& data)
+{
+    db->removeFriendRequest(m["From"].toString(), m["To"].toString());
+    writeToUserRaw(m["To"].toString(), data);
+}
+
 void Server::handleFriendRemoved(QTcpSocket * client, const QJsonObject & m,
                                  const QByteArray & data)
 {
-    // Placeholder for friend removal logic (not fully implemented)
+    db->removeFriend(m["From"].toString(), m["To"].toString());
+    writeToUserRaw(m["To"].toString(), data);
 }
 
 void Server::handlePrivateMessage(const QJsonObject & m,
@@ -265,7 +281,11 @@ void Server::handleLoginRequest(QTcpSocket * client, const QJsonObject & m)
     if (db->loginValidate(usr, pwd))
     {
         // If valid, notify the client and mark the user as online
-        writeToSocket(client, Protocol::LoginAccept, {usr});
+        QJsonArray fs = toJArray(db->getFriendslist(usr));
+        QJsonArray frs = toJArray(db->getFriendRequests(usr));
+        
+        writeToSocket(client, Protocol::LoginAccept, {usr, fs, frs});
+        
         onlineUserMap[usr] = client;
     }
     else
@@ -384,4 +404,24 @@ void Server::handleFriendRequestList(QTcpSocket * client,
         writeToSocket(client, Protocol::FriendRequestListAccept, {usr, j});
     else
         writeToSocket(client, Protocol::FriendRequestListFailed, {usr, j});
+}
+
+void Server::handleExtendMessageHistory(QTcpSocket * client,
+                                        const QJsonObject & m)
+{
+    QString usrname = m["Username"].toString();
+    bool existing_user = db->userExists(usrname);
+    if (existing_user)
+    {
+        QString requester = m["CurrUser"].toString();
+        qint64 start = m["Start"].toInt();
+
+        QString msgs = db->getMessages(requester, usrname, start);
+        writeToSocket(client, Protocol::ExtendMessageHistoryAccept,
+                      {usrname, msgs});
+    }
+    else
+    {
+        writeToSocket(client, Protocol::ExtendMessageHistoryDenied,{usrname});
+    }
 }

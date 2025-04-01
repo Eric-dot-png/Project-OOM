@@ -47,6 +47,7 @@ private:
     ----------------------------------------------------------------*/
     void handleFriendRequest(const QJsonObject &, const QByteArray &);
     void handleFriendAccept(const QJsonObject &, const QByteArray &);
+    void handleFriendDenied(const QJsonObject&, const QByteArray&);
     void handleFriendRemoved(QTcpSocket *, const QJsonObject &,
                              const QByteArray &);
     // ^^ !! ^^ NOT IMPLEMENTED ^^ !! ^^
@@ -58,6 +59,8 @@ private:
     void handleCreateAccountRequest(QTcpSocket *, const QJsonObject &);
     void handleFriendList(QTcpSocket *, const QJsonObject &);
     void handleFriendRequestList(QTcpSocket *, const QJsonObject &);
+    void handleExtendMessageHistory(QTcpSocket *, const QJsonObject&);
+                
     
     static Server * instance;
 

@@ -55,6 +55,26 @@ public:
         return friendList;
     }
 
+    void removeFriend(const QString& user)
+    {
+        friendList.removeOne(user);
+    }
+
+    void removeFriendRequest(const QString& user)
+    {
+        friendRequestList.removeOne(user);
+    }
+    
+    void addFriendRequestList(const QString& user)
+    {
+        friendRequestList.append(user);
+    }
+    
+    void addFriend(const QString& user)
+    {
+        friendList.append(user);
+    }
+    
     //QVariant needs these idfk why. it wont compile without them
     //Also qHash below
 
