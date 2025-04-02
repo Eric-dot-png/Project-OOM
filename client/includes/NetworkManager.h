@@ -70,6 +70,8 @@ signals:
     void pmHistoryFound(const QString& user, const QJsonArray & messages);
     void detectedPM(const QString& from, const QString & message);
     void detectedFriendReq(const QString& from);
+    void detectedFriendAccept(const QString& from);
+    void detectedFriendDeny(const QString& from);
     void detectedFriendRM(const QString& from);
     void moreMessages(const QString& user, const QJsonArray & messages);
     void failedMoreMessages(const QString& user);

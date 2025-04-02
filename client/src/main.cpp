@@ -14,6 +14,8 @@
 #include "oomwidget.h"
 #include "Client.h"
 
+#include "TextGui.h"
+
 void applyStyleSheet(const QString &styleSheetPath) {
     QFile file(styleSheetPath);
     qDebug() << "Resource Path Test:" << QFile(":/stylesheets/stylesheets/lightmode.qss").exists();
@@ -35,7 +37,7 @@ void customMessageHandler(QtMsgType type, const QMessageLogContext &context,
                           const QString &msg)
 {
     if (!QString(context.category).startsWith("qt")) {
-        QTextStream(stdout) << msg << Qt::endl;
+        QTextStream(stdout) << "DEBUG: " << msg << Qt::endl;
     }
 }
 
@@ -57,20 +59,36 @@ int main(int argc, char *argv[])
     
     declareOOMtypes();
 
+    bool textMode = false; // text gui or not
+    
     //Main app
     QApplication a(argc, argv);
-    QApplication::setStyle(QStyleFactory::create("Fusion"));
-    applyStyleSheet(":/stylesheets/stylesheets/lightmode.qss");
-    
+
     Client * c = Client::getInstance();
-    OOMWidget::setClient(c);
-    
-    OOMWidget *mainWidget = new OOMWidget();
-    mainWidget->startApp();
+    OOMWidget * mainWidget = NULL;
+    TextGui * gui;
+    if (textMode)
+    {
+        gui = new TextGui();
+        gui->listCommands();
+    }
+    else
+    {
+        QApplication::setStyle(QStyleFactory::create("Fusion"));
+        applyStyleSheet(":/stylesheets/stylesheets/lightmode.qss");
+        
+        OOMWidget::setClient(c);
+        
+        mainWidget = new OOMWidget();
+        mainWidget->startApp();
+    }
     
     int out = a.exec();
 
-    delete mainWidget;
+    if (!textMode)
+    {
+        delete mainWidget;
+    }
     Client::destroyInstance();
     Serializers::destroyInstances();
     

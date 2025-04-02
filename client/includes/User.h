@@ -65,7 +65,7 @@ public:
         friendRequestList.removeOne(user);
     }
     
-    void addFriendRequestList(const QString& user)
+    void addFriendRequest(const QString& user)
     {
         friendRequestList.append(user);
     }

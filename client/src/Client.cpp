@@ -54,12 +54,22 @@ Client::Client()
     // connect(nw, &NetworkManager::detectedPM, this, [&](const QString& u, const QString& msg){
     //     emit recievedDM(u,msg);
     // });
-
+    
     connect(nw, &NetworkManager::detectedFriendReq, this, [&](const QString& u){
+        current_user.addFriendRequest(u);
         emit recievedFriendRequest(u);
     });
 
+    connect(nw, &NetworkManager::detectedFriendAccept, this, [&](const QString& u){
+        current_user.addFriend(u);
+    });
+
+    connect(nw, &NetworkManager::detectedFriendDeny, this, [&](const QString& u) {
+        // do nothing
+    });
+    
     connect(nw, &NetworkManager::detectedFriendRM, this, [&](const QString& u){
+        current_user.removeFriend(u);
         emit recievedFriendRemove(u);
     });
 }
@@ -267,6 +277,7 @@ void Client::initializeSession(const QString& user,
                                const QStringList& fs,
                                const QStringList& frs)
 {
+    qDebug() << "Client :" << user << frs.join(", ") << fs.join(", "); 
     state = LoggedInState::getInstance();
     current_user = User(user);
     current_user.setFriendList(fs);

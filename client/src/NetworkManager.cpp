@@ -31,8 +31,8 @@ NetworkManager::NetworkManager()
         };
         
         QString user = m["Username"].toString();
-        QStringList friends = toQStringList(m["FriendList"].toArray());
-        QStringList friendRs = toQStringList(m["FriendRequests"].toArray());
+        QStringList friends = toQStringList(m["FriendsList"].toArray());
+        QStringList friendRs =toQStringList(m["FriendRequestList"].toArray());
         emit loginValid(user, friends, friendRs);
     };
     
@@ -73,6 +73,14 @@ NetworkManager::NetworkManager()
         emit detectedFriendReq(m["From"].toString());
     };
 
+    emitMap[Protocol::FriendAccept] = [&](const QJsonObject& m){
+        emit detectedFriendAccept(m["From"].toString());
+    };
+    
+    emitMap[Protocol::FriendDenied] = [&](const QJsonObject& m){
+        emit detectedFriendDeny(m["From"].toString());
+    };
+    
     emitMap[Protocol::FriendRemoved] = [&](const QJsonObject& m){
         emit detectedFriendRM(m["From"].toString());
     };
