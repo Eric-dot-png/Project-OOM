@@ -181,6 +181,16 @@ void Server::onNewConnection()
                 handleFriendRequestList(client, m);
                 break;
             }
+            case Protocol::CreateGroupRequest:
+            {
+                handleCreateGroupRequest(client, m);
+                break;
+            }
+            case Protocol::GroupMessage:
+            {
+                handleGroupMessage(m, data);
+                break;
+            }
             default:
             {
                 // Handle unexpected protocol types
@@ -424,4 +434,46 @@ void Server::handleExtendMessageHistory(QTcpSocket * client,
     {
         writeToSocket(client, Protocol::ExtendMessageHistoryDenied,{usrname});
     }
+}
+
+void Server::handleCreateGroupRequest(QTcpSocket * client,
+                                      const QJsonObject & m)
+{
+    QString owner = m["Username"].toString();
+    QString name = m["GroupName"].toString();
+    bool avail = db->availGroup(owner, name);
+    if(avail)
+    {
+        if(m["Members"].isArray())
+        {
+            QStringList members;
+            QJsonArray marray = m["Members"].toArray();
+            for(const QJsonValue & mem : marray)
+                members.append(mem.toString());
+            bool success = db->newGroup(owner, name, members);
+            if(success)
+                writeToSocket(client, Protocol::CreateGroupAccept,
+                              {owner, name, marray});
+            else
+                writeToSocket(client, Protocol::CreateGroupFail,
+                              {owner, name, "Couldn't create group"});
+        }
+        else
+            writeToSocket(client, Protocol::CreateGroupFail,
+                          {owner, name, "invalid member format"});
+    }
+    else
+        writeToSocket(client, Protocol::CreateGroupFail,
+                      {owner, name, "Group name already used"});
+}
+
+void Server::handleGroupMessage(const QJsonObject & m,
+                                const QByteArray & data)
+{
+    // Store the private message in the database, then pass it to the recipient.
+    db->storeGroupMessage(m);
+    QStringList members = db->getGroupMembers(m["Owner"].toString(),
+                                              m["GroupName"].toString());
+    for(const QString & member : members)
+        writeToUserRaw(member, data);
 }

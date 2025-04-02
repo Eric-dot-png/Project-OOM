@@ -159,7 +159,7 @@ bool dbHandler::emailValidate(const QString & user, const QString & code)
     }
     QString pass = row[1];
     QString email = row[2];
-    bool perm = row[3] == "1";
+    bool perm = atoi(row[3]);
     mysql_free_result(result);
 
     // Begin a MySQL transaction
@@ -535,27 +535,109 @@ bool dbHandler::areFriends(const QString & u1, const QString & u2)
     return res;
 }
 
-//creates a new group in db
-bool dbHandler::newGroup(const QString & u, const QString & name)
+int dbHandler::getGroupId(const QString & owner, const QString & name)
 {
+    MYSQL_RES * result;
+    MYSQL_ROW row;
+    std::stringstream ss;
+    ss << "select id from GroupInfo where owner='" << owner.toStdString()
+       << "' and name='" << name.toStdString() << "' and not deleted";
+    if(mysql_query(connection, ss.str().c_str()))
+    {
+        qDebug() << "Could not get group id";
+        return -1;
+    }
+    result = mysql_store_result(connection);
+    row = mysql_fetch_row(result);
+    int id = atoi(row[0]);
+    
+    mysql_free_result(result);
+
+    return id;
+}
+
+//checks if user can make a group with name
+bool dbHandler::availGroup(const QString & u, const QString & name)
+{
+    MYSQL_RES * result;
+    std::stringstream ss;
+    ss << "select * from GroupInfo where owner='" << u.toStdString()
+       << "' and name='" << name.toStdString() << "' and not deleted";
+    if(mysql_query(connection, ss.str().c_str()))
+    {
+        qDebug() << "Couldn't search groups";
+        return 0;
+    }
+    result = mysql_store_result(connection);
+    bool res = mysql_fetch_row(result) == NULL;
+    mysql_free_result(result);
+    return res;
+}
+
+//creates a new group in db
+bool dbHandler::newGroup(const QString & u, const QString & name,
+                         const QStringList & members)
+{
+    if(mysql_query(connection, "start transaction"))
+    {
+        qDebug() << "Couldn't start transaction in newGroup";
+        return 0;
+    }
+    
     std::stringstream ss;
     ss << "insert GroupInfo(owner, name) values('" << u.toStdString()
        << "', '" << name.toStdString() << "')";
     if(mysql_query(connection, ss.str().c_str()))
     {
         qDebug() << "Couldn't insert new group\n";
+        mysql_query(connection, "rollback");
+        return 0;
+    }
+
+    int id = getGroupId(u, name);
+    
+    for(const QString & m : members)
+    {
+        bool success = addGroupMember(id, m);
+        if(!success)
+        {
+            mysql_query(connection, "rollback");
+            return 0;
+        }
+    }
+    mysql_query(connection, "commit");
+    
+    return 1;
+}
+
+bool dbHandler::addGroupMember(int groupId, const QString & mem)
+{
+    std::stringstream ss;
+    ss << "insert GroupMember(groupId, user) values(" << groupId << ", '"
+       << mem.toStdString() << "')";
+    if(mysql_query(connection, ss.str().c_str()))
+    {
+        qDebug() << "Couldn't add member to group";
         return 0;
     }
     return 1;
 }
 
+bool dbHandler::addGroupMember(const QString & owner, const QString & name,
+                    const QString & mem)
+{
+    int id = getGroupId(owner, name);
+    if(id == -1)
+        return 0;
+    return addGroupMember(id, mem);
+}
+
 //returns groups of user in Owner:Name format
-QStringList dbHandler::getGroups(const QString & u)
+QJsonArray dbHandler::getGroups(const QString & u)
 {
     MYSQL_RES * result;
     MYSQL_ROW row;
-    QStringList ret;
-
+    
     std::stringstream ss;
     ss << "select owner, name from GroupInfo join GroupMember on id=groupId "
        << "where user='" << u.toStdString() << "'";
@@ -567,13 +649,14 @@ QStringList dbHandler::getGroups(const QString & u)
     
     result = mysql_store_result(connection);
     row = mysql_fetch_row(result);
+    QJsonArray ret;
     // Each row is one group
     while (row != NULL)
     {
-        QString t = row[0];
-        t += ":";
-        t += row[1];
-        ret.push_back(t);
+        ret.push_back(QJsonObject({
+                    {"Owner", row[0]},
+                    {"Name", row[1]}
+                }));
         row = mysql_fetch_row(result);
     }
     mysql_free_result(result);
@@ -588,23 +671,14 @@ QStringList dbHandler::getGroupMembers(const QString & owner,
     MYSQL_ROW row;
     QStringList ret;
 
-    std::stringstream ss;
     //select groupid
-    ss << "select id from GroupInfo where owner='" << owner.toStdString()
-       << "' and name='" << name.toStdString() << "'";
-    if(mysql_query(connection, ss.str().c_str()))
-    {
-        qDebug() << "group select fail";
+    int id = getGroupId(owner, name);
+    if(id == -1)
         return {};
-    }
-    result = mysql_store_result(connection);
-    row = mysql_fetch_row(result);
-    QString id = row[0];
-    mysql_free_result(result);
-    ss.flush();
     
     //select members
-    ss << "select user from GroupMember where groupId=" << id.toStdString();
+    std::stringstream ss;
+    ss << "select user from GroupMember where groupId=" << id;
     if (mysql_query(connection, ss.str().c_str()))
     {
         qDebug() << "select fail in getGroupMembers()";

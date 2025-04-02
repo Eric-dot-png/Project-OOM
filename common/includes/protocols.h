@@ -44,7 +44,11 @@ enum class Protocol
     FriendRequestListFailed,
     ExtendMessageHistory,
     ExtendMessageHistoryAccept,
-    ExtendMessageHistoryDenied
+    ExtendMessageHistoryDenied,
+    CreateGroupRequest,
+    CreateGroupAccept,
+    CreateGroupFail,
+    GroupMessage
 };
 
 /*
@@ -453,7 +457,63 @@ namespace Serializers
                                  argv, {"Username"});
         }
     };
-    
+
+    class CreateGroupRequest : public AbstractSerializer,
+                               public Singleton<CreateGroupRequest>
+    {
+        friend class Singleton<CreateGroupRequest>;
+    private:
+        CreateGroupRequest() = default;
+    public:
+        QByteArray operator()(const QList<QJsonValue>& argv)
+        {
+            return serializeUtil(Protocol::CreateGroupRequest,
+                                 argv, {"Username", "GroupName", "Members"});
+        }
+    };
+
+    class CreateGroupAccept : public AbstractSerializer,
+                               public Singleton<CreateGroupAccept>
+    {
+        friend class Singleton<CreateGroupAccept>;
+    private:
+        CreateGroupAccept() = default;
+    public:
+        QByteArray operator()(const QList<QJsonValue>& argv)
+        {
+            return serializeUtil(Protocol::CreateGroupAccept,
+                                 argv, {"Username", "GroupName", "Members"});
+        }
+    };
+
+    class CreateGroupFail : public AbstractSerializer,
+                               public Singleton<CreateGroupFail>
+    {
+        friend class Singleton<CreateGroupFail>;
+    private:
+        CreateGroupFail() = default;
+    public:
+        QByteArray operator()(const QList<QJsonValue>& argv)
+        {
+            return serializeUtil(Protocol::CreateGroupFail,
+                                 argv, {"Username", "GroupName", "Message"});
+        }
+    };
+
+    class GroupMessage : public AbstractSerializer,
+                           public Singleton<GroupMessage>
+    {
+        friend class Singleton<GroupMessage>;
+    private:
+        GroupMessage() = default;
+    public:
+        QByteArray operator()(const QList<QJsonValue>& argv)
+        {
+            return serializeUtil(Protocol::GroupMessage,
+                                 argv, {"Owner","Name","From","Message"});
+        }
+    };
+
     // destroy all serializer instances. called in the bottom of both main.cpp
     void destroyInstances();
 };

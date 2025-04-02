@@ -70,12 +70,21 @@ public:
     /*--------------------------------------------
       GROUP FUNCTIONS
     --------------------------------------------*/
-    //returns 1 if new Group stored
-    bool newGroup(const QString & u, const QString & name);
+    //returns group id
+    int getGroupId(const QString & owner, const QString & name);
+    //returns 1 if group name is available
+    bool availGroup(const QString & u, const QString & name);
+    //returns 1 if new Group stored and members added
+    bool newGroup(const QString & u, const QString & name,
+                  const QStringList & members);
+    //returns 1 if member added to group
+    bool addGroupMember(int groupId, const QString & mem);
+    bool addGroupMember(const QString & owner, const QString & name,
+                        const QString & mem);
     //returns 1 if group deleted
     //bool deleteGroup(const QString & u, const QString & name);
     //Returns groups
-    QStringList getGroups(const QString & u);
+    QJsonArray getGroups(const QString & u);
     //Returns list of group members
     QStringList getGroupMembers(const QString & owner, const QString & name);
     

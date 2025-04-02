@@ -54,7 +54,7 @@ Client::Client()
     connect(nw, &NetworkManager::detectedPM, this, [&](const QString& u, const QString& msg){
         emit recievedDM(u,msg);
     });
-    
+
     connect(nw, &NetworkManager::detectedFriendReq, this, [&](const QString& u){
         current_user.addFriendRequest(u);
         emit recievedFriendRequest(u);

@@ -16,6 +16,8 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
+use DSDB;
+
 --
 -- Table structure for table `FriendRequest`
 --
@@ -76,8 +78,9 @@ CREATE TABLE `GroupInfo` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `owner` varchar(100) NOT NULL,
   `name` varchar(100) DEFAULT NULL,
+  `deleted` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `owner` (`owner`,`name`),
+  KEY (`owner`,`name`),
   CONSTRAINT `GroupInfo_ibfk_1` FOREIGN KEY (`owner`) REFERENCES `User` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
