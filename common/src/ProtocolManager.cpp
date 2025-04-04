@@ -4,8 +4,7 @@
 #include "ProtocolManager.h"
 
 // protocol serializer instance map
-std::unordered_map<Protocol,
-                   Serializers::AbstractSerializer*> ProtocolManager::map = {
+std::unordered_map<Protocol, Serializers::AbstractSerializer*> ProtocolManager::map = {
     {Protocol::LoginRequest, Serializers::LoginRequest::getInstance()},
     {Protocol::LoginDenied, Serializers::LoginDenied::getInstance()},
     {Protocol::LoginAccept, Serializers::LoginAccept::getInstance()},
@@ -33,6 +32,12 @@ std::unordered_map<Protocol,
     {Protocol::FriendRequestList, Serializers::FriendRequestList::getInstance()},
     {Protocol::FriendRequestListAccept, Serializers::FriendRequestListAccept::getInstance()},
     {Protocol::FriendRequestListFailed, Serializers::FriendRequestListFailed::getInstance()},
+    {Protocol::ExtendMessageHistory,
+     Serializers::ExtendMessageHistory::getInstance()},
+    {Protocol::ExtendMessageHistoryAccept,
+     Serializers::ExtendMessageHistoryAccept::getInstance()},
+    {Protocol::ExtendMessageHistoryDenied,
+     Serializers::ExtendMessageHistoryDenied::getInstance()},
     {Protocol::CreateGroupRequest, Serializers::CreateGroupRequest::getInstance()},
     {Protocol::CreateGroupAccept, Serializers::CreateGroupAccept::getInstance()},
     {Protocol::CreateGroupFail, Serializers::CreateGroupFail::getInstance()},
