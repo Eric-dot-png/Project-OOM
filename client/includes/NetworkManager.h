@@ -55,12 +55,19 @@ public:
     void forwardFriendRemove(const QString& to, const QString& from) const;
 
     void requestMoreMessages(const QString& to, const QString& from,
-                             const qint64 current_amount) const; 
+                             const qint64 current_amount) const;
+
+    void forwardCreateGroup(const QString & owner, const QString & name,
+                            const QStringList & members) const;
+
+    void forwardGroupMessage(const QString & owner, const QString & name,
+                             const QString & from, const QString & message) const;
+    
 signals:
     void connected();
     void disconnected();
     void loginValid(const QString& usr, const QStringList& friends,
-                    const QStringList& friendRs);
+                    const QStringList& friendRs, const QJsonArray & groups);
     void loginInvalid();
     void accSetupPass(const QString& usr, const QString& pwd);
     void accSetupFail();
@@ -75,6 +82,8 @@ signals:
     void detectedFriendRM(const QString& from);
     void moreMessages(const QString& user, const QJsonArray & messages);
     void failedMoreMessages(const QString& user);
+    void createGroupFail(const QString & err);
+    void createGroupPass(const QString & name, const QStringList & members);
 private:
     QTcpSocket * socket;
     std::unordered_map<Protocol,std::function<void(QJsonObject)>> emitMap;

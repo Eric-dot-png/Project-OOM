@@ -33,7 +33,8 @@ NetworkManager::NetworkManager()
         QString user = m["Username"].toString();
         QStringList friends = toQStringList(m["FriendsList"].toArray());
         QStringList friendRs =toQStringList(m["FriendRequestList"].toArray());
-        emit loginValid(user, friends, friendRs);
+        QJsonArray groups = m["Groups"].toArray();
+        emit loginValid(user, friends, friendRs, groups);
     };
     
     emitMap[Protocol::LoginDenied] = [&](const QJsonObject& m){
@@ -91,6 +92,18 @@ NetworkManager::NetworkManager()
 
     emitMap[Protocol::ExtendMessageHistoryDenied] = [&](const QJsonObject& m){
         emit failedMoreMessages(m["Username"].toString());
+    };
+
+    emitMap[Protocol::CreateGroupAccept] = [&](const QJsonObject& m){
+        QJsonArray memArray = m["Members"].toArray();
+        QStringList members;
+        for(const auto & member : memArray)
+            members.append(member.toString());
+        emit createGroupPass(m["GroupName"].toString(), members);
+    };
+    
+    emitMap[Protocol::CreateGroupFail] = [&](const QJsonObject& m){
+        emit createGroupFail(m["Message"].toString());
     };
 }
 
@@ -174,6 +187,21 @@ void NetworkManager::requestMoreMessages(const QString& to,
     writeToServer(Protocol::ExtendMessageHistory, {from,to,current_amount});
 }
 
+void NetworkManager::forwardCreateGroup(const QString & owner,
+                                        const QString & name,
+                                        const QStringList & members) const
+{
+    QJsonArray marray = QJsonArray::fromStringList(members);
+    writeToServer(Protocol::CreateGroupRequest, {owner, name, marray});
+}
+
+void NetworkManager::forwardGroupMessage(const QString & owner,
+                                         const QString & name,
+                                         const QString & from,
+                                         const QString & message) const
+{
+    writeToServer(Protocol::GroupMessage, {owner, name, from, message});
+}
 void NetworkManager::writeToServer(Protocol type,
                                    const QList<QJsonValue> & argv) const
 {

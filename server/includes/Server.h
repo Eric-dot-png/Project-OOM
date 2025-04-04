@@ -60,7 +60,8 @@ private:
     void handleFriendList(QTcpSocket *, const QJsonObject &);
     void handleFriendRequestList(QTcpSocket *, const QJsonObject &);
     void handleExtendMessageHistory(QTcpSocket *, const QJsonObject&);
-    void handleCreateGroupRequest(QTcpSocket *, const QJsonObject &);
+    void handleCreateGroupRequest(QTcpSocket *, const QJsonObject &,
+                                  const QByteArray &);
     void handleGroupMessage(const QJsonObject &, const QByteArray &);
     
     static Server * instance;

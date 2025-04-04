@@ -26,6 +26,11 @@ public:
           QObject * parent = NULL)
         : ChatObject(getGroupName(members), members, owner, parent)
     {}
+    
+    Group(const std::unordered_set<QString> & members, const QString & owner,
+          const QString & name, QObject * parent = NULL)
+        : ChatObject(name, members, owner, parent)
+    {}
 };
 
 #endif 

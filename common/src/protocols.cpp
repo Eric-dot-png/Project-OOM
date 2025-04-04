@@ -47,6 +47,10 @@ namespace Serializers
         FriendRequestList::destroyInstance();
         FriendRequestListAccept::destroyInstance();
         FriendRequestListFailed::destroyInstance();
+        CreateGroupRequest::destroyInstance();
+        CreateGroupAccept::destroyInstance();
+        CreateGroupFail::destroyInstance();
+        GroupMessage::destroyInstance();
     }
 
 };

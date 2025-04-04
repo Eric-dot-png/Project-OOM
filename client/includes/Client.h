@@ -16,6 +16,7 @@
 #include "NetworkManager.h"
 #include "ChatObject.h"
 #include "DirectMessage.h"
+#include "Group.h"
 
 struct MessageObject
 {
@@ -75,6 +76,9 @@ public:
     void extendMessageHistory(const User&u);
     
     const ChatObject * getDMsWith(const QString& u) const;
+
+    void createGroup(const QString & name, const QStringList & members) const;
+   
 signals: 
     void connectedToServer();
     void disconnectedFromServer();
@@ -95,12 +99,20 @@ signals:
     void sendFriendList(const QString& user, const QStringList& list);
     
     void extendMsgSucceed(const QString& user,const QJsonArray & msgs);
-                                                                             
+                                                                      
+    void createGroupSucceed(const QString & name,
+                            const QStringList & members);
+    void createGroupDeny(const QString & err);
+                                             
 private slots: // these are functions that are connected to signals
     void initializeSession(const QString& username,
                            const QStringList& friends,
-                           const QStringList& friendRqs);
+                           const QStringList& friendRqs,
+                           const QJsonArray & groups);
     void initializeDMs(const QString& user, const QJsonArray & msgs);
+    void initializeGroups(const QString & owner, const QString & name,
+                          const std::unordered_set<QString> & members,
+                          const QJsonArray & messages);
 
     void handleDM(const QString& user, const QString& msg);
     void handleMoreMsgs(const QString& user, const QJsonArray & messages);
@@ -110,6 +122,7 @@ private:
 
     QString dmKey(const QString&) const;
     QString dmKey(const User&) const;
+    QString groupKey(const QString &) const;
     
     std::unordered_map<QString, ChatObject*> chats;
     

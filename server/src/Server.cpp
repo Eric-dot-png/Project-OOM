@@ -183,7 +183,7 @@ void Server::onNewConnection()
             }
             case Protocol::CreateGroupRequest:
             {
-                handleCreateGroupRequest(client, m);
+                handleCreateGroupRequest(client, m, data);
                 break;
             }
             case Protocol::GroupMessage:
@@ -293,8 +293,8 @@ void Server::handleLoginRequest(QTcpSocket * client, const QJsonObject & m)
         // If valid, notify the client and mark the user as online
         QJsonArray fs = toJArray(db->getFriendslist(usr));
         QJsonArray frs = toJArray(db->getFriendRequests(usr));
-        
-        writeToSocket(client, Protocol::LoginAccept, {usr, fs, frs});
+        QJsonArray groups = db->getGroups(usr);
+        writeToSocket(client, Protocol::LoginAccept, {usr, fs, frs, groups});
         
         onlineUserMap[usr] = client;
     }
@@ -437,7 +437,8 @@ void Server::handleExtendMessageHistory(QTcpSocket * client,
 }
 
 void Server::handleCreateGroupRequest(QTcpSocket * client,
-                                      const QJsonObject & m)
+                                      const QJsonObject & m,
+                                      const QByteArray & data)
 {
     QString owner = m["Username"].toString();
     QString name = m["GroupName"].toString();
@@ -452,8 +453,12 @@ void Server::handleCreateGroupRequest(QTcpSocket * client,
                 members.append(mem.toString());
             bool success = db->newGroup(owner, name, members);
             if(success)
+            {
                 writeToSocket(client, Protocol::CreateGroupAccept,
                               {owner, name, marray});
+                for(const QString & mem : members)
+                    writeToUserRaw(mem, data);
+            }
             else
                 writeToSocket(client, Protocol::CreateGroupFail,
                               {owner, name, "Couldn't create group"});

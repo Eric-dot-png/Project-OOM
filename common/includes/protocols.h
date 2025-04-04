@@ -111,7 +111,7 @@ namespace Serializers
         QByteArray operator()(const QList<QJsonValue>& argv)
         {
             return serializeUtil(Protocol::LoginAccept, argv, {"Username",
-                                 "FriendsList", "FriendRequestList"});
+                    "FriendsList", "FriendRequestList", "Groups"});
         }
     };
 

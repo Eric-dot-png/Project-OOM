@@ -73,6 +73,18 @@ Client::Client()
     });
 
     connect(nw, &NetworkManager::moreMessages, this, &Client::handleMoreMsgs);
+
+    connect(nw, &NetworkManager::createGroupPass, this, [&](const QString & name, const QStringList & members) {
+        std::unordered_set<QString> m;
+        for(const QString & s : members)
+            m.insert(s);
+        initializeGroups(current_user.get_username(), name, m, {});
+        emit createGroupSucceed(name, members);
+    });
+
+    connect(nw, &NetworkManager::createGroupFail, this, [&](const QString & err) {
+        emit createGroupDeny(err);
+    });
 }
 
 Client::~Client()
@@ -300,13 +312,23 @@ const ChatObject * Client::getDMsWith(const QString& u) const
 
 void Client::initializeSession(const QString& user,
                                const QStringList& fs,
-                               const QStringList& frs)
+                               const QStringList& frs,
+                               const QJsonArray & groups)
 {
-    qDebug() << "Intiailizing Session (user, friends, friend reqs)...";
+    qDebug() << "Intiailizing Session (user, friends, friend reqs, groups)...";
     state = LoggedInState::getInstance();
     current_user = User(user);
     current_user.setFriendList(fs);
     current_user.setFriendRequestList(frs);
+    for(const QJsonValue & v : groups)
+    {
+        QJsonArray memarray = v["Members"].toArray();
+        std::unordered_set<QString> members;
+        for(const auto mem : memarray)
+            members.insert(mem.toString());
+        initializeGroups(v["Owner"].toString(), v["GroupName"].toString(),
+                         members, {});
+    }
     emit loginSuccess();
     qDebug() << "Session initialized.";
 }
@@ -330,6 +352,21 @@ void Client::initializeDMs(const QString& user, const QJsonArray & messages)
     qDebug() << "Dms initialized";
 }
 
+void Client::initializeGroups(const QString & owner, const QString & name,
+                              const std::unordered_set<QString> & members,
+                              const QJsonArray & messages)
+{
+    qDebug() << "Initializing group...";
+    if(chats.find(groupKey(name)) != chats.end())
+    {
+        chats[groupKey(name)] = new Group(members, owner, name, this);
+        for(const QJsonValue & msg : messages)
+        {
+            Message m(msg["From"].toString(), name, msg["Message"].toString());
+            chats[groupKey(name)]->sendMessage(m);
+        }
+    }
+}
 void Client::handleDM(const QString& user, const QString& msg)
 {
     if (chats.find(dmKey(user)) != chats.end())
@@ -351,6 +388,11 @@ void Client::handleMoreMsgs(const QString& user, const QJsonArray & messages)
     }
 }
 
+void Client::createGroup(const QString & name, const QStringList & members) const
+{
+    nw->forwardCreateGroup(current_user.get_username(), name, members);
+}
+
 QString Client::dmKey(const QString& user) const
 {
     return QString("D:") + user;
@@ -359,6 +401,11 @@ QString Client::dmKey(const QString& user) const
 QString Client::dmKey(const User& u) const
 {
     return dmKey(u.get_username());
+}
+
+QString Client::groupKey(const QString & name) const
+{
+    return QString("G:") + name;
 }
 
 // Base state function: Called when a state cannot handle the given message.
