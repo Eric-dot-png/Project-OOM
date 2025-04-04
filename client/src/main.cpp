@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     
     declareOOMtypes();
 
-    bool textMode = false; // text gui or not
+    bool textMode = true; // text gui or not
     
     //Main app
     QApplication a(argc, argv);
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
     if (textMode)
     {
         gui = new TextGui();
-        gui->listCommands();
+        //gui->listCommands();
     }
     else
     {

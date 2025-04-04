@@ -4,13 +4,24 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
+#include <unordered_map>
+
 #include <QObject>
 #include <QDebug>
+#include <QTime>
 
 #include "config.h"
 #include "singleton.h"
 #include "User.h"
 #include "NetworkManager.h"
+#include "ChatObject.h"
+#include "DirectMessage.h"
+
+struct MessageObject
+{
+    QString sender, content;
+    QTime timestamp;
+};
 
 class Client : public QObject, public Singleton<Client>
 {
@@ -58,9 +69,12 @@ public:
     void denyFriend(const User& u);
     
     void removeFriend(const User& u);
-    
+
+    // this one right below not needed anymore...
     void extendMessageHistory(const User& u, quint32 currentSize);
+    void extendMessageHistory(const User&u);
     
+    const ChatObject * getDMsWith(const QString& u) const;
 signals: 
     void connectedToServer();
     void disconnectedFromServer();
@@ -86,10 +100,19 @@ private slots: // these are functions that are connected to signals
                            const QStringList& friends,
                            const QStringList& friendRqs);
     void initializeDMs(const QString& user, const QJsonArray & msgs);
-    
+
+    void handleDM(const QString& user, const QString& msg);
+    void handleMoreMsgs(const QString& user, const QJsonArray & messages);
 private:
     Client();
     ~Client();
+
+    QString dmKey(const QString&) const;
+    QString dmKey(const User&) const;
+    
+    //std::unordered_map<QString, QList<MessageObject>> pms;
+
+    std::unordered_map<QString, ChatObject*> chats;
     
     NetworkManager * nw;
     

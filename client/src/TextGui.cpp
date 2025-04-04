@@ -11,14 +11,12 @@ TextGui::TextGui()
 
     commandMap["whoami"] = {
         std::bind(&TextGui::whoAmI, this, std::placeholders::_1),
-        {},
-        "Shows the current instance's account username"
+        {}, "Shows the current instance's account username"
     };
     
     commandMap["lc"] = {
         std::bind(&TextGui::listCommands, this, std::placeholders::_1),
-        {},
-        "Shows all available cmds"
+        {}, "Shows all available cmds"
     };
 
     commandMap["create"] = {
@@ -62,34 +60,79 @@ TextGui::TextGui()
         {"Username"}, "Denies another user's friend request"
     };
 
-    commandMap["lfi"] = {
+    commandMap["vfi"] = {
         std::bind(&TextGui::listFriendInfo, this, std::placeholders::_1),
         {}, "Shows all Friend Requests and Friends"
     };
+
+    commandMap["vpm"] = {
+        std::bind(&TextGui::viewDMsWith, this, std::placeholders::_1),
+        {"User"}, "Shows the private message history with user."
+    };
+
+    commandMap["rmf"] = {
+        std::bind(&TextGui::removeFriend, this, std::placeholders::_1),
+        {"Friend"}, "Removes the friend from the friendlist"
+    };
+
+    commandMap["extend"] = {
+        std::bind(&TextGui::extendMsgHist, this, std::placeholders::_1),
+        {"User"}, "Asks the server for more pms with User."
+    };
+
+    
+    // welcome message
+    connect(client, &Client::connectedToServer, this,
+            &TextGui::welcomeMessage);
+}
+
+void TextGui::welcomeMessage()
+{
+    QTextStream cout(stdout);
+    cout << "Welcome to OOM (Text Edition)!\n";
+    cout << "Type \"lc\" (without quotes) to get started\n\n";
+    disconnect(client, &Client::connectedToServer, this,
+               &TextGui::welcomeMessage);
 }
 
 void TextGui::readStdin()
 {
-    QString input = cin.readLine().simplified();
+    QStringList line = cin.readLine().simplified().split(' ');
     QTextStream cout(stdout);
-    
-    if (commandMap.find(input) != commandMap.end())
+    QString input = line[0];
+    auto search = commandMap.find(input);
+    if (search != commandMap.end())
     {
-        Command * c = &commandMap.at(input);
+        Command c = search->second;
         qDebug() << "Valid Command.";
-        QStringList args;
-        for (const QString& argName : c->argNames)
+        QStringList args = {};
+        if (line.size() > 0) args = line.mid(1,line.size()-1);
+        for (int i=args.size();i<c.argNames.size();++i)
         {
-            cout << ">> Enter " << argName << ": ";
+            cout << ">> Enter " << c.argNames[i] << ": ";
             cout.flush();
             args.append(cin.readLine());
         }
         qDebug() << "Arguments: " << args;
-        c->call(args);
+        c.call(args);
     }
     else
     {
-        cout << "Unknown Command.";
+        cout << "Unknown Command.\n";
+    }
+}
+
+void TextGui::listCommands(const QStringList& args)
+{
+    qDebug() << "Listing Commands...";
+    QTextStream cout(stdout);
+    cout << "Available Commands:\n";
+    for (const auto &[name, cmd] : commandMap)
+    {
+        cout << "  " << name << " - " << "Description: " << cmd.desc << '\n'
+             << "  " << QString(' ').repeated(name.size()) << "   Arguments: "
+             << (cmd.argNames.size() == 0 ? "None" : cmd.argNames.join(", "))
+             << '\n';
     }
 }
 
@@ -101,20 +144,6 @@ void TextGui::whoAmI(const QStringList& args)
     cout << "Current Account: " << client->getUser().get_username() << '\n';
 }
 
-void TextGui::listCommands(const QStringList& args)
-{
-    qDebug() << "Listing Commands...";
-    
-    QTextStream cout(stdout);
-    cout << "Available Commands:\n";
-    for (const auto &[name, cmd] : commandMap)
-    {
-        cout << "  " << name << " - " << "Description: " << cmd.desc << '\n'
-             << "  " << QString(' ').repeated(name.size()) << "   Arguments: "
-             << (cmd.argNames.size() == 0 ? "None" : cmd.argNames.join(", "))
-             << '\n';
-    }
-}
 
 void TextGui::createAcc(const QStringList& args)
 {
@@ -149,6 +178,46 @@ void TextGui::privateMessage(const QStringList& args)
     client->privateMessage(User(args[0]), args[1]);
 }
 
+void TextGui::viewDMsWith(const QStringList& args)
+{
+    QTextStream cout(stdout);
+    try
+    {
+        const QList<Message> * dms = &client->getDMsWith(args[0])->allMessages();
+        for (int i=dms->size()-1;i>=0;--i)
+        {
+            const Message * m = &((*dms)[i]);
+            cout << m->get_sender() << ": "
+                 << m->get_msg() << '\n';
+        }    
+    }
+    catch (const std::runtime_error & error)
+    {
+        qDebug() << "WARNING: Dont forget to discover, no msgs found.";
+    }
+}
+
+void TextGui::extendMsgHist(const QStringList& args)
+{
+    qDebug() << "extending...";
+    client->extendMessageHistory(User(args[0]));
+}
+
+void TextGui::listFriendInfo(const QStringList& args)
+{
+    QTextStream cout(stdout);
+
+    User * current = &client->getUser();
+
+    cout << "Friend Requests:\n";
+    for (const QString& fr : current->getFriendRequestList())
+        cout << "   " << fr << '\n';
+
+    cout << "Friends:\n";
+    for (const QString& f : current->getFriendsList())
+        cout << "   " << f << '\n';    
+}
+
 void TextGui::friendRequest(const QStringList& args)
 {
     client->friendRequest(User(args[0]));
@@ -164,18 +233,7 @@ void TextGui::denyFriend(const QStringList& args)
     client->denyFriend(User(args[0]));
 }
 
-void TextGui::listFriendInfo(const QStringList& args)
+void TextGui::removeFriend(const QStringList& args)
 {
-    QTextStream cout(stdout);
-
-    User * current = &client->getUser();
-
-    cout << "Friend Requests:\n";
-    for (const QString& fr : current->getFriendRequestList())
-        cout << "   " << fr << '\n';
-
-    cout << "Friends:\n";
-    for (const QString& f : current->getFriendsList())
-        cout << "   " << f << '\n';
-    
+    client->removeFriend(User(args[0]));
 }

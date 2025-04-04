@@ -93,6 +93,7 @@ private:
     QString email_;
     bool per_;
 
+    // unordered sets (shld b)
     QStringList friendList;
     QStringList friendRequestList;
 

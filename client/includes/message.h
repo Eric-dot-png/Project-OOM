@@ -9,7 +9,6 @@ class Message
 public:
     //Later change this to User, User, Qstring i think?
     explicit Message(const QString &sender, const QString &receiver, const QString &msg);
-
     
     QString get_sender() const { return sender.get_username(); }
     QString get_receiver() const { return receiver.get_username(); }

@@ -13,28 +13,17 @@
 
 #include "Client.h"
 
+#include "ChatObject.h"
+
 class TextGui : public QObject
 {
     Q_OBJECT
 public:
-    TextGui();
-
-    void whoAmI(const QStringList& args);
-    void listCommands(const QStringList& args={});
-    void createAcc(const QStringList& args);
-    void authenticate(const QStringList& args);
-    void login(const QStringList& args);
-    void discover(const QStringList& args);
-    void privateMessage(const QStringList& args);
-    void friendRequest(const QStringList& args);
-    void acceptFriend(const QStringList& args);
-    void denyFriend(const QStringList& args);
-    void listFriendInfo(const QStringList& args);
-    // void removeFriend(const QStringList& args);
-    // void extendMessageHistory(const QStringList& args);
-                                       
+    TextGui();                       
 private slots:
+    void welcomeMessage();
     void readStdin();
+    
 private:
     struct Command
     {
@@ -43,7 +32,26 @@ private:
         QString desc;
     };
     
+    void listCommands(const QStringList& args);
+
+    void whoAmI(const QStringList& args);
+    void createAcc(const QStringList& args);
+    void authenticate(const QStringList& args);
+    void login(const QStringList& args);
+    
+    void discover(const QStringList& args);
+    void privateMessage(const QStringList& args);
+    void viewDMsWith(const QStringList& args);
+    void extendMsgHist(const QStringList& args);
+    
+    void listFriendInfo(const QStringList& args);
+    void friendRequest(const QStringList& args);
+    void acceptFriend(const QStringList& args);
+    void denyFriend(const QStringList& args);
+    void removeFriend(const QStringList& args);
 private:
+    
+    
     QTextStream cin;
     QSocketNotifier * reader;
     std::unordered_map<QString, Command> commandMap;

@@ -15,9 +15,7 @@ Client::Client()
         emit disconnectedFromServer();
     });
     
-    connect(nw, &NetworkManager::loginValid, this, &Client::initializeSession);
-
-
+    connect(nw,&NetworkManager::loginValid, this, &Client::initializeSession);
     
     connect(nw, &NetworkManager::loginInvalid, this, [&](){
         state = ConnectedState::getInstance();
@@ -30,7 +28,8 @@ Client::Client()
         emit accountNotCreated();
     });
     
-    connect(nw, &NetworkManager::accSetupPass, this, [&](const QString& usr, const QString& pwd){
+    connect(nw, &NetworkManager::accSetupPass, this, [&](const QString& usr,
+                                                         const QString& pwd){
         current_user = User(usr,pwd);
         emit accountCreated();
     });
@@ -51,27 +50,28 @@ Client::Client()
     connect(nw, &NetworkManager::pmHistoryFound,this,&Client::initializeDMs);
     
     
-    connect(nw, &NetworkManager::detectedPM, this, [&](const QString& u, const QString& msg){
-        emit recievedDM(u,msg);
-    });
-
+    connect(nw, &NetworkManager::detectedPM, this, &Client::handleDM);
+    
     connect(nw, &NetworkManager::detectedFriendReq, this, [&](const QString& u){
         current_user.addFriendRequest(u);
         emit recievedFriendRequest(u);
     });
 
     connect(nw, &NetworkManager::detectedFriendAccept, this, [&](const QString& u){
+        current_user.removeFriendRequest(u);
         current_user.addFriend(u);
     });
 
     connect(nw, &NetworkManager::detectedFriendDeny, this, [&](const QString& u) {
-        // do nothing
+        // do nothing (remove from outgoing friendrequest?)
     });
     
     connect(nw, &NetworkManager::detectedFriendRM, this, [&](const QString& u){
         current_user.removeFriend(u);
         emit recievedFriendRemove(u);
     });
+
+    connect(nw, &NetworkManager::moreMessages, this, &Client::handleMoreMsgs);
 }
 
 Client::~Client()
@@ -176,6 +176,13 @@ void Client::privateMessage(const User& u, const QString& message)
     {
         qDebug() << "sending private message...";
         nw->forwardPM(u.get_username(), current_user.get_username(), message);
+        
+        if (chats.find(dmKey(u)) != chats.end())
+        {
+            qDebug() << "BEEP";
+            Message m(current_user.get_username(), u.get_username(), message);
+            chats[dmKey(u)]->prepend(m);
+        }
     }
     else
     {
@@ -262,7 +269,6 @@ void Client::extendMessageHistory(const User& u, quint32 currentSize)
 {
     if (state == LoggedInState::getInstance())
     {
-        qint64 size = static_cast<qint64>(currentSize);
         qDebug() << "Extending message history";
         nw->requestMoreMessages(u.get_username(), current_user.get_username(),
                                 currentSize);
@@ -273,29 +279,84 @@ void Client::extendMessageHistory(const User& u, quint32 currentSize)
     }
 }
 
+void Client::extendMessageHistory(const User& u)
+{
+    extendMessageHistory(u, chats[dmKey(u)]->size());
+}
+
+
+const ChatObject * Client::getDMsWith(const QString& u) const
+{
+    
+    auto pair = chats.find(dmKey(u));
+    if (pair != chats.end()) return pair->second;
+    else
+    {
+        throw std::runtime_error("Client getDM ERROR: User not discovered."); 
+    }
+}
+
+
 void Client::initializeSession(const QString& user,
                                const QStringList& fs,
                                const QStringList& frs)
 {
-    qDebug() << "Client :" << user << frs.join(", ") << fs.join(", "); 
+    qDebug() << "Intiailizing Session (user, friends, friend reqs)...";
     state = LoggedInState::getInstance();
     current_user = User(user);
     current_user.setFriendList(fs);
     current_user.setFriendRequestList(frs);
     emit loginSuccess();
+    qDebug() << "Session initialized.";
 }
 
 void Client::initializeDMs(const QString& user, const QJsonArray & messages)
 {
-    qDebug() << "Initializing dms";
-    qDebug() << messages;
-    // for(const QJsonObject & str : messages)
-    // {
-    //     QJsonDocument d = QJsonDocument::fromJson(str.toUtf8());
-    //     if(!d.isNull() && d.isObject())
-    //         messageJsonList.append(d.object());
-    // }
+    qDebug() << "Initializing dms...";
+    if (chats.find(dmKey(user)) != chats.end())
+    {
+        chats[dmKey(user)] = new DirectMessage(
+            current_user.get_username(), user, this);
+        for (const QJsonValue& msg : messages)
+        {
+            Message m(msg["From"].toString(), msg["To"].toString(),
+                      msg["Message"].toString());
+            chats[dmKey(user)]->sendMessage(m);
+        }
+    }
     emit discoverUserSucceed(user, messages);
+    qDebug() << "Dms initialized";
+}
+
+void Client::handleDM(const QString& user, const QString& msg)
+{
+    if (chats.find(dmKey(user)) != chats.end())
+    {
+        Message m(user, current_user.get_username(), msg);
+        chats[dmKey(user)]->prepend(m);
+    }
+    emit recievedDM(user,msg);
+}
+
+void Client::handleMoreMsgs(const QString& user, const QJsonArray & messages)
+{
+    for (const QJsonValue& msg : messages)
+    {
+        Message m(msg["From"].toString(),
+                  msg["To"].toString(),
+                  msg["Mesage"].toString());
+        chats[dmKey(user)]->sendMessage(m);
+    }
+}
+
+QString Client::dmKey(const QString& user) const
+{
+    return QString("D:") + user;
+}
+
+QString Client::dmKey(const User& u) const
+{
+    return dmKey(u.get_username());
 }
 
 // Base state function: Called when a state cannot handle the given message.
