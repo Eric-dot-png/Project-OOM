@@ -39,13 +39,13 @@ public:
         Login->resize(800, 600);
         label = new QLabel(Login);
         label->setObjectName(QString::fromUtf8("label"));
-        label->setGeometry(QRect(240, 230, 71, 20));
+        label->setGeometry(QRect(220, 230, 91, 20));
         label_2 = new QLabel(Login);
         label_2->setObjectName(QString::fromUtf8("label_2"));
-        label_2->setGeometry(QRect(240, 280, 91, 20));
+        label_2->setGeometry(QRect(220, 280, 91, 20));
         label_3 = new QLabel(Login);
         label_3->setObjectName(QString::fromUtf8("label_3"));
-        label_3->setGeometry(QRect(240, 330, 271, 20));
+        label_3->setGeometry(QRect(240, 320, 271, 31));
         loginButton = new QPushButton(Login);
         loginButton->setObjectName(QString::fromUtf8("loginButton"));
         loginButton->setGeometry(QRect(470, 280, 83, 31));

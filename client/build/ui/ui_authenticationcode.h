@@ -37,14 +37,14 @@ public:
         codeTextbox->setGeometry(QRect(130, 160, 131, 26));
         label = new QLabel(authenticationCode);
         label->setObjectName(QString::fromUtf8("label"));
-        label->setGeometry(QRect(130, 140, 131, 18));
+        label->setGeometry(QRect(130, 120, 141, 31));
         submitButton = new QPushButton(authenticationCode);
         submitButton->setObjectName(QString::fromUtf8("submitButton"));
-        submitButton->setGeometry(QRect(150, 200, 80, 26));
+        submitButton->setGeometry(QRect(270, 155, 91, 31));
         submitButton->setCursor(QCursor(Qt::PointingHandCursor));
         authFailedLabel = new QLabel(authenticationCode);
         authFailedLabel->setObjectName(QString::fromUtf8("authFailedLabel"));
-        authFailedLabel->setGeometry(QRect(280, 140, 161, 71));
+        authFailedLabel->setGeometry(QRect(130, 190, 161, 71));
         QFont font;
         font.setPointSize(12);
         font.setBold(true);

@@ -90,6 +90,7 @@ signals:
     void recievedDM(const QString& from, const QString& msg);
     void recievedFriendRequest(const QString& from);
     void recievedFriendRemove(const QString& from);
+    void friendAccepted(const QString& from);
     void sendFriendRequestList(const QString& user, const QStringList& list);
     void sendFriendList(const QString& user, const QStringList& list);
     

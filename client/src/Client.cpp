@@ -60,6 +60,7 @@ Client::Client()
     connect(nw, &NetworkManager::detectedFriendAccept, this, [&](const QString& u){
         current_user.removeFriendRequest(u);
         current_user.addFriend(u);
+        emit friendAccepted(u);
     });
 
     connect(nw, &NetworkManager::detectedFriendDeny, this, [&](const QString& u) {

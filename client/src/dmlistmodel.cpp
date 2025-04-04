@@ -82,7 +82,7 @@ QVariant DMListModel::data(const QModelIndex& index, int role) const
     if (role == Qt::DisplayRole) {
         QString msg = dm.messageHistory.isEmpty() ? "(No messages)" : dm.messageHistory.last().get_msg();
         //qDebug() << "Data: " << msg;
-        return QString("%1: %2").arg(dm.user.get_username(), msg);
+        return QString("%1: %2...").arg(dm.user.get_username(), msg.left(13));
     } else if (role == Qt::UserRole) {
         //qDebug() << "Returning user object";
         return QVariant::fromValue(dm.user);

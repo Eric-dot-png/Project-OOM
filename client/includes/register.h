@@ -13,6 +13,7 @@
 #define REGISTER_H
 
 #include <QWidget>
+#include <QMovie>
 #include "oomwidget.h"
 #include "Client.h"
 #include "ui_register.h"
@@ -41,6 +42,7 @@ private slots:
 
 private:
     Ui::Register *registerUi;
+    QMovie *loadingIcon;
 
     bool isValidEmail(const QString &);
     bool isValidPassword(const QString &);

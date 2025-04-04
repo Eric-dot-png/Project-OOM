@@ -39,6 +39,8 @@ PrivateMessages::PrivateMessages(QWidget *parent)
     enterFilter = new EnterKeyFilter(this);
     ui->textEdit->installEventFilter(enterFilter);
 
+    ui->friendView->viewport()->installEventFilter(this);
+
     // Connect the custom Enter key press signal to the onEnterKeyPressed slot
     connect(enterFilter, &EnterKeyFilter::enterPressed, this, &PrivateMessages::onEnterKeyPressed);
 
@@ -82,6 +84,7 @@ PrivateMessages::PrivateMessages(QWidget *parent)
         showAddFriendButton();
     });
 
+
     // Handle friend request lists and actual friend lists
     connect(client, &Client::sendFriendRequestList, this, [=](const QString usr, const QStringList& list)
     {
@@ -108,37 +111,53 @@ PrivateMessages::PrivateMessages(QWidget *parent)
         }
     });
 
-    // Test button to show friend list in debug; the logic is incomplete
+    //DENY BUTTON:
+    //Remove friend request from combobox and tell client to remove friend request
     connect(ui->denyButton, &QPushButton::clicked, this, [=](){
-        for (const QString& frnd : client->getUser().getFriendsList())
-            qDebug() << frnd << '\n';
+        client->denyFriend(User(ui->friendRequestComboBox->currentText()));
+        ui->friendRequestComboBox->removeItem(ui->friendRequestComboBox->currentIndex());
     });
 
+    //ADD FRIEND BUTTON:
     // Connect the Add Friend button to the function that sends a friend request
     connect(ui->addFriendButton, &QPushButton::clicked, this, &PrivateMessages::sendFriendRequest);
 
+    //ACCEPT FRIEND BUTTON:
     // Accept button to accept a friend request from the friendRequestComboBox
     connect(ui->acceptButton, &QPushButton::clicked, this, [=](){
         client->acceptFriend(User(ui->friendRequestComboBox->currentText()));
+        ui->friendCombobox->addItem(ui->friendRequestComboBox->currentText());
+        ui->friendRequestComboBox->removeItem(ui->friendRequestComboBox->currentIndex());
+        showAddFriendButton();
     });
 
+    //DM LIST:
     // Handle selecting a user from the friendView (on the left list) to open the DM window
     connect(ui->friendView, &QListView::clicked, this, &PrivateMessages::openDM);
 
-    // Display the current user's username
-    ui->currentUser->setText(client->getUser().get_username());
 
     // Handle receiving a friend request, adds that request to the friendRequestComboBox
     connect(client, &Client::recievedFriendRequest, this, [=](const QString& from)
     {
+        client->getUser().addFriendRequest(from);
         ui->friendRequestComboBox->addItem(from);
+    });
+
+    connect(client, &Client::friendAccepted, this, [=](const QString& from)
+    {
+        ui->friendCombobox->addItem(from);
     });
 }
 
+
+//When private messages is visible, this runs
 void PrivateMessages::showEvent(QShowEvent *event) {
     QWidget::showEvent(event);
     qDebug() << "Showing privatemessages";
-    //
+
+    // Display the current user's username
+    ui->currentUser->setText(client->getUser().get_username());
+
     QTimer::singleShot(1000, this, [this]() {
         if (!client) return;
 
@@ -292,6 +311,25 @@ void PrivateMessages::sendFriendRequest()
         qDebug() << "Sending friend request.";
         client->friendRequest(currentlyMessaging);
     }
+}
+
+// Filter to listen for rightclicking the friends list
+bool PrivateMessages::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == ui->friendView->viewport() && event->type() == QEvent::MouseButtonPress)
+    {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+        if (mouseEvent->button() == Qt::RightButton)
+        {
+            QModelIndex index = ui->friendView->indexAt(mouseEvent->pos());
+            if (index.isValid())
+            {
+                qDebug() << "Right clicked on item: " << index.data().toString();
+            }
+            return true;
+        }
+    }
+    return QObject::eventFilter(watched, event);
 }
 
 // Example of how future implementations might load messages from a file or other source.

@@ -18,7 +18,7 @@
 // Constructor: Initializes the Register UI, hides the loading icon by default,
 // and sets up signals/slots for the form's buttons and fields.
 Register::Register(QWidget *parent)
-    : OOMWidget(parent), registerUi(new Ui::Register)
+    : OOMWidget(parent), registerUi(new Ui::Register), loadingIcon(new QMovie(":/images/images/OOMloading.gif"))
 {
     registerUi->setupUi(this);                 // Sets up the user interface from the .ui file
     registerUi->testLabel->clear();            // Clears any placeholder text
@@ -90,7 +90,6 @@ void Register::handleRegister()
     registerUi->loadingLabel->setVisible(true);
 
     // Set the loading animation
-    QMovie *loadingIcon = new QMovie(":/images/images/OOMloading.gif");
     registerUi->loadingLabel->setMovie(loadingIcon);
     loadingIcon->start();
 

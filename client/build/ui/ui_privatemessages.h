@@ -17,6 +17,7 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QListView>
+#include <QtWidgets/QListWidget>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QTextEdit>
 #include <QtWidgets/QWidget>
@@ -42,6 +43,7 @@ public:
     QPushButton *acceptButton;
     QPushButton *denyButton;
     QPushButton *addFriendButton;
+    QListWidget *listWidget;
 
     void setupUi(QWidget *PrivateMessages)
     {
@@ -55,45 +57,45 @@ public:
         PrivateMessages->setSizePolicy(sizePolicy);
         textEdit = new QTextEdit(PrivateMessages);
         textEdit->setObjectName(QString::fromUtf8("textEdit"));
-        textEdit->setGeometry(QRect(260, 550, 481, 41));
+        textEdit->setGeometry(QRect(350, 550, 481, 41));
         textBrowser = new OOMTextBrowser(PrivateMessages);
         textBrowser->setObjectName(QString::fromUtf8("textBrowser"));
-        textBrowser->setGeometry(QRect(260, 160, 481, 371));
+        textBrowser->setGeometry(QRect(350, 160, 481, 371));
         friendNameLabel = new QLabel(PrivateMessages);
         friendNameLabel->setObjectName(QString::fromUtf8("friendNameLabel"));
-        friendNameLabel->setGeometry(QRect(260, 140, 441, 18));
+        friendNameLabel->setGeometry(QRect(350, 130, 441, 18));
         friendCombobox = new QComboBox(PrivateMessages);
         friendCombobox->setObjectName(QString::fromUtf8("friendCombobox"));
-        friendCombobox->setGeometry(QRect(100, 10, 151, 26));
+        friendCombobox->setGeometry(QRect(190, 10, 151, 26));
         searchUserTextbox = new QLineEdit(PrivateMessages);
         searchUserTextbox->setObjectName(QString::fromUtf8("searchUserTextbox"));
-        searchUserTextbox->setGeometry(QRect(350, 50, 113, 26));
+        searchUserTextbox->setGeometry(QRect(460, 50, 113, 26));
         label = new QLabel(PrivateMessages);
         label->setObjectName(QString::fromUtf8("label"));
-        label->setGeometry(QRect(260, 50, 81, 20));
+        label->setGeometry(QRect(350, 50, 101, 20));
         userNotFoundLabel = new QLabel(PrivateMessages);
         userNotFoundLabel->setObjectName(QString::fromUtf8("userNotFoundLabel"));
-        userNotFoundLabel->setGeometry(QRect(470, 50, 191, 21));
+        userNotFoundLabel->setGeometry(QRect(460, 80, 191, 21));
         userNotFoundLabel->setWordWrap(true);
         currentUser = new QLabel(PrivateMessages);
         currentUser->setObjectName(QString::fromUtf8("currentUser"));
-        currentUser->setGeometry(QRect(260, 20, 101, 18));
+        currentUser->setGeometry(QRect(350, 17, 101, 21));
         friendView = new QListView(PrivateMessages);
         friendView->setObjectName(QString::fromUtf8("friendView"));
-        friendView->setGeometry(QRect(100, 50, 151, 561));
+        friendView->setGeometry(QRect(190, 50, 141, 561));
         serverView = new QListView(PrivateMessages);
         serverView->setObjectName(QString::fromUtf8("serverView"));
         serverView->setEnabled(false);
-        serverView->setGeometry(QRect(0, 50, 101, 561));
+        serverView->setGeometry(QRect(30, 50, 101, 561));
         label_2 = new QLabel(PrivateMessages);
         label_2->setObjectName(QString::fromUtf8("label_2"));
-        label_2->setGeometry(QRect(50, 160, 191, 41));
+        label_2->setGeometry(QRect(0, 570, 191, 41));
         groupBox = new QGroupBox(PrivateMessages);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
-        groupBox->setGeometry(QRect(550, 20, 191, 131));
+        groupBox->setGeometry(QRect(640, 20, 191, 131));
         friendRequestComboBox = new QComboBox(groupBox);
         friendRequestComboBox->setObjectName(QString::fromUtf8("friendRequestComboBox"));
-        friendRequestComboBox->setGeometry(QRect(30, 30, 121, 26));
+        friendRequestComboBox->setGeometry(QRect(40, 40, 121, 26));
         acceptButton = new QPushButton(groupBox);
         acceptButton->setObjectName(QString::fromUtf8("acceptButton"));
         acceptButton->setGeometry(QRect(20, 90, 51, 26));
@@ -102,7 +104,10 @@ public:
         denyButton->setGeometry(QRect(119, 90, 51, 26));
         addFriendButton = new QPushButton(PrivateMessages);
         addFriendButton->setObjectName(QString::fromUtf8("addFriendButton"));
-        addFriendButton->setGeometry(QRect(260, 110, 91, 26));
+        addFriendButton->setGeometry(QRect(350, 90, 91, 26));
+        listWidget = new QListWidget(PrivateMessages);
+        listWidget->setObjectName(QString::fromUtf8("listWidget"));
+        listWidget->setGeometry(QRect(980, 420, 256, 192));
         QWidget::setTabOrder(textEdit, friendCombobox);
         QWidget::setTabOrder(friendCombobox, textBrowser);
 

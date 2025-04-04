@@ -79,6 +79,8 @@ private:
     void showAddFriendButton();
     void showEvent(QShowEvent *event);
 
+    bool eventFilter(QObject *, QEvent *);
+
 };
 
 #endif // PRIVATEMESSAGES_H

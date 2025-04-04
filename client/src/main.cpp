@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     
     declareOOMtypes();
 
-    bool textMode = true; // text gui or not
+    bool textMode = false; // text gui or not
     
     //Main app
     QApplication a(argc, argv);
@@ -89,6 +89,7 @@ int main(int argc, char *argv[])
     {
         delete mainWidget;
     }
+
     Client::destroyInstance();
     Serializers::destroyInstances();
     
