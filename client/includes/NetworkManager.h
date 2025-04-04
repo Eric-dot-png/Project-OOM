@@ -11,6 +11,8 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QEventLoop>
+#include <QTimer>
 
 #include "config.h"
 #include "ProtocolManager.h"
@@ -27,10 +29,13 @@ public:
     NetworkManager(const NetworkManager&) = delete;
     NetworkManager& operator=(const NetworkManager&) = delete;
 
+    void flush(quint32 waitms=1000);
+    
     // Connect Network Manager to the server
     void connect();
 
     // Disconnect Network Manager from server
+    void logoutFrom(const QString&) const;
     void disconnect();
     
     void validateLogin(const QString& usr, const QString& pwd) const;

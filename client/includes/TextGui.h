@@ -10,6 +10,7 @@
 #include <QObject>
 #include <QTextStream>
 #include <QList>
+#include <QApplication>
 
 #include "Client.h"
 
@@ -19,7 +20,7 @@ class TextGui : public QObject
 {
     Q_OBJECT
 public:
-    TextGui();                       
+    TextGui();
 private slots:
     void welcomeMessage();
     void readStdin();
@@ -38,6 +39,7 @@ private:
     void createAcc(const QStringList& args);
     void authenticate(const QStringList& args);
     void login(const QStringList& args);
+    void logout(const QStringList& args);
     
     void discover(const QStringList& args);
     void privateMessage(const QStringList& args);

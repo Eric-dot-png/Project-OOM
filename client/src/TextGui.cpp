@@ -35,6 +35,11 @@ TextGui::TextGui()
         {"Username", "Password"}, "Log in to an existing account"
     };
 
+    commandMap["logout"] = {
+        std::bind(&TextGui::logout, this, std::placeholders::_1),
+        {}, "Logs out from the current account"
+    };
+    
     commandMap["disc"] = {
         std::bind(&TextGui::discover, this, std::placeholders::_1),
         {"Username"}, "Discovers an existing private message history with another user"
@@ -79,7 +84,7 @@ TextGui::TextGui()
         std::bind(&TextGui::extendMsgHist, this, std::placeholders::_1),
         {"User"}, "Asks the server for more pms with User."
     };
-
+    
     
     // welcome message
     connect(client, &Client::connectedToServer, this,
@@ -97,10 +102,19 @@ void TextGui::welcomeMessage()
 
 void TextGui::readStdin()
 {
-    QStringList line = cin.readLine().simplified().split(' ');
+    QString input = cin.readLine();
+    if (input.isNull())
+    {
+        // eof
+        QCoreApplication::quit();
+        return;
+    }
+    
+    QStringList line = input.simplified().split(' ');
+   
     QTextStream cout(stdout);
-    QString input = line[0];
-    auto search = commandMap.find(input);
+    QString cmd = line[0];
+    auto search = commandMap.find(cmd);
     if (search != commandMap.end())
     {
         Command c = search->second;
@@ -166,6 +180,13 @@ void TextGui::login(const QStringList& args)
     qDebug() << "Logging in...";
 
     client->login(User(args[0], args[1]));
+}
+
+void TextGui::logout(const QStringList& args)
+{
+    qDebug() << "Logging out";
+
+    client->logout();
 }
 
 void TextGui::discover(const QStringList& args)

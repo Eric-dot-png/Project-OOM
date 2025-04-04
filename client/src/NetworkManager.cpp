@@ -112,17 +112,56 @@ NetworkManager::~NetworkManager()
     emit disconnected();
 }
 
+void NetworkManager::flush(quint32 waitms)
+{
+    socket->flush();
+    if (socket->bytesToWrite() != 0)
+    {
+        QEventLoop loop; // local event loop
+        
+        QTimer timeoutTimer;
+        timeoutTimer.setSingleShot(true);
+        timeoutTimer.start(waitms);
+        
+        // if the timer times out, or all the bytes are written,
+        // stop the event loop.
+        QObject::connect(&timeoutTimer, &QTimer::timeout,
+                         &loop, &QEventLoop::quit);
+        QObject::connect(socket, &QTcpSocket::bytesWritten,
+                         &loop, &QEventLoop::quit);
+        
+        
+        loop.exec();
+        
+        if (!timeoutTimer.isActive())
+        {
+            qDebug() << "NetworkManager : ERROR, flush FAILED.";
+            return;
+        }
+    }
+    qDebug() << "NetworkManager : flush successful.";    
+}
+
 void NetworkManager::connect()
 {
-    qDebug() << "Network Manager : called connect";
+    qDebug() << "Network Manager : connecting.";
     if (socket->state() != QAbstractSocket::ConnectedState)
         socket->connectToHost(SERVER_IP, SERVER_PORT); // See config.h
 }
 
+void NetworkManager::logoutFrom(const QString& username) const
+{
+    qDebug() << "Network Manager : Logging out.";
+    writeToServer(Protocol::AnnounceOffline, {username});
+}
+
 void NetworkManager::disconnect()
 {
+    qDebug() << "Network Manager : disconnecting.";
     if (socket->state() == QAbstractSocket::ConnectedState)
+    {
         socket->disconnectFromHost();
+    }
 }
 
 void NetworkManager::validateLogin(const QString& usr, const QString& pwd)
@@ -206,8 +245,9 @@ void NetworkManager::writeToServer(Protocol type,
                                    const QList<QJsonValue> & argv) const
 {
     if (socket->state() == QAbstractSocket::ConnectedState)
+    {
         socket->write(ProtocolManager::serialize(type,argv));
-    else qDebug() << "ERROR: Network Manager is not connected to server.";
+    }else qDebug() << "ERROR: Network Manager is not connected to server.";
 }
 
 void NetworkManager::handleServerMessage()

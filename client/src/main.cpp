@@ -59,18 +59,16 @@ int main(int argc, char *argv[])
     
     declareOOMtypes();
 
-    bool textMode = false; // text gui or not
+    bool textMode = true; // text gui or not
     
     //Main app
-    QApplication a(argc, argv);
-
+    QApplication app(argc, argv);
     Client * c = Client::getInstance();
     OOMWidget * mainWidget = NULL;
-    TextGui * gui;
+    TextGui * gui = NULL;
     if (textMode)
     {
         gui = new TextGui();
-        //gui->listCommands();
     }
     else
     {
@@ -83,13 +81,17 @@ int main(int argc, char *argv[])
         mainWidget->startApp();
     }
     
-    int out = a.exec();
+    int out = app.exec();
 
     if (!textMode)
     {
         delete mainWidget;
     }
-
+    else
+    {
+        delete gui;
+    }
+    
     Client::destroyInstance();
     Serializers::destroyInstances();
     
