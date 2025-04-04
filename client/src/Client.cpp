@@ -287,7 +287,7 @@ void Client::extendMessageHistory(const User& u)
 
 const ChatObject * Client::getDMsWith(const QString& u) const
 {
-    
+    qDebug() << "getting dms with" << dmKey(u);
     auto pair = chats.find(dmKey(u));
     if (pair != chats.end()) return pair->second;
     else
@@ -312,9 +312,10 @@ void Client::initializeSession(const QString& user,
 
 void Client::initializeDMs(const QString& user, const QJsonArray & messages)
 {
-    qDebug() << "Initializing dms...";
-    if (chats.find(dmKey(user)) != chats.end())
+    qDebug() << "Initializing dms for" << dmKey(user);
+    if (chats.find(dmKey(user)) == chats.end())
     {
+        // this chat hasn't been initialized, so initialize it
         chats[dmKey(user)] = new DirectMessage(
             current_user.get_username(), user, this);
         for (const QJsonValue& msg : messages)
@@ -323,7 +324,7 @@ void Client::initializeDMs(const QString& user, const QJsonArray & messages)
                       msg["Message"].toString());
             chats[dmKey(user)]->sendMessage(m);
         }
-    }
+    } // otherwise dont overwrite chat
     emit discoverUserSucceed(user, messages);
     qDebug() << "Dms initialized";
 }

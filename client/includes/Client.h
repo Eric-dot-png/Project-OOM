@@ -110,8 +110,6 @@ private:
     QString dmKey(const QString&) const;
     QString dmKey(const User&) const;
     
-    //std::unordered_map<QString, QList<MessageObject>> pms;
-
     std::unordered_map<QString, ChatObject*> chats;
     
     NetworkManager * nw;
