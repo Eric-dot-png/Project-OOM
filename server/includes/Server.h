@@ -63,7 +63,7 @@ private:
     void handleCreateGroupRequest(QTcpSocket *, const QJsonObject &,
                                   const QByteArray &);
     void handleGroupMessage(const QJsonObject &, const QByteArray &);
-    
+    void handleAnnounceOffline(const QJsonObject&);
     static Server * instance;
 
     QTimer * timer;

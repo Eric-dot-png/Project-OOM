@@ -121,6 +121,11 @@ void Server::onNewConnection()
         // Check the protocol type to decide which operation to perform
         switch(type)
         {
+            case Protocol::AnnounceOffline:
+            {
+                handleAnnounceOffline(m);
+                break;
+            }
             case Protocol::ExtendMessageHistory:
             {
                 handleExtendMessageHistory(client, m);
@@ -481,4 +486,12 @@ void Server::handleGroupMessage(const QJsonObject & m,
                                               m["GroupName"].toString());
     for(const QString & member : members)
         writeToUserRaw(member, data);
+}
+
+void Server::handleAnnounceOffline(const QJsonObject& m)
+{
+    QString u = m["Username"].toString();
+    auto p = onlineUserMap.find(u);
+    if (p != onlineUserMap.end())
+        onlineUserMap.erase(p);
 }
