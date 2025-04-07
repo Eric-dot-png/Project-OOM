@@ -254,36 +254,25 @@ bool dbHandler::storeMessage(const QJsonObject & m)
 // Stores a group message in the GroupMessage table.
 bool dbHandler::storeGroupMessage(const QJsonObject & m)
 {
-    MYSQL_RES * result;
-    MYSQL_ROW row;
     std::stringstream ss;
 
+    qDebug() << "getting id";
     //get groupId
-    ss << "select id from GroupInfo where owner='"
-       << m["Owner"].toString().toStdString() << "' and name='"
-       << m["Group"].toString().toStdString() << "'";
-    if(mysql_query(connection, ss.str().c_str()))
-    {
-        qDebug() << "Could not find Group: " << mysql_error(connection);
+    int id = getGroupId(m["Owner"].toString(), m["Name"].toString());
+    if(id == -1)
         return 0;
-    }
-    result = mysql_store_result(connection);
-    row = mysql_fetch_row(result);
-    QString id = row[0];
-    mysql_free_result(result);
-    ss.flush();
-
+    qDebug() << "storing message";
     //store message
     ss << "insert GroupMessage(groupId, sender, message) values("
-       << id.toStdString() << ", '" << m["From"].toString().toStdString()
-       << "', '" << m["Message"].toString().toStdString() << "')";
+       << id<< ", '" << m["From"].toString().toStdString() << "', '"
+       << m["Message"].toString().toStdString() << "')";
     if(mysql_query(connection, ss.str().c_str()))
     {
         qDebug() << "Could not save new group message: "
                  << mysql_error(connection);
         return 0;
     }
-   
+
     return 1;
 }
 
@@ -549,6 +538,11 @@ int dbHandler::getGroupId(const QString & owner, const QString & name)
     }
     result = mysql_store_result(connection);
     row = mysql_fetch_row(result);
+    if(row == NULL)
+    {
+        qDebug() << "Group " << owner << ", " << name << " DNE";
+        return -1;
+    }
     int id = atoi(row[0]);
     
     mysql_free_result(result);
@@ -595,10 +589,17 @@ bool dbHandler::newGroup(const QString & u, const QString & name,
     }
 
     int id = getGroupId(u, name);
+
+    bool success = addGroupMember(id, u);
+    if(!success)
+    {
+        mysql_query(connection, "rollback");
+        return 0;
+    }
     
     for(const QString & m : members)
     {
-        bool success = addGroupMember(id, m);
+        success = addGroupMember(id, m);
         if(!success)
         {
             mysql_query(connection, "rollback");

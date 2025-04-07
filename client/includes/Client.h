@@ -72,6 +72,8 @@ public:
     const ChatObject * getDMsWith(const QString& u) const;
 
     void createGroup(const QString & name, const QStringList & members) const;
+    void messageGroup(const QString & owner, const QString & name,
+                      const QString & message) const;
 public slots:
     // must be in loggedin state
     // puts the client into connected state
@@ -100,7 +102,9 @@ signals:
     void createGroupSucceed(const QString & name,
                             const QStringList & members);
     void createGroupDeny(const QString & err);
-
+    void recievedGroupMessage(const QString & owner, const QString & name,
+                              const QString & from, const QString & message);
+                                                                            
 private slots: // these are functions that are connected to signals
     void initializeSession(const QString& username,
                            const QStringList& friends,
@@ -111,6 +115,8 @@ private slots: // these are functions that are connected to signals
                           const std::unordered_set<QString> & members,
                           const QJsonArray & messages);
     void handleDM(const QString& user, const QString& msg);
+    void handleGroupMessage(const QString & owner, const QString & name,
+                            const QString & from, const QString & message);
     void handleMoreMsgs(const QString& user, const QJsonArray & messages);
 private:
     Client();
@@ -129,7 +135,7 @@ private:
 
     QString dmKey(const QString&) const;
     QString dmKey(const User&) const;
-    QString groupKey(const QString &) const;
+    QString groupKey(const QString &, const QString &) const;
 
     std::unordered_map<QString, ChatObject*> chats;
     

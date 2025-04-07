@@ -89,6 +89,8 @@ signals:
     void failedMoreMessages(const QString& user);
     void createGroupFail(const QString & err);
     void createGroupPass(const QString & name, const QStringList & members);
+    void detectedGroupMessage(const QString & owner, const QString & name,
+                              const QString & from, const QString & message);
 private:
     QTcpSocket * socket;
     std::unordered_map<Protocol,std::function<void(QJsonObject)>> emitMap;

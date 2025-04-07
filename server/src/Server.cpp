@@ -481,11 +481,19 @@ void Server::handleGroupMessage(const QJsonObject & m,
                                 const QByteArray & data)
 {
     // Store the private message in the database, then pass it to the recipient.
-    db->storeGroupMessage(m);
+    qDebug() << "Storing group message...";
+    bool success = db->storeGroupMessage(m);
+    if(!success)
+        return;
+    qDebug() << "Getting members...";
     QStringList members = db->getGroupMembers(m["Owner"].toString(),
                                               m["GroupName"].toString());
+    qDebug() << "Forwarding message to members...";
     for(const QString & member : members)
-        writeToUserRaw(member, data);
+    {
+        if(member != m["From"].toString())
+            writeToUserRaw(member, data);
+    }
 }
 
 void Server::handleAnnounceOffline(const QJsonObject& m)

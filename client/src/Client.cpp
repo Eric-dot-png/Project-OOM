@@ -85,6 +85,8 @@ Client::Client()
         emit createGroupDeny(err);
     });
 
+    connect(nw, &NetworkManager::detectedGroupMessage, this, &Client::handleGroupMessage);
+        
     connect(qApp, &QCoreApplication::aboutToQuit, this, &Client::logout);
 }
 
@@ -371,16 +373,17 @@ void Client::initializeGroups(const QString & owner, const QString & name,
                               const QJsonArray & messages)
 {
     qDebug() << "Initializing group...";
-    if(chats.find(groupKey(name)) != chats.end())
+    if(chats.find(groupKey(owner, name)) != chats.end())
     {
-        chats[groupKey(name)] = new Group(members, owner, name, this);
+        chats[groupKey(owner, name)] = new Group(members, owner, name, this);
         for(const QJsonValue & msg : messages)
         {
             Message m(msg["From"].toString(), name, msg["Message"].toString());
-            chats[groupKey(name)]->sendMessage(m);
+            chats[groupKey(owner, name)]->sendMessage(m);
         }
     }
 }
+
 void Client::handleDM(const QString& user, const QString& msg)
 {
     if (chats.find(dmKey(user)) != chats.end())
@@ -389,6 +392,17 @@ void Client::handleDM(const QString& user, const QString& msg)
         chats[dmKey(user)]->prepend(m);
     }
     emit recievedDM(user,msg);
+}
+
+void Client::handleGroupMessage(const QString & owner, const QString & name,
+                                const QString & from, const QString & message)
+{
+    if(chats.find(groupKey(owner, name)) != chats.end())
+    {
+        Message m(from, name, message);
+        chats[groupKey(owner, name)]->prepend(m);
+    }
+    emit recievedGroupMessage(owner, name, from, message);
 }
 
 void Client::handleMoreMsgs(const QString& user, const QJsonArray & messages)
@@ -407,6 +421,13 @@ void Client::createGroup(const QString & name, const QStringList & members) cons
     nw->forwardCreateGroup(current_user.get_username(), name, members);
 }
 
+void Client::messageGroup(const QString & owner, const QString & name,
+                          const QString & message) const
+{
+    nw->forwardGroupMessage(owner, name, current_user.get_username(),
+                            message);
+}
+
 QString Client::dmKey(const QString& user) const
 {
     return QString("D:") + user;
@@ -417,9 +438,9 @@ QString Client::dmKey(const User& u) const
     return dmKey(u.get_username());
 }
 
-QString Client::groupKey(const QString & name) const
+QString Client::groupKey(const QString & owner, const QString & name) const
 {
-    return QString("G:") + name;
+    return QString("G:") + owner + ":" + name;
 }
 
 // // DisconnectedState, DisconnectingState, ConnectingState, ConnectedState:

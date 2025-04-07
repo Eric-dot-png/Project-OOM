@@ -84,7 +84,17 @@ TextGui::TextGui()
         std::bind(&TextGui::extendMsgHist, this, std::placeholders::_1),
         {"User"}, "Asks the server for more pms with User."
     };
-    
+
+    commandMap["cgrp"] = {
+        std::bind(&TextGui::createGroup, this, std::placeholders::_1),
+        {"Group Name", "Members"},
+        "Requests to create a group with Members(separate by ,)"
+    };
+
+    commandMap["mgrp"] = {
+        std::bind(&TextGui::groupMessage, this, std::placeholders::_1),
+        {"Group Owner", "Group Name", "Message"}, "Sends a message to a group"
+    };
     
     // welcome message
     connect(client, &Client::connectedToServer, this,
@@ -257,4 +267,16 @@ void TextGui::denyFriend(const QStringList& args)
 void TextGui::removeFriend(const QStringList& args)
 {
     client->removeFriend(User(args[0]));
+}
+
+
+void TextGui::createGroup(const QStringList& args)
+{
+    QStringList members = args[1].split(",");
+    client->createGroup(args[0], members);
+}
+
+void TextGui::groupMessage(const QStringList & args)
+{
+    client->messageGroup(args[0], args[1], args[2]);
 }

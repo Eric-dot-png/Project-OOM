@@ -105,6 +105,12 @@ NetworkManager::NetworkManager()
     emitMap[Protocol::CreateGroupFail] = [&](const QJsonObject& m){
         emit createGroupFail(m["Message"].toString());
     };
+
+    emitMap[Protocol::GroupMessage] = [&](const QJsonObject & m){
+        emit detectedGroupMessage(m["Owner"].toString(), m["Name"].toString(),
+                                  m["From"].toString(),
+                                  m["Message"].toString());
+    };
 }
 
 NetworkManager::~NetworkManager()
@@ -241,6 +247,7 @@ void NetworkManager::forwardGroupMessage(const QString & owner,
 {
     writeToServer(Protocol::GroupMessage, {owner, name, from, message});
 }
+
 void NetworkManager::writeToServer(Protocol type,
                                    const QList<QJsonValue> & argv) const
 {
