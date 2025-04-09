@@ -57,6 +57,8 @@ public:
 
     quint32 size() const { return messages_.size(); }
 
+    void clear() { messages_.clear(); }
+    
 protected:
     QString name_, owner_;
     std::unordered_set<QString> members_;

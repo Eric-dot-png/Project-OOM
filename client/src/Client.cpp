@@ -390,13 +390,17 @@ void Client::initializeDMs(const QString& user, const QJsonArray & messages)
         // this chat hasn't been initialized, so initialize it
         chats[dmKey(user)] = new DirectMessage(
             current_user.get_username(), user, this);
-        for (const QJsonValue& msg : messages)
-        {
-            Message m(msg["From"].toString(), msg["To"].toString(),
-                      msg["Message"].toString());
-            chats[dmKey(user)]->sendMessage(m);
-        }
-    } // otherwise dont overwrite chat
+    }
+    else
+    {
+        chats[dmKey(user)]->clear();
+    }
+    for (const QJsonValue& msg : messages)
+    {
+        Message m(msg["From"].toString(), msg["To"].toString(),
+                  msg["Message"].toString());
+        chats[dmKey(user)]->sendMessage(m);
+    }
     emit discoverUserSucceed(user, messages);
     qDebug() << "Dms initialized";
 }
@@ -419,9 +423,15 @@ void Client::initializeGroups(const QString & owner, const QString & name,
 
 void Client::handleDM(const QString& user, const QString& msg)
 {
+    Message m(user, current_user.get_username(), msg);
     if (chats.find(dmKey(user)) != chats.end())
     {
-        Message m(user, current_user.get_username(), msg);
+        chats[dmKey(user)]->prepend(m);
+    }
+    else
+    {
+        chats[dmKey(user)] = new DirectMessage(current_user.get_username(),
+                                               user);
         chats[dmKey(user)]->prepend(m);
     }
     emit recievedDM(user,msg);
