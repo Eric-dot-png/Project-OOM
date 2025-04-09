@@ -95,10 +95,19 @@ TextGui::TextGui()
         std::bind(&TextGui::groupMessage, this, std::placeholders::_1),
         {"Group Owner", "Group Name", "Message"}, "Sends a message to a group"
     };
+
+    commandMap["block"] = {
+        std::bind(&TextGui::blockUser, this, std::placeholders::_1),
+        {"Username"}, "Blocks the user with Username"
+    };
+    
+    commandMap["unblock"] = {
+        std::bind(&TextGui::unblockUser, this, std::placeholders::_1),
+        {"Username"}, "unblocks the user with Username"
+    };
     
     // welcome message
-    connect(client, &Client::connectedToServer, this,
-            &TextGui::welcomeMessage);
+    connect(client,&Client::connectedToServer,this,&TextGui::welcomeMessage);
 }
 
 void TextGui::welcomeMessage()
@@ -269,6 +278,15 @@ void TextGui::removeFriend(const QStringList& args)
     client->removeFriend(User(args[0]));
 }
 
+void TextGui::blockUser(const QStringList& args)
+{
+    client->block(User(args[0]));
+}
+
+void TextGui::unblockUser(const QStringList& args)
+{
+    client->unblock(User(args[0]));
+}
 
 void TextGui::createGroup(const QStringList& args)
 {

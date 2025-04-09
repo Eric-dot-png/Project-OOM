@@ -56,6 +56,7 @@ public:
     const QList<Message>& allMessages() const { return messages_; }
 
     quint32 size() const { return messages_.size(); }
+
 protected:
     QString name_, owner_;
     std::unordered_set<QString> members_;

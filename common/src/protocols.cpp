@@ -41,12 +41,6 @@ namespace Serializers
         FriendAccept::destroyInstance();
         FriendDenied::destroyInstance();
         FriendRemoved::destroyInstance();
-        FriendList::destroyInstance();
-        FriendListAccept::destroyInstance();
-        FriendListFailed::destroyInstance();
-        FriendRequestList::destroyInstance();
-        FriendRequestListAccept::destroyInstance();
-        FriendRequestListFailed::destroyInstance();
         CreateGroupRequest::destroyInstance();
         CreateGroupAccept::destroyInstance();
         CreateGroupFail::destroyInstance();

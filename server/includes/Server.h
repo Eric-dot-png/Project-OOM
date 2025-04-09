@@ -22,13 +22,10 @@
 
 #include "config.h"
 
-class Server : public QObject
+class Server : public QObject, public Singleton<Server>
 {
-    Q_OBJECT 
-public:
-    static Server * getInstance();
-    static void destroyInstance();
-                                 
+    Q_OBJECT
+    friend class Singleton<Server>;
 private slots: // these are functions that are connected to signals
     void update();
     void onNewConnection(); // handles client requests 
@@ -57,17 +54,16 @@ private:
     void handleLoginRequest(QTcpSocket *, const QJsonObject &);
     void handleAuthCodeSubmit(QTcpSocket *, const QJsonObject &);
     void handleCreateAccountRequest(QTcpSocket *, const QJsonObject &);
-    void handleFriendList(QTcpSocket *, const QJsonObject &);
-    void handleFriendRequestList(QTcpSocket *, const QJsonObject &);
     void handleExtendMessageHistory(QTcpSocket *, const QJsonObject&);
     void handleCreateGroupRequest(QTcpSocket *, const QJsonObject &,
                                   const QByteArray &);
     void handleGroupMessage(const QJsonObject &, const QByteArray &);
     void handleAnnounceOffline(const QJsonObject&);
-    static Server * instance;
-
-    QTimer * timer;
+    void handleUnblockUser(const QJsonObject&);
+    void handleBlockUser(const QJsonObject&); 
+    
     QTcpServer * listener;
+    QTimer * timer;
     dbHandler * db;
     
     std::unordered_map<QString, QTcpSocket*> onlineUserMap;

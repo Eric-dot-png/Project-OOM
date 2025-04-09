@@ -248,6 +248,17 @@ void NetworkManager::forwardGroupMessage(const QString & owner,
     writeToServer(Protocol::GroupMessage, {owner, name, from, message});
 }
 
+void NetworkManager::forwardBlock(const QString& to, const QString& from)
+{
+    writeToServer(Protocol::BlockUser, {from, to});
+}
+
+void NetworkManager::forwardUnblock(const QString& to, const QString& from)
+{
+    writeToServer(Protocol::UnblockUser, {from, to});
+}
+
+
 void NetworkManager::writeToServer(Protocol type,
                                    const QList<QJsonValue> & argv) const
 {

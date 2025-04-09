@@ -52,6 +52,7 @@ Client::Client()
     connect(nw, &NetworkManager::detectedPM, this, &Client::handleDM);
     
     connect(nw, &NetworkManager::detectedFriendReq, this, [&](const QString& u){
+        friendlist.recieveRequest(u);
         current_user.addFriendRequest(u);
         emit recievedFriendRequest(u);
     });
@@ -59,15 +60,18 @@ Client::Client()
     connect(nw, &NetworkManager::detectedFriendAccept, this, [&](const QString& u){
         current_user.removeFriendRequest(u);
         current_user.addFriend(u);
+        friendlist.requestAccepted(u);
         emit friendAccepted(u);
     });
 
     connect(nw, &NetworkManager::detectedFriendDeny, this, [&](const QString& u) {
         // do nothing (remove from outgoing friendrequest?)
+        friendlist.requestDenied(u);
     });
     
     connect(nw, &NetworkManager::detectedFriendRM, this, [&](const QString& u){
         current_user.removeFriend(u);
+        friendlist.unfriend(u);
         emit recievedFriendRemove(u);
     });
 
@@ -225,6 +229,7 @@ void Client::friendRequest(const User& u)
     if (state == ClientState::LoggedIn)
     {
         qDebug() << "Sending Friend Request";
+        friendlist.sendRequest(u.get_username());
         nw->forwardFriendReq(u.get_username(), current_user.get_username());
     }
     else
@@ -242,6 +247,7 @@ void Client::acceptFriend(const User& u)
         qDebug() << "Accepting Friend Request";
         current_user.removeFriendRequest(u.get_username());
         current_user.addFriend(u.get_username());
+        friendlist.acceptRequest(u.get_username());
         nw->forwardFriendAccept(u.get_username(),current_user.get_username());
     }
     else if (state != ClientState::LoggedIn)
@@ -261,6 +267,7 @@ void Client::denyFriend(const User& u)
     {
         qDebug() << "Denying Friend Request";
         current_user.removeFriendRequest(u.get_username());
+        friendlist.denyRequest(u.get_username());
         nw->forwardFriendDeny(u.get_username(), current_user.get_username());
     }
     else if (state != ClientState::LoggedIn)
@@ -290,6 +297,32 @@ void Client::removeFriend(const User& u)
     else
     {
         qDebug() << u.get_username() << "is not on friendslist.";
+    }
+}
+
+void Client::block(const User& u)
+{
+    if (state == ClientState::LoggedIn)
+    {
+        blocklist.add(u.get_username());
+        nw->forwardBlock(u.get_username(), current_user.get_username());
+    }
+    else
+    {
+        qDebug() << "Can't block, not in loggedin state.";
+    }
+}
+
+void Client::unblock(const User& u)
+{
+    if (state == ClientState::LoggedIn)
+    {
+        blocklist.remove(u.get_username());
+        nw->forwardUnblock(u.get_username(), current_user.get_username());
+    }
+    else
+    {
+        qDebug() << "Can't block, not in loggedin state.";
     }
 }
 

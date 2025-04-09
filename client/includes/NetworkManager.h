@@ -67,6 +67,8 @@ public:
 
     void forwardGroupMessage(const QString & owner, const QString & name,
                              const QString & from, const QString & message) const;
+    void forwardBlock(const QString& to, const QString& from);
+    void forwardUnblock(const QString& to, const QString& from);
     
 signals:
     void connected();

@@ -17,6 +17,8 @@
 #include "ChatObject.h"
 #include "DirectMessage.h"
 #include "Group.h"
+#include "FriendList.h"
+#include "BlockList.h"
 
 class Client : public QObject, public Singleton<Client>
 {
@@ -65,12 +67,16 @@ public:
     
     void removeFriend(const User& u);
 
+    void block(const User& u);
+
+    void unblock(const User& u);
+    
     // this one right below not needed anymore...
     void extendMessageHistory(const User& u, quint32 currentSize);
     void extendMessageHistory(const User&u);
     
     const ChatObject * getDMsWith(const QString& u) const;
-
+    
     void createGroup(const QString & name, const QStringList & members) const;
     void messageGroup(const QString & owner, const QString & name,
                       const QString & message) const;
@@ -142,7 +148,9 @@ private:
     NetworkManager * nw;
     ClientState state;
     User current_user;
-    
+
+    FriendList friendlist;
+    BlockList blocklist;
 };
 
 #endif

@@ -37,17 +37,13 @@ QJsonArray toJArray(const QStringList& li)
     return ret;
 }
 
-// Static pointer for the singleton instance of Server
-Server * Server::instance(NULL);
-
 // Constructor: sets up the TCP server, database handler instance, and a timer used for
 // periodic maintenance tasks (e.g., cleaning up registrations).
 Server::Server(QObject * parent)
     : QObject(parent), listener(new QTcpServer(this)),
-      timer(new QTimer(this))
+      timer(new QTimer(this)),
+      db(dbHandler::GetInstance())
 {
-    timer->setInterval(60000); // 1 minute interval
-
     // When a new client connects, call onNewConnection
     connect(listener, &QTcpServer::newConnection, this,
             &Server::onNewConnection);
@@ -57,14 +53,17 @@ Server::Server(QObject * parent)
     
     // Start listening on the specified IP and port
     if (listener->listen(SERVER_HOST_IP, SERVER_PORT))
+    {
         qDebug() << "Listening on port"
                  << listener->serverPort() << "...";
+    }
     else
+    {
         qDebug() << "ERROR: Server could not start!";
+    }
     
-    // Obtain the singleton instance of the database handler
-    db = dbHandler::GetInstance();
-
+    timer->setInterval(60000); // 1 minute interval
+    
     // Start the timer
     timer->start();
 }
@@ -75,24 +74,6 @@ Server::~Server()
     listener->close();
 }
     
-// Retrieve the singleton instance of Server, creating it if needed.
-Server * Server::getInstance()
-{
-    if (instance == NULL)
-        instance = new Server;
-    return instance;
-}
-    
-// Destroy the singleton server instance and free its memory.
-void Server::destroyInstance()
-{
-    if (instance != NULL)
-    {
-        delete instance;
-        instance = NULL;
-    }
-}
-
 // Called periodically to perform maintenance tasks, such as cleaning up registrations.
 void Server::update()
 {
@@ -121,6 +102,16 @@ void Server::onNewConnection()
         // Check the protocol type to decide which operation to perform
         switch(type)
         {
+            case Protocol::UnblockUser:
+            {
+                handleUnblockUser(m);
+                break;
+            }
+            case Protocol::BlockUser:
+            {
+                handleBlockUser(m);
+                break;
+            }
             case Protocol::AnnounceOffline:
             {
                 handleAnnounceOffline(m);
@@ -174,16 +165,6 @@ void Server::onNewConnection()
             case Protocol::CreateAccountRequest:
             {
                 handleCreateAccountRequest(client, m);
-                break;
-            }
-            case Protocol::FriendList:
-            {
-                handleFriendList(client, m);
-                break;
-            }
-            case Protocol::FriendRequestList:
-            {
-                handleFriendRequestList(client, m);
                 break;
             }
             case Protocol::CreateGroupRequest:
@@ -384,43 +365,6 @@ void Server::handleCreateAccountRequest(QTcpSocket * client,
     }
 }
 
-void Server::handleFriendList(QTcpSocket * client, const QJsonObject & m)
-{
-    // Retrieve the friend list for a user and send it back to the client
-    QString usr = m["From"].toString();
-    QStringList list = db->getFriendslist(usr);
-    
-    QJsonArray jarray;
-    for (const QString &str : list)
-        jarray.append(str);
-    QJsonValue j = jarray;
-    
-    // If there's at least one friend, send FriendListAccept; otherwise, FriendListFailed
-    if (!jarray.isEmpty())
-        writeToSocket(client, Protocol::FriendListAccept, {usr, j});
-    else
-        writeToSocket(client, Protocol::FriendListFailed, {usr, j});
-}
-
-void Server::handleFriendRequestList(QTcpSocket * client,
-                                     const QJsonObject & m)
-{
-    // Retrieve all friend requests for the given user
-    QString usr = m["From"].toString();
-    QStringList list = db->getFriendRequests(usr);
-    
-    QJsonArray jarray;
-    for (const QString &str : list)
-        jarray.append(str);
-    QJsonValue j = jarray;
-    
-    // If there's at least one request, send FriendRequestListAccept; otherwise, FriendRequestListFailed
-    if (!jarray.isEmpty())
-        writeToSocket(client, Protocol::FriendRequestListAccept, {usr, j});
-    else
-        writeToSocket(client, Protocol::FriendRequestListFailed, {usr, j});
-}
-
 void Server::handleExtendMessageHistory(QTcpSocket * client,
                                         const QJsonObject & m)
 {
@@ -502,4 +446,14 @@ void Server::handleAnnounceOffline(const QJsonObject& m)
     auto p = onlineUserMap.find(u);
     if (p != onlineUserMap.end())
         onlineUserMap.erase(p);
+}
+
+void Server::handleUnblockUser(const QJsonObject& m)
+{
+    qDebug() << "Doing nothing for now.... no db for blocks.";
+}
+
+void Server::handleBlockUser(const QJsonObject& m)
+{
+    qDebug() << "Doing nothing for now.... no db for blocks.";
 }

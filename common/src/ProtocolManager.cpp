@@ -4,7 +4,8 @@
 #include "ProtocolManager.h"
 
 // protocol serializer instance map
-std::unordered_map<Protocol, Serializers::AbstractSerializer*> ProtocolManager::map = {
+std::unordered_map<Protocol,
+                   Serializers::AbstractSerializer*> ProtocolManager::map = {
     {Protocol::LoginRequest, Serializers::LoginRequest::getInstance()},
     {Protocol::LoginDenied, Serializers::LoginDenied::getInstance()},
     {Protocol::LoginAccept, Serializers::LoginAccept::getInstance()},
@@ -26,22 +27,20 @@ std::unordered_map<Protocol, Serializers::AbstractSerializer*> ProtocolManager::
     {Protocol::FriendAccept, Serializers::FriendAccept::getInstance()},
     {Protocol::FriendDenied, Serializers::FriendDenied::getInstance()},
     {Protocol::FriendRemoved, Serializers::FriendRemoved::getInstance()},
-    {Protocol::FriendList, Serializers::FriendList::getInstance()},
-    {Protocol::FriendListAccept, Serializers::FriendListAccept::getInstance()},
-    {Protocol::FriendListFailed, Serializers::FriendListFailed::getInstance()},
-    {Protocol::FriendRequestList, Serializers::FriendRequestList::getInstance()},
-    {Protocol::FriendRequestListAccept, Serializers::FriendRequestListAccept::getInstance()},
-    {Protocol::FriendRequestListFailed, Serializers::FriendRequestListFailed::getInstance()},
     {Protocol::ExtendMessageHistory,
      Serializers::ExtendMessageHistory::getInstance()},
     {Protocol::ExtendMessageHistoryAccept,
      Serializers::ExtendMessageHistoryAccept::getInstance()},
     {Protocol::ExtendMessageHistoryDenied,
      Serializers::ExtendMessageHistoryDenied::getInstance()},
-    {Protocol::CreateGroupRequest, Serializers::CreateGroupRequest::getInstance()},
-    {Protocol::CreateGroupAccept, Serializers::CreateGroupAccept::getInstance()},
+    {Protocol::CreateGroupRequest,
+     Serializers::CreateGroupRequest::getInstance()},
+    {Protocol::CreateGroupAccept,
+     Serializers::CreateGroupAccept::getInstance()},
     {Protocol::CreateGroupFail, Serializers::CreateGroupFail::getInstance()},
-    {Protocol::GroupMessage, Serializers::GroupMessage::getInstance()}
+    {Protocol::GroupMessage, Serializers::GroupMessage::getInstance()},
+    {Protocol::BlockUser, Serializers::BlockUser::getInstance()},
+    {Protocol::UnblockUser, Serializers::UnblockUser::getInstance()}
 };
 
 QByteArray ProtocolManager::serialize(Protocol t, const QList<QJsonValue>& v)
