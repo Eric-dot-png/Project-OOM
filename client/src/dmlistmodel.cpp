@@ -1,8 +1,5 @@
 #include "dmlistmodel.h"
 
-DMListModel::DMListModel(QObject *parent)
-    : QAbstractListModel{parent}
-{}
 
 void DMListModel::addUserToDMList(const User &user)
 {
@@ -18,15 +15,14 @@ void DMListModel::addUserToDMList(const User &user)
 
 QList<Message> DMListModel::getMessageHistory(const User &user) const
 {
-    return dmMap.contains(user) ? dmMap[user].messageHistory : QList<Message>();
+    return dmMap.contains(user) ? oomWidget->getClient()->getDMsWith(user.get_username())->allMessages() : QList<Message>();
+    //return dmMap.contains(user) ? dmMap[user].messageHistory : QList<Message>();
 }
 
 void DMListModel::messageReceived(const User& user, const Message msg)
 {
     if (!dmMap.contains(user))
         addUserToDMList(user);
-
-
 
     int oldIndex = dmList.indexOf(user);
 
@@ -42,7 +38,7 @@ void DMListModel::messageReceived(const User& user, const Message msg)
         endInsertRows();
     }
 
-    dmMap[user].messageHistory.append(msg);
+    //dmMap[user].messageHistory.append(msg);
     emit dataChanged(index(0), index(0));
 }
 
@@ -80,9 +76,9 @@ QVariant DMListModel::data(const QModelIndex& index, int role) const
     //qDebug() << "Retrieved DMData for: " << dm.user.get_username();
 
     if (role == Qt::DisplayRole) {
-        QString msg = dm.messageHistory.isEmpty() ? "(No messages)" : dm.messageHistory.last().get_msg();
+        QString msg = oomWidget->getClient()->getDMsWith(user.get_username())->allMessages().isEmpty() ? "(No messages)" : oomWidget->getClient()->getDMsWith(user.get_username())->allMessages().first().get_msg();
         //qDebug() << "Data: " << msg;
-        return QString("%1: %2...").arg(dm.user.get_username(), msg.left(13));
+        return QString("%1: %2...").arg(dm.user.get_username(), msg.left(20));
     } else if (role == Qt::UserRole) {
         //qDebug() << "Returning user object";
         return QVariant::fromValue(dm.user);
@@ -91,7 +87,7 @@ QVariant DMListModel::data(const QModelIndex& index, int role) const
         return dm.user.get_username();
     } else if (role == Qt::UserRole + 2) {
         //qDebug() << "Returning messageHistory";
-        return QVariant::fromValue(dm.messageHistory);
+        return QVariant::fromValue(oomWidget->getClient()->getDMsWith(user.get_username())->allMessages());
     }
 
     //qDebug() << "unhandled role in data()";

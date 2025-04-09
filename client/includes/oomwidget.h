@@ -16,10 +16,17 @@ public:
     static void setClient(Client *c) { client = c; }
     static Client *getClient() { return client; }
 
+    QString loadStyleSheet(const QString& resourcePath);
+
 protected:
     static Client *client;
     OOMWidget(const OOMWidget&) = default;
     OOMWidget& operator=(const OOMWidget&) = default;
+
+    QMap<QString, QString> styles {
+        {"DarkMode", ":/stylesheets/stylesheets/darkmode.qss"},
+        {"LightMode", ":/stylesheets/stylesheets/lightmode.qss"}
+    };
 
 };
 

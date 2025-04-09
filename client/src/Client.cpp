@@ -450,13 +450,17 @@ void Client::handleGroupMessage(const QString & owner, const QString & name,
 
 void Client::handleMoreMsgs(const QString& user, const QJsonArray & messages)
 {
+    QList<Message> l = {};
     for (const QJsonValue& msg : messages)
     {
         Message m(msg["From"].toString(),
                   msg["To"].toString(),
-                  msg["Mesage"].toString());
+                  msg["Message"].toString());
         chats[dmKey(user)]->sendMessage(m);
+        l.append(m);
+        qDebug() << "Sending messages: " << m.get_msg();
     }
+    //emit recievedMoreMsgs(l);
 }
 
 void Client::createGroup(const QString & name, const QStringList & members) const

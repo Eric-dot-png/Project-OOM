@@ -5,17 +5,19 @@
 #include <QVariant>
 #include "User.h"
 #include "message.h"
+#include "oomwidget.h"
 
 struct DMData {
     User user;
-    QList<Message> messageHistory;
+    QList<Message> messageHistory; // not used
 };
 
 class DMListModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    explicit DMListModel(QObject *parent = nullptr);
+    explicit DMListModel(OOMWidget* widget, QObject *parent = nullptr)
+        : QAbstractListModel(parent), oomWidget(widget) {}
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
@@ -30,6 +32,7 @@ public:
 private:
     QList<User> dmList;
     QHash<User, DMData> dmMap;
+    OOMWidget* oomWidget;
 };
 
 Q_DECLARE_METATYPE(QList<Message>)

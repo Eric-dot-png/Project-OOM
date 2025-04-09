@@ -11,6 +11,7 @@
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
@@ -31,6 +32,7 @@ public:
     QLineEdit *passwordTextbox;
     QLineEdit *usernameTextbox;
     QLabel *loadingLabel;
+    QCheckBox *styleCheckbox;
 
     void setupUi(QWidget *Login)
     {
@@ -77,6 +79,9 @@ public:
         loadingLabel = new QLabel(Login);
         loadingLabel->setObjectName(QString::fromUtf8("loadingLabel"));
         loadingLabel->setGeometry(QRect(560, 270, 45, 45));
+        styleCheckbox = new QCheckBox(Login);
+        styleCheckbox->setObjectName(QString::fromUtf8("styleCheckbox"));
+        styleCheckbox->setGeometry(QRect(290, 10, 111, 41));
         usernameTextbox->raise();
         label->raise();
         label_2->raise();
@@ -87,6 +92,7 @@ public:
         authFailedLabel->raise();
         passwordTextbox->raise();
         loadingLabel->raise();
+        styleCheckbox->raise();
         QWidget::setTabOrder(usernameTextbox, passwordTextbox);
         QWidget::setTabOrder(passwordTextbox, loginButton);
         QWidget::setTabOrder(loginButton, registerButton);
@@ -116,6 +122,7 @@ public:
         passwordTextbox->setPlaceholderText(QCoreApplication::translate("Login", "Password", nullptr));
         usernameTextbox->setPlaceholderText(QCoreApplication::translate("Login", "Username", nullptr));
         loadingLabel->setText(QString());
+        styleCheckbox->setText(QCoreApplication::translate("Login", "Dark Mode", nullptr));
     } // retranslateUi
 
 };

@@ -24,6 +24,8 @@ public:
     explicit Login(QWidget *parent = nullptr);
     ~Login();
 
+
+
 signals:
     void loginSuccess();
     void registerRequested();

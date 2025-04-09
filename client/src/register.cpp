@@ -35,6 +35,12 @@ Register::Register(QWidget *parent)
 
     // When account creation fails (emitted by the Client), enable the 'Back to Login' button again
     connect(client, &Client::accountNotCreated, this, &Register::setBackEnabled);
+
+    connect(client, &Client::accountCreated, this, [=](){
+        resetForm(true);
+        registerUi->loadingLabel->setVisible(false);
+        registerUi->backToLoginButton->setEnabled(true);
+    });
 }
 
 // Destructor: Cleans up the dynamically allocated UI.

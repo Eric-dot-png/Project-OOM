@@ -98,6 +98,7 @@ signals:
     void discoverUserSucceed(const QString& username,
                              const QJsonArray & messageJsonList);
     void recievedDM(const QString& from, const QString& msg);
+    void recievedMoreMsgs(const QList<Message> list);
     void recievedFriendRequest(const QString& from);
     void recievedFriendRemove(const QString& from);
     void friendAccepted(const QString& from);

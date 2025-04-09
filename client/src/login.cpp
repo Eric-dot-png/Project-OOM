@@ -23,6 +23,20 @@ Login::Login(QWidget *parent)
         loginUi->loadingLabel->setVisible(false);
         loginUi->authFailedLabel->setText("Login failed! \nPlease try again or make an account if you don't have one!");
     });
+
+    connect(client, &Client::loginSuccess, this, [=]() {
+        loginUi->loadingLabel->setVisible(false);
+        loginUi->authFailedLabel->setVisible(false);
+    });
+
+    loginUi->styleCheckbox->setChecked(false);
+
+    connect(loginUi->styleCheckbox, &QCheckBox::toggled, this, [=](bool checked) {
+        if (checked)
+            qApp->setStyleSheet(loadStyleSheet(styles["DarkMode"]));
+        else
+            qApp->setStyleSheet(loadStyleSheet(styles["LightMode"]));
+    });
 }
 
 Login::~Login() {
@@ -51,5 +65,7 @@ void Login::handleLogin() {
 //The slot that receives this signal is in applicationHandler.cpp
 void Login::goToRegister() {
     qDebug() << "Navigating to Register Page... ";
+    loginUi->authFailedLabel->setVisible(false);
+    loginUi->loadingLabel->setVisible(false);
     emit registerRequested();
 }

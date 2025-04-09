@@ -274,6 +274,10 @@ void NetworkManager::handleServerMessage()
     qDebug() << "Network Manager Recieved" << data << "from the server.";
     QJsonObject m = ProtocolManager::deserialize(data);
     Protocol type = static_cast<Protocol>(m["Type"].toInt());
-    if (emitMap.find(type) != emitMap.end()) emitMap[type](m);
-    else qDebug() << "ERROR: Network Manager cannot handle this data.";
+    qDebug() << "data<string>: " << m["Type"].toString() << ", data<int>: " << m["Type"].toInt();
+    if (emitMap.find(type) != emitMap.end()) {
+        emitMap[type](m);
+        qDebug() << "inside if statement: data<string>: " << m["Type"].toString() << ", data<int>: " << m["Type"].toInt();
+    }
+    else qDebug() << "ERROR: Network Manager cannot handle this data: " << m["Type"].toString() << ", int: " << m["type"].toInt();
 }

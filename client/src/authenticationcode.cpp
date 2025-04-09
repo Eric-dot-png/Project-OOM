@@ -14,6 +14,11 @@ authenticationCode::authenticationCode(QWidget *parent)
     AuthUi->setupUi(this);
     connect(AuthUi->submitButton, &QPushButton::clicked, this, &authenticationCode::authenticateUser);
     connect(client, &Client::accountAuthenticationFail, this, &authenticationCode::authenticationFailed);
+    connect(client, &Client::accountAuthenticated, this, [=](){
+        AuthUi->codeTextbox->clear();
+        AuthUi->authFailedLabel->setVisible(false);
+        AuthUi->loadingLabel->setVisible(false);
+    });
 
     AuthUi->loadingLabel->setVisible(false);
 

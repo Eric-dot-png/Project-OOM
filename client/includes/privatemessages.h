@@ -55,9 +55,6 @@ public:
 private slots:
     void onEnterKeyPressed();
 
-    //Takes the json file and parses it
-    void loadPage();
-
     void openDM(const QModelIndex &index);
     
 signals:
@@ -73,6 +70,11 @@ private:
 
     QString formatClientMessage();
     QString formatOtherMessage();
+
+    // for connect() functions
+    void connectClient();
+    void connectUI();
+
     void searchUser();
     void sendFriendRequest();
     void receivedMessage(QString from, QString msg);
