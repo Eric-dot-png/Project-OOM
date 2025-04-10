@@ -67,6 +67,7 @@ private:
 
     //scuffed for now
     User currentlyMessaging;
+    bool loadMoreMessagesFlag;
 
     QString formatClientMessage();
     QString formatOtherMessage();

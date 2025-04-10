@@ -50,6 +50,8 @@ PrivateMessages::PrivateMessages(QWidget *parent)
     // Setup Client and UI
     connectClient();
     connectUI();
+
+    loadMoreMessagesFlag = false;
 }
 
 // Destructor: Cleans up the UI.
@@ -81,9 +83,10 @@ void PrivateMessages::connectClient()
 
         // Add the found user to the messaging list
         messagingList->addUserToDMList(currentlyMessaging);
+        QScrollBar* sb = ui->textBrowser->verticalScrollBar();
 
         // Populate the text browser with the returned messages (server history)
-        for (int i = messageJsonList.size() - 1; i >= 0; --i)
+        for (int i = messageJsonList.size() - 1, j = 0; i >= 0; --i, j++)
         {
             QJsonObject obj = messageJsonList[i].toObject();
             QString to = obj["To"].toString();
@@ -92,8 +95,11 @@ void PrivateMessages::connectClient()
 
             ui->textBrowser->append(QString("[%1]: %2").arg(from, msg));
             messagingList->messageReceived(currentlyMessaging, Message(from, to, msg));
+
         }
 
+        sb->setValue(sb->maximum());
+        loadMoreMessagesFlag = true;
         // Show or hide the Add Friend button depending on whether the user is already a friend
         showAddFriendButton();
     });
@@ -193,14 +199,17 @@ void PrivateMessages::connectUI()
         QScrollBar* sb = ui->textBrowser->verticalScrollBar();
         quint32 currentSize = static_cast<quint32>(ui->textBrowser->document()->blockCount());
         //qDebug() << "currentSize: " << currentSize;
-        if (value == sb->minimum()) {
+
+        if (value > sb->minimum() + 1 && value < sb->minimum() + 10 && loadMoreMessagesFlag) {
 
             const ChatObject* dm = client->getDMsWith(currentlyMessaging.get_username());
             if (dm)
             {
                 quint32 size = dm->allMessages().size();
                 //qDebug() << "size: " << size;
-                //client->extendMessageHistory(currentlyMessaging, size);
+
+                //extendMessageHistory is bugged
+                client->extendMessageHistory(currentlyMessaging, size);
 
                 //Then connect function below should call for
                 // &Client::recievedMoreMsgs to show messages instantly
@@ -214,16 +223,24 @@ void PrivateMessages::connectUI()
 
     //SCROLLBAR EXTEND
     // uncomment the signal in client.cpp
-    // connect(client, &Client::recievedMoreMsgs, this, [=](const QList<Message> list)
-    // {
-    //     for (const Message &msg : list)
-    //     {
-    //         QString newMsg = QString("[%1]: %2").arg(msg.get_sender(), msg.get_msg());
-    //         QString currentText = ui->textBrowser->toPlainText();
+    connect(client, &Client::recievedMoreMsgs, this, [=](const QList<Message> list)
+    {
+        QScrollBar* sb = ui->textBrowser->verticalScrollBar();
+        int oldValue = sb->value();
+        int oldMax = sb->maximum();
 
-    //         ui->textBrowser->setPlainText(newMsg + '\n' + currentText);
-    //     }
-    // });
+        for (const Message &msg : list)
+        {
+            QString newMsg = QString("[%1]: %2").arg(msg.get_sender(), msg.get_msg());
+            QString currentText = ui->textBrowser->toPlainText();
+
+            ui->textBrowser->setPlainText(newMsg + '\n' + currentText);
+        }
+
+        int newMax = sb->maximum();
+        int d = newMax - oldMax;
+        sb->setValue(oldValue + d);
+    });
 
     //COMBOBOX ---- TODO
     connect(ui->friendCombobox, QOverload<int>::of(&QComboBox::activated), this, [=](int index){
@@ -337,6 +354,7 @@ void PrivateMessages::searchUser()
     // Indicate that we are searching
     ui->userNotFoundLabel->setText("Currently searching for: " + u.get_username());
     client->discover(u);
+    loadMoreMessagesFlag = false;
     ui->searchUserTextbox->clear();
 }
 
@@ -359,6 +377,7 @@ void PrivateMessages::onEnterKeyPressed()
 
     // Send the message to the server
     client->privateMessage(currentlyMessaging.get_username(), msg.get_msg());
+    ui->textBrowser->verticalScrollBar()->setValue(ui->textBrowser->verticalScrollBar()->maximum());
 }
 
 // Called when a message arrives from the server. If the user is currently being messaged,
@@ -384,6 +403,7 @@ void PrivateMessages::receivedMessage(QString from, QString amsg)
 // and populates the text browser with existing message history.
 void PrivateMessages::openDM(const QModelIndex &index)
 {
+    loadMoreMessagesFlag = false;
     if (!index.isValid())
     {
         qDebug() << "Invalid index in openDM.";
@@ -415,7 +435,7 @@ void PrivateMessages::openDM(const QModelIndex &index)
         const Message &msg = messages[i];
         ui->textBrowser->appendMessage(msg, 1);
     }
-
+    loadMoreMessagesFlag = true;
 }
 
 // Sends a friend request to the user if they are not already a friend and

@@ -78,7 +78,7 @@ public:
         label->setGeometry(QRect(350, 50, 101, 20));
         userNotFoundLabel = new QLabel(PrivateMessages);
         userNotFoundLabel->setObjectName(QString::fromUtf8("userNotFoundLabel"));
-        userNotFoundLabel->setGeometry(QRect(580, 10, 241, 101));
+        userNotFoundLabel->setGeometry(QRect(580, 10, 211, 101));
         userNotFoundLabel->setWordWrap(true);
         currentUser = new QLabel(PrivateMessages);
         currentUser->setObjectName(QString::fromUtf8("currentUser"));
@@ -95,7 +95,7 @@ public:
         label_2->setGeometry(QRect(1050, 0, 191, 41));
         groupBox = new QGroupBox(PrivateMessages);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
-        groupBox->setGeometry(QRect(840, 10, 191, 131));
+        groupBox->setGeometry(QRect(800, 0, 191, 131));
         friendRequestComboBox = new QComboBox(groupBox);
         friendRequestComboBox->setObjectName(QString::fromUtf8("friendRequestComboBox"));
         friendRequestComboBox->setGeometry(QRect(40, 40, 121, 26));

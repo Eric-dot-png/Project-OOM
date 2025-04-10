@@ -460,7 +460,7 @@ void Client::handleMoreMsgs(const QString& user, const QJsonArray & messages)
         l.append(m);
         qDebug() << "Sending messages: " << m.get_msg();
     }
-    //emit recievedMoreMsgs(l);
+    emit recievedMoreMsgs(l);
 }
 
 void Client::createGroup(const QString & name, const QStringList & members) const
