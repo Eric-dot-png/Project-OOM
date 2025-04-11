@@ -132,7 +132,7 @@ CREATE TABLE `GroupMessage` (
   `sender` varchar(100) NOT NULL,
   `sentAt` timestamp NULL DEFAULT current_timestamp(),
   `message` text NOT NULL,
-  `deleted` tinyint(1) DEFAULT 0,
+  `deletedmsg` tinyint(1) DEFAULT 0,
   KEY `groupId` (`groupId`),
   KEY `sender` (`sender`),
   CONSTRAINT `GroupMessage_ibfk_1` FOREIGN KEY (`groupId`) REFERENCES `GroupInfo` (`id`),
