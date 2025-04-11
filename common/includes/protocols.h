@@ -452,7 +452,6 @@ namespace Serializers
             return serializeUtil(Protocol::UnblockUser, argv, {"From","To"});
         }
     };
-    
     // destroy all serializer instances. called in the bottom of both main.cpp
     void destroyInstances();
 };

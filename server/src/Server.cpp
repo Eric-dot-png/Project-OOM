@@ -86,15 +86,36 @@ void Server::update()
 void Server::onNewConnection()
 {
     QTcpSocket * client = listener->nextPendingConnection();
-
+    
     // Set up a lambda function to handle incoming data from this client
     connect(client, &QTcpSocket::readyRead, this, [this, client]()
     {
         QByteArray data = client->readAll();
         qDebug() << "Recieved" << data << "from"
                  << client->socketDescriptor();
-        
-        // Deserialize the incoming JSON data into a QJsonObject
+
+        if (buffers.find(client) == buffers.end())
+        {
+            qDebug() << "Buffer not found, initializing new buffer...";
+            buffers[client] = TcpBuffer();
+            qDebug() << "Done.";
+        }
+        qDebug() << "Pushing data to buffer...";
+        buffers[client].append(data);
+        qDebug() << "Done.";
+        if (buffers[client].readyRead())
+        {
+            qDebug() << "Buffer is ready to be read. Reading...";
+            // note : buffer.read() clears the buffer
+            handleBufferReadyRead(client, buffers[client].read());
+            qDebug() << "Done.";
+        }
+    });
+}
+
+void Server::handleBufferReadyRead(QTcpSocket * client,const QByteArray& data)
+{
+    // Deserialize the incoming JSON data into a QJsonObject
         QJsonObject m = ProtocolManager::deserialize(data);
         
         Protocol type = static_cast<Protocol>(m["Type"].toInt());
@@ -184,7 +205,6 @@ void Server::onNewConnection()
                 break;
             }
         }
-    });
 }
 
 // Writes a raw QByteArray message directly to a user if they're in the onlineUserMap.
@@ -203,7 +223,7 @@ void Server::writeToSocket(QTcpSocket * socket, Protocol type,
 {
     if (socket != NULL)
     {
-        socket->write(ProtocolManager::serialize(type,argv));
+        TcpSmartWrite(socket, ProtocolManager::serialize(type,argv));
     }
 }
 

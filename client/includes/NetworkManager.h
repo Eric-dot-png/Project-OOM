@@ -14,6 +14,7 @@
 #include <QEventLoop>
 #include <QTimer>
 
+#include "TcpBuffer.h"
 #include "config.h"
 #include "ProtocolManager.h"
 #include "singleton.h"
@@ -95,6 +96,7 @@ signals:
                               const QString & from, const QString & message);
 private:
     QTcpSocket * socket;
+    TcpBuffer buff;
     std::unordered_map<Protocol,std::function<void(QJsonObject)>> emitMap;
     
     NetworkManager();
@@ -103,7 +105,8 @@ private:
     // utility function to write to the server. uses protocol manager
     // to serialize the arguments.
     void writeToServer(Protocol type, const QList< QJsonValue > & argv) const;
-                                                                             
+
+    void handleReadyRead();
 private slots:
 
     // Handles messages recieved from the server. Emits signals

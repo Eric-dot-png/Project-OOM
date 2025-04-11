@@ -264,20 +264,37 @@ void NetworkManager::writeToServer(Protocol type,
 {
     if (socket->state() == QAbstractSocket::ConnectedState)
     {
-        socket->write(ProtocolManager::serialize(type,argv));
-    }else qDebug() << "ERROR: Network Manager is not connected to server.";
+        TcpSmartWrite(socket, ProtocolManager::serialize(type, argv));
+    }
+    else qDebug() << "ERROR: Network Manager is not connected to server.";
+}
+
+void NetworkManager::handleReadyRead()
+{
+    QByteArray data = buff.read(); // clears the buffer aswell
+    QJsonObject m = ProtocolManager::deserialize(data);
+    Protocol type = static_cast<Protocol>(m["Type"].toInt());
+    qDebug() << "data<string>: " << m["Type"].toString() << ", data<int>: "
+             << m["Type"].toInt();
+    if (emitMap.find(type) != emitMap.end())
+    {
+        emitMap[type](m);
+        qDebug() << "inside if statement: data<string>: "
+                 << m["Type"].toString() << ", data<int>: "
+                 << m["Type"].toInt();
+    }
+    else
+    {
+        qDebug() << "ERROR: Network Manager cannot handle this data: "
+                 << m["Type"].toString() << ", int: " << m["type"].toInt();
+    }
 }
 
 void NetworkManager::handleServerMessage()
 {
     QByteArray data = socket->readAll();
     qDebug() << "Network Manager Recieved" << data << "from the server.";
-    QJsonObject m = ProtocolManager::deserialize(data);
-    Protocol type = static_cast<Protocol>(m["Type"].toInt());
-    qDebug() << "data<string>: " << m["Type"].toString() << ", data<int>: " << m["Type"].toInt();
-    if (emitMap.find(type) != emitMap.end()) {
-        emitMap[type](m);
-        qDebug() << "inside if statement: data<string>: " << m["Type"].toString() << ", data<int>: " << m["Type"].toInt();
-    }
-    else qDebug() << "ERROR: Network Manager cannot handle this data: " << m["Type"].toString() << ", int: " << m["type"].toInt();
+    
+    buff.append(data);
+    if (buff.readyRead()) handleReadyRead();
 }

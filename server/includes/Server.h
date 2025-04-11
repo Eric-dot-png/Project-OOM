@@ -6,6 +6,7 @@
 
 #include <cstdlib>
 #include <string>
+#include <unordered_map>
 
 #include <QTcpServer>
 #include <QTcpSocket>
@@ -18,9 +19,8 @@
 
 #include "ProtocolManager.h"
 #include "dbHandler.h"
-#include <unordered_map>
-
 #include "config.h"
+#include "TcpBuffer.h"
 
 class Server : public QObject, public Singleton<Server>
 {
@@ -35,10 +35,10 @@ private:
     Server(const Server&) = delete;
     Server& operator=(const Server&) = delete;
 
+    void handleBufferReadyRead(QTcpSocket * socket, const QByteArray& data);
     void writeToUserRaw(const QString& name, const QByteArray& data);
     void writeToSocket(QTcpSocket * s, Protocol t,
                        const QList<QJsonValue>& argv);
-
     /*----------------------------------------------------------------
       onNewConnection Functions
     ----------------------------------------------------------------*/
@@ -67,6 +67,7 @@ private:
     dbHandler * db;
     
     std::unordered_map<QString, QTcpSocket*> onlineUserMap;
+    std::unordered_map<QTcpSocket*, TcpBuffer> buffers;
 };
 
 #endif
