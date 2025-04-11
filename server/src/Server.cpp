@@ -198,6 +198,11 @@ void Server::handleBufferReadyRead(QTcpSocket * client,const QByteArray& data)
                 handleGroupMessage(m, data);
                 break;
             }
+            case Protocol::GetGroupHistory:
+            {
+                handleGetGroupHistory(client, m);
+                break;
+            }
             default:
             {
                 // Handle unexpected protocol types
@@ -300,7 +305,9 @@ void Server::handleLoginRequest(QTcpSocket * client, const QJsonObject & m)
         QJsonArray fs = toJArray(db->getFriendslist(usr));
         QJsonArray frs = toJArray(db->getFriendRequests(usr));
         QJsonArray groups = db->getGroups(usr);
-        writeToSocket(client, Protocol::LoginAccept, {usr, fs, frs, groups});
+        QJsonArray blocklist = toJArray(db->getBlockList(usr));
+        writeToSocket(client, Protocol::LoginAccept,
+                      {usr, fs, frs, groups, blocklist});
         
         onlineUserMap[usr] = client;
     }
@@ -410,7 +417,7 @@ void Server::handleCreateGroupRequest(QTcpSocket * client,
                                       const QByteArray & data)
 {
     QString owner = m["Username"].toString();
-    QString name = m["GroupName"].toString();
+    QString name = m["Name"].toString();
     bool avail = db->availGroup(owner, name);
     if(avail)
     {
@@ -451,7 +458,7 @@ void Server::handleGroupMessage(const QJsonObject & m,
         return;
     qDebug() << "Getting members...";
     QStringList members = db->getGroupMembers(m["Owner"].toString(),
-                                              m["GroupName"].toString());
+                                              m["Name"].toString());
     qDebug() << "Forwarding message to members...";
     for(const QString & member : members)
     {
@@ -470,10 +477,18 @@ void Server::handleAnnounceOffline(const QJsonObject& m)
 
 void Server::handleUnblockUser(const QJsonObject& m)
 {
-    qDebug() << "Doing nothing for now.... no db for blocks.";
+    db->removeBlock(m["From"].toString(), m["To"].toString());
 }
 
 void Server::handleBlockUser(const QJsonObject& m)
 {
-    qDebug() << "Doing nothing for now.... no db for blocks.";
+    db->addBlock(m["From"].toString(), m["To"].toString());
+}
+
+void Server::handleGetGroupHistory(QTcpSocket * client, const QJsonObject & m)
+{
+    QJsonArray messages = db->getGroupMessages(m["Owner"].toString(),
+                                               m["Name"].toString());
+    writeToSocket(client, Protocol::GetGroupHistorySuccess,
+                  {m["Owner"].toString(), m["Name"].toString(), messages});
 }

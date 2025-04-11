@@ -70,12 +70,14 @@ public:
                              const QString & from, const QString & message) const;
     void forwardBlock(const QString& to, const QString& from);
     void forwardUnblock(const QString& to, const QString& from);
+    void groupHistory(const QString & owner, const QString & name) const;
     
 signals:
     void connected();
     void disconnected();
     void loginValid(const QString& usr, const QStringList& friends,
-                    const QStringList& friendRs, const QJsonArray & groups);
+                    const QStringList& friendRs, const QJsonArray & groups,
+                    const QStringList & blocklist);
     void loginInvalid();
     void accSetupPass(const QString& usr, const QString& pwd);
     void accSetupFail();
@@ -94,6 +96,8 @@ signals:
     void createGroupPass(const QString & name, const QStringList & members);
     void detectedGroupMessage(const QString & owner, const QString & name,
                               const QString & from, const QString & message);
+    void groupHistoryFound(const QString & owner, const QString & name,
+                           const QJsonArray & messages);
 private:
     QTcpSocket * socket;
     TcpBuffer buff;

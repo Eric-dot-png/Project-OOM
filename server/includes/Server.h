@@ -61,7 +61,10 @@ private:
     void handleAnnounceOffline(const QJsonObject&);
     void handleUnblockUser(const QJsonObject&);
     void handleBlockUser(const QJsonObject&); 
+    void handleGetGroupHistory(QTcpSocket *, const QJsonObject &);
     
+    static Server * instance;
+
     QTcpServer * listener;
     QTimer * timer;
     dbHandler * db;

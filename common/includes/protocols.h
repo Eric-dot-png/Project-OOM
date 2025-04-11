@@ -44,7 +44,9 @@ enum class Protocol
     CreateGroupFail,
     GroupMessage,
     BlockUser,
-    UnblockUser
+    UnblockUser,
+    GetGroupHistory,
+    GetGroupHistorySuccess
 };
 
 /*
@@ -107,7 +109,8 @@ namespace Serializers
         QByteArray operator()(const QList<QJsonValue>& argv)
         {
             return serializeUtil(Protocol::LoginAccept, argv, {"Username",
-                    "FriendsList", "FriendRequestList", "Groups"});
+                    "FriendsList", "FriendRequestList", "Groups",
+                    "Blocklist"});
         }
     };
 
@@ -425,6 +428,34 @@ namespace Serializers
         {
             return serializeUtil(Protocol::GroupMessage,
                                  argv, {"Owner","Name","From","Message"});
+        }
+    };
+    
+    class GetGroupHistory : public AbstractSerializer,
+                            public Singleton<GetGroupHistory>
+    {
+        friend class Singleton<GetGroupHistory>;
+    private:
+        GetGroupHistory() = default;
+    public:
+        QByteArray operator()(const QList<QJsonValue>& argv)
+        {
+            return serializeUtil(Protocol::GetGroupHistory,
+                                 argv, {"Owner","Name"});
+        }
+    };
+
+    class GetGroupHistorySuccess : public AbstractSerializer,
+                                   public Singleton<GetGroupHistorySuccess>
+    {
+        friend class Singleton<GetGroupHistorySuccess>;
+    private:
+        GetGroupHistorySuccess() = default;
+    public:
+        QByteArray operator()(const QList<QJsonValue>& argv)
+        {
+            return serializeUtil(Protocol::GetGroupHistorySuccess,
+                                 argv, {"Owner","Name","Messages"});
         }
     };
 

@@ -90,7 +90,9 @@ Client::Client()
     });
 
     connect(nw, &NetworkManager::detectedGroupMessage, this, &Client::handleGroupMessage);
-        
+
+    connect(nw, &NetworkManager::groupHistoryFound, this, &Client::handleGroupHistoryFound);
+    
     connect(qApp, &QCoreApplication::aboutToQuit, this, &Client::logout);
 }
 
@@ -326,6 +328,11 @@ void Client::unblock(const User& u)
     }
 }
 
+BlockList Client::getBlockList()
+{
+    return blocklist;
+}
+
 // Placeholder to extend a user's message history in the UI or logs.
 void Client::extendMessageHistory(const User& u, quint32 currentSize)
 {
@@ -362,22 +369,27 @@ const ChatObject * Client::getDMsWith(const QString& u) const
 void Client::initializeSession(const QString& user,
                                const QStringList& fs,
                                const QStringList& frs,
-                               const QJsonArray & groups)
+                               const QJsonArray & groups,
+                               const QStringList & blocks)
 {
     qDebug() << "Intiailizing Session(user, friends, friend reqs, groups)...";
     state = ClientState::LoggedIn;
     current_user = User(user);
     current_user.setFriendList(fs);
     current_user.setFriendRequestList(frs);
+    
     for(const QJsonValue & v : groups)
     {
         QJsonArray memarray = v["Members"].toArray();
         std::unordered_set<QString> members;
         for(const auto mem : memarray)
             members.insert(mem.toString());
-        initializeGroups(v["Owner"].toString(), v["GroupName"].toString(),
+        initializeGroups(v["Owner"].toString(), v["Name"].toString(),
                          members, {});
     }
+    
+    blocklist = BlockList(blocks);
+    
     emit loginSuccess();
     qDebug() << "Session initialized.";
 }
@@ -409,8 +421,8 @@ void Client::initializeGroups(const QString & owner, const QString & name,
                               const std::unordered_set<QString> & members,
                               const QJsonArray & messages)
 {
-    qDebug() << "Initializing group...";
-    if(chats.find(groupKey(owner, name)) != chats.end())
+    qDebug() << "Initializing group..." << groupKey(owner, name);
+    if(chats.find(groupKey(owner, name)) == chats.end())
     {
         chats[groupKey(owner, name)] = new Group(members, owner, name, this);
         for(const QJsonValue & msg : messages)
@@ -418,6 +430,7 @@ void Client::initializeGroups(const QString & owner, const QString & name,
             Message m(msg["From"].toString(), name, msg["Message"].toString());
             chats[groupKey(owner, name)]->sendMessage(m);
         }
+        qDebug() << "Group initialized";
     }
 }
 
@@ -436,6 +449,7 @@ void Client::handleDM(const QString& user, const QString& msg)
 void Client::handleGroupMessage(const QString & owner, const QString & name,
                                 const QString & from, const QString & message)
 {
+    qDebug() << "Group key: " << groupKey(owner, name);
     if(chats.find(groupKey(owner, name)) != chats.end())
     {
         Message m(from, name, message);
@@ -459,16 +473,45 @@ void Client::handleMoreMsgs(const QString& user, const QJsonArray & messages)
     emit recievedMoreMsgs(l);
 }
 
+void Client::handleGroupHistoryFound(const QString & owner,
+                                     const QString & name,
+                                     const QJsonArray & messages)
+{
+    qDebug() << "Group Key: " << groupKey(owner, name);
+    for(const QJsonValue & msg : messages)
+    {
+        Message m(msg["From"].toString(), name, msg["Message"].toString());
+        chats[groupKey(owner, name)]->sendMessage(m);
+    }
+}
 void Client::createGroup(const QString & name, const QStringList & members) const
 {
     nw->forwardCreateGroup(current_user.get_username(), name, members);
 }
 
 void Client::messageGroup(const QString & owner, const QString & name,
-                          const QString & message) const
+                          const QString & message)
 {
+    Message m(current_user.get_username(), name, message);
+    qDebug() << "Group Key: " << groupKey(owner, name);
+    chats[groupKey(owner, name)]->sendMessage(m);
     nw->forwardGroupMessage(owner, name, current_user.get_username(),
                             message);
+}
+
+ChatObject * Client::getGroupHistory(const QString & owner,
+                                     const QString & name) const
+{
+    qDebug() << "searching chats for Group Key: " << groupKey(owner, name);
+    auto pair = chats.find(groupKey(owner, name));
+    if (pair != chats.end())
+        return pair->second;
+    else
+    {
+        qDebug() << "ERROR: WHAT ARE YOU DOING??";
+        nw->groupHistory(owner, name);
+        return NULL;
+    }
 }
 
 QString Client::dmKey(const QString& user) const

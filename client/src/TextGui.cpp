@@ -105,6 +105,16 @@ TextGui::TextGui()
         std::bind(&TextGui::unblockUser, this, std::placeholders::_1),
         {"Username"}, "unblocks the user with Username"
     };
+
+    commandMap["vblocklist"] = {
+        std::bind(&TextGui::viewBlocklist, this, std::placeholders::_1),
+        {}, "Shows blocklist"
+    };
+
+    commandMap["vgrp"] = {
+        std::bind(&TextGui::viewGroup, this, std::placeholders::_1),
+        {"Group Owner", "Group Name"}, "Shows group message history"
+    };
     
     // welcome message
     connect(client,&Client::connectedToServer,this,&TextGui::welcomeMessage);
@@ -288,6 +298,14 @@ void TextGui::unblockUser(const QStringList& args)
     client->unblock(User(args[0]));
 }
 
+void TextGui::viewBlocklist(const QStringList & args)
+{
+    QTextStream cout(stdout);
+    std::unordered_set<QString> blocklist = client->getBlockList().blocked();
+    for(const QString & b : blocklist)
+        cout << b << '\n';
+}
+
 void TextGui::createGroup(const QStringList& args)
 {
     QStringList members = args[1].split(",");
@@ -297,4 +315,23 @@ void TextGui::createGroup(const QStringList& args)
 void TextGui::groupMessage(const QStringList & args)
 {
     client->messageGroup(args[0], args[1], args[2]);
+}
+
+void TextGui::viewGroup(const QStringList & args)
+{
+    QTextStream cout(stdout);
+    const ChatObject * g = client->getGroupHistory(args[0], args[1]);
+    if(g == NULL)
+        qDebug() << "Fetching history, try again momentarily";
+    else
+    {
+        qDebug() << "Displaying History";
+        const QList<Message> messages = g->allMessages();
+        for (int i=messages.size()-1;i>=0;--i)
+        {
+            const Message m = messages[i];
+            cout << m.get_sender() << ": "
+                 << m.get_msg() << '\n';
+        }
+    }
 }

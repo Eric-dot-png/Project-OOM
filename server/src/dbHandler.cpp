@@ -314,6 +314,7 @@ QJsonArray dbHandler::getMessages(const QString & u1,
             }));
         row = mysql_fetch_row(result);
     }
+    qDebug() << res;
     mysql_free_result(result);
     return res;
 }
@@ -331,12 +332,14 @@ QJsonArray dbHandler::getGroupMessages(const QString & owner,
     ss << "select owner, name, sender, sentAt, message from GroupInfo join "
        << "GroupMessage on id=groupId where owner='" << owner.toStdString()
        << "' and name='" << name.toStdString()
-       << "' where not deleted order by sentAt desc limit " << start << ", "
+       << "' and not deletedmsg order by sentAt desc limit " << start << ", "
        << length;
 
     if (mysql_query(connection, ss.str().c_str()))
     {
-        qDebug() << "DB failed to retrieve group messages";
+        qDebug() << ss.str().c_str() << '\n';
+        qDebug() << "DB failed to retrieve group messages: "
+                 << mysql_error(connection);
         return {};
     }
 
@@ -522,6 +525,59 @@ bool dbHandler::areFriends(const QString & u1, const QString & u2)
     mysql_free_result(result);
 
     return res;
+}
+
+bool dbHandler::addBlock(const QString & u, const QString & blocked)
+{
+    std::stringstream ss;
+    ss << "insert Blocked(user, blocked) values('" << u.toStdString()
+       << "', '" << blocked.toStdString() << "')";
+    if(mysql_query(connection, ss.str().c_str()))
+    {
+        qDebug() << "Couldn't add block: " << mysql_error(connection);
+        return 0;
+    }
+    return 1;
+}
+
+bool dbHandler::removeBlock(const QString & u, const QString & blocked)
+{
+    std::stringstream ss;
+    ss << "delete from Blocked where user='" << u.toStdString()
+       << "' and blocked='" << blocked.toStdString() << "'";
+    if(mysql_query(connection, ss.str().c_str()))
+    {
+        qDebug() << "Couldn't remove block";
+        return 0;
+    }
+    return 1;
+}
+
+QStringList dbHandler::getBlockList(const QString & u)
+{
+    MYSQL_RES * result;
+    MYSQL_ROW row;
+    std::stringstream ss;
+
+    ss << "select blocked from Blocked where user='" << u.toStdString()
+       << "'";
+    if(mysql_query(connection, ss.str().c_str()))
+    {
+        qDebug() << "Couldn't fetch blocklist";
+        return {};
+    }
+    
+    QStringList blocklist;
+    result = mysql_store_result(connection);
+    row = mysql_fetch_row(result);
+    while(row != NULL)
+    {
+        blocklist.push_back(row[0]);
+        row = mysql_fetch_row(result);
+    }
+    mysql_free_result(result);
+
+    return blocklist;
 }
 
 int dbHandler::getGroupId(const QString & owner, const QString & name)

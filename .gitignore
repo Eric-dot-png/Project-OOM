@@ -7,3 +7,4 @@ Makefile
 google_app_password.py
 __pycache__/
 *.json
+qrc_resources.cpp

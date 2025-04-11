@@ -42,7 +42,7 @@ public:
     bool storeMessage(const QJsonObject &);
     //returns 1 if stored group message
     bool storeGroupMessage(const QJsonObject &);
-    //returns list of (length) messages separated by ":;:" beginning at start(0 is most recent message)
+    //returns list of (length) messages beginning at start(0 is most recent message)
     QJsonArray getMessages(const QString & u1, const QString & u2,
                            int start = 0, int length = 50);
     //same as getMessages but for groups
@@ -67,6 +67,13 @@ public:
     //returns 1 if friendship exists
     bool areFriends(const QString & u1, const QString & u2);
 
+    /*--------------------------------------------
+      BLOCK FUNCTIONS
+    --------------------------------------------*/
+    bool addBlock(const QString & u, const QString & blocked);
+    bool removeBlock(const QString & u, const QString & blocked);
+    QStringList getBlockList(const QString & u);
+    
     /*--------------------------------------------
       GROUP FUNCTIONS
     --------------------------------------------*/

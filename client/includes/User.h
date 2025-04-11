@@ -5,6 +5,8 @@
 #include <QWidget>
 #include <QMetaType>
 
+#include "BlockList.h"
+
 class User
 {
 
@@ -45,7 +47,7 @@ public:
     {
         friendRequestList = list;
     }
-    
+
     const QStringList& getFriendRequestList()
     {
         return friendRequestList;
@@ -54,7 +56,6 @@ public:
     {
         return friendList;
     }
-
     void removeFriend(const QString& user)
     {
         friendList.removeOne(user);
@@ -96,7 +97,6 @@ private:
     // unordered sets (shld b)
     QStringList friendList;
     QStringList friendRequestList;
-
 
 };
 

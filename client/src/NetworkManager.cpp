@@ -34,7 +34,8 @@ NetworkManager::NetworkManager()
         QStringList friends = toQStringList(m["FriendsList"].toArray());
         QStringList friendRs =toQStringList(m["FriendRequestList"].toArray());
         QJsonArray groups = m["Groups"].toArray();
-        emit loginValid(user, friends, friendRs, groups);
+        QStringList blocklist = toQStringList(m["Blocklist"].toArray());
+        emit loginValid(user, friends, friendRs, groups, blocklist);
     };
     
     emitMap[Protocol::LoginDenied] = [&](const QJsonObject& m){
@@ -110,6 +111,15 @@ NetworkManager::NetworkManager()
         emit detectedGroupMessage(m["Owner"].toString(), m["Name"].toString(),
                                   m["From"].toString(),
                                   m["Message"].toString());
+    };
+
+    emitMap[Protocol::GetGroupHistorySuccess] = [&](const QJsonObject & m){
+        if(m["Messages"].isArray())
+        {
+            QJsonArray messages = m["Messages"].toArray();
+            emit groupHistoryFound(m["Owner"].toString(),
+                                   m["Name"].toString(), messages);
+        }
     };
 }
 
@@ -258,6 +268,11 @@ void NetworkManager::forwardUnblock(const QString& to, const QString& from)
     writeToServer(Protocol::UnblockUser, {from, to});
 }
 
+void NetworkManager::groupHistory(const QString & owner,
+                                  const QString & name) const
+{
+    writeToServer(Protocol::GetGroupHistory, {owner, name});
+}
 
 void NetworkManager::writeToServer(Protocol type,
                                    const QList<QJsonValue> & argv) const

@@ -54,9 +54,12 @@ private:
 
     void blockUser(const QStringList& args);
     void unblockUser(const QStringList& args);
+    void viewBlocklist(const QStringList & args);
     
     void createGroup(const QStringList & args);
     void groupMessage(const QStringList & args);
+    void viewGroup(const QStringList & args);
+    
 private:
     
     

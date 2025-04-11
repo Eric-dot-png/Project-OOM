@@ -70,6 +70,8 @@ public:
     void block(const User& u);
 
     void unblock(const User& u);
+
+    BlockList getBlockList();
     
     // this one right below not needed anymore...
     void extendMessageHistory(const User& u, quint32 currentSize);
@@ -79,7 +81,9 @@ public:
     
     void createGroup(const QString & name, const QStringList & members) const;
     void messageGroup(const QString & owner, const QString & name,
-                      const QString & message) const;
+                      const QString & message);
+    ChatObject * getGroupHistory(const QString & owner,
+                                 const QString & name) const;
 public slots:
     // must be in loggedin state
     // puts the client into connected state
@@ -116,7 +120,8 @@ private slots: // these are functions that are connected to signals
     void initializeSession(const QString& username,
                            const QStringList& friends,
                            const QStringList& friendRqs,
-                           const QJsonArray & groups);
+                           const QJsonArray & groups,
+                           const QStringList & blocklist);
     void initializeDMs(const QString& user, const QJsonArray & msgs);
     void initializeGroups(const QString & owner, const QString & name,
                           const std::unordered_set<QString> & members,
@@ -125,6 +130,8 @@ private slots: // these are functions that are connected to signals
     void handleGroupMessage(const QString & owner, const QString & name,
                             const QString & from, const QString & message);
     void handleMoreMsgs(const QString& user, const QJsonArray & messages);
+    void handleGroupHistoryFound(const QString & owner, const QString & name,
+                                 const QJsonArray & messages);
 private:
     Client();
     ~Client();
