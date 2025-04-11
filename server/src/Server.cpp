@@ -218,7 +218,7 @@ void Server::writeToUserRaw(const QString& to, const QByteArray& data)
     if (onlineUserMap.find(to) != onlineUserMap.end() &&
         onlineUserMap.find(to)->second != NULL)
     {
-        onlineUserMap[to]->write(data);
+        TcpSmartWrite(onlineUserMap[to], data);
     }
 }
 
