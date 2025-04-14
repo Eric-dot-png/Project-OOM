@@ -41,6 +41,11 @@ public:
         if (p != members_.end())
             members_.erase(p);
     }
+
+    virtual std::unordered_set<QString> getMembers() const
+    {
+        return members_;
+    }
     
     virtual void rename(const QString& new_name) { name_ = new_name; }
 

@@ -77,11 +77,11 @@ Client::Client()
 
     connect(nw, &NetworkManager::moreMessages, this, &Client::handleMoreMsgs);
 
-    connect(nw, &NetworkManager::createGroupPass, this, [&](const QString & name, const QStringList & members) {
+    connect(nw, &NetworkManager::createGroupPass, this, [&](const QString & owner, const QString & name, const QStringList & members) {
         std::unordered_set<QString> m;
         for(const QString & s : members)
             m.insert(s);
-        initializeGroups(current_user.get_username(), name, m, {});
+        initializeGroups(owner, name, m, {});
         emit createGroupSucceed(name, members);
     });
 
@@ -450,7 +450,6 @@ void Client::handleDM(const QString& user, const QString& msg)
 void Client::handleGroupMessage(const QString & owner, const QString & name,
                                 const QString & from, const QString & message)
 {
-    qDebug() << "Group key: " << groupKey(owner, name);
     if(chats.find(groupKey(owner, name)) != chats.end())
     {
         Message m(from, name, message);
@@ -481,10 +480,12 @@ void Client::handleGroupHistoryFound(const QString & owner,
     qDebug() << "Group Key: " << groupKey(owner, name);
     for(const QJsonValue & msg : messages)
     {
+        qDebug() << "adding group message";
         Message m(msg["From"].toString(), name, msg["Message"].toString());
         chats[groupKey(owner, name)]->sendMessage(m);
     }
 }
+
 void Client::createGroup(const QString & name, const QStringList & members) const
 {
     nw->forwardCreateGroup(current_user.get_username(), name, members);
@@ -506,13 +507,16 @@ ChatObject * Client::getGroupHistory(const QString & owner,
     qDebug() << "searching chats for Group Key: " << groupKey(owner, name);
     auto pair = chats.find(groupKey(owner, name));
     if (pair != chats.end())
-        return pair->second;
-    else
     {
-        qDebug() << "ERROR: WHAT ARE YOU DOING??";
-        nw->groupHistory(owner, name);
-        return NULL;
+        if(pair->second->size() == 0)
+            nw->groupHistory(owner, name);
+        else
+            return pair->second;
     }
+    else
+        qDebug() << "ERROR: WHAT ARE YOU DOING??";
+    
+    return NULL;
 }
 
 QString Client::dmKey(const QString& user) const

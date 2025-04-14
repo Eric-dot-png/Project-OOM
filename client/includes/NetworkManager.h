@@ -67,7 +67,9 @@ public:
                             const QStringList & members) const;
 
     void forwardGroupMessage(const QString & owner, const QString & name,
-                             const QString & from, const QString & message) const;
+                             const QString & from,
+                             const QString & message) const;
+    
     void forwardBlock(const QString& to, const QString& from);
     void forwardUnblock(const QString& to, const QString& from);
     void groupHistory(const QString & owner, const QString & name) const;
@@ -93,7 +95,8 @@ signals:
     void moreMessages(const QString& user, const QJsonArray & messages);
     void failedMoreMessages(const QString& user);
     void createGroupFail(const QString & err);
-    void createGroupPass(const QString & name, const QStringList & members);
+    void createGroupPass(const QString & owner, const QString & name,
+                         const QStringList & members);
     void detectedGroupMessage(const QString & owner, const QString & name,
                               const QString & from, const QString & message);
     void groupHistoryFound(const QString & owner, const QString & name,

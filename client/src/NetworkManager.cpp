@@ -100,7 +100,8 @@ NetworkManager::NetworkManager()
         QStringList members;
         for(const auto & member : memArray)
             members.append(member.toString());
-        emit createGroupPass(m["GroupName"].toString(), members);
+        emit createGroupPass(m["Owner"].toString(), m["GroupName"].toString(),
+                             members);
     };
     
     emitMap[Protocol::CreateGroupFail] = [&](const QJsonObject& m){
