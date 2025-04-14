@@ -86,7 +86,10 @@ public:
     {
         return u_ == o.u_;
     }
-
+    bool operator!=(const User& o) const
+    {
+        return !operator==(o);
+    }
     
 private:
     QString u_;

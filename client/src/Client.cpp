@@ -377,6 +377,8 @@ void Client::initializeSession(const QString& user,
     current_user = User(user);
     current_user.setFriendList(fs);
     current_user.setFriendRequestList(frs);
+
+    friendlist = FriendList(frs, {}, fs);
     
     for(const QJsonValue & v : groups)
     {

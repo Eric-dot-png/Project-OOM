@@ -100,8 +100,21 @@ public:
     {
         return friends_.find(user) != friends_.end();
     }
+
+    bool isRequesting(const QString& user) const
+    {
+        return incoming_.find(user) != incoming_.end();
+    }
+
+    bool isRequested(const QString& user) const
+    {
+        return outgoing_.find(user) != outgoing_.end();
+    }
+    
 private:
     std::unordered_set<QString> incoming_, outgoing_, friends_;
 };
+
+
 
 #endif

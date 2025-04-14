@@ -71,6 +71,7 @@ public:
 
     void unblock(const User& u);
 
+    const FriendList& getFriendList() const { return friendlist; }
     BlockList getBlockList();
     
     // this one right below not needed anymore...
@@ -106,8 +107,6 @@ signals:
     void recievedFriendRequest(const QString& from);
     void recievedFriendRemove(const QString& from);
     void friendAccepted(const QString& from);
-    void sendFriendRequestList(const QString& user, const QStringList& list);
-    void sendFriendList(const QString& user, const QStringList& list);
     
     void extendMsgSucceed(const QString& user,const QJsonArray & msgs);
     void createGroupSucceed(const QString & name,

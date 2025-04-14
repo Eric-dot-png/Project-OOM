@@ -7,7 +7,7 @@
 #include <QHostAddress>
 
 const bool DEBUG_MODE = true;
-const bool LOCAL_MODE = false;
+const bool LOCAL_MODE = true;
 
 // what ip the client connects to
 const QHostAddress SERVER_IP = (LOCAL_MODE ? QHostAddress::LocalHost :

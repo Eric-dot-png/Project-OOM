@@ -54,19 +54,15 @@ public:
 
 private slots:
     void onEnterKeyPressed();
-
+    void setupFriends();
     void openDM(const QModelIndex &index);
     
-signals:
-
-
 private:
     Ui::PrivateMessages *ui;
     EnterKeyFilter *enterFilter;
     DMListModel *messagingList;
-
-    //scuffed for now
-    User currentlyMessaging;
+    
+    User currentlyMessaging; // defaults to guest (DNE)
     bool loadMoreMessagesFlag;
 
     QString formatClientMessage();
@@ -75,15 +71,13 @@ private:
     // for connect() functions
     void connectClient();
     void connectUI();
-
+    
     void searchUser();
     void sendFriendRequest();
     void receivedMessage(QString from, QString msg);
     void showAddFriendButton();
-    void showEvent(QShowEvent *event);
-
+    
     bool eventFilter(QObject *, QEvent *);
-
 };
 
 #endif // PRIVATEMESSAGES_H
