@@ -356,7 +356,6 @@ void Client::extendMessageHistory(const User& u)
 
 const ChatObject * Client::getDMsWith(const QString& u) const
 {
-    qDebug() << "getting dms with" << dmKey(u);
     auto pair = chats.find(dmKey(u));
     if (pair != chats.end()) return pair->second;
     else
