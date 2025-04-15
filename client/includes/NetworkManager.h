@@ -74,6 +74,8 @@ public:
     void forwardUnblock(const QString& to, const QString& from);
     void groupHistory(const QString & owner, const QString & name,
                       const qint64 current_amount) const;
+    void forwardLeaveGroup(const QString & owner, const QString & name,
+                           const QString & u) const;
     
 signals:
     void connected();
@@ -102,6 +104,8 @@ signals:
                               const QString & from, const QString & message);
     void groupHistoryFound(const QString & owner, const QString & name,
                            const QJsonArray & messages);
+    void detectedGroupMemberLeave(const QString & owner, const QString & name,
+                                  const QString & user);
 private:
     QTcpSocket * socket;
     TcpBuffer buff;

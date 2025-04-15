@@ -203,6 +203,11 @@ void Server::handleBufferReadyRead(QTcpSocket * client,const QByteArray& data)
                 handleGetGroupHistory(client, m);
                 break;
             }
+            case Protocol::LeaveGroup:
+            {
+                handleLeaveGroup(m, data);
+                break;
+            }
             default:
             {
                 // Handle unexpected protocol types
@@ -492,4 +497,13 @@ void Server::handleGetGroupHistory(QTcpSocket * client, const QJsonObject & m)
                                                m["CurrSize"].toInt());
     writeToSocket(client, Protocol::GetGroupHistorySuccess,
                   {m["Owner"].toString(), m["Name"].toString(), messages});
+}
+
+void Server::handleLeaveGroup(const QJsonObject & m, const QByteArray & data)
+{
+    int groupId = db->getGroupId(m["Owner"].toString(), m["Name"].toString());
+    db->removeGroupMember(groupId, m["User"].toString());
+    QStringList members = db->getGroupMembers(groupId);
+    for(QString mem : members)
+        writeToUserRaw(mem, data);
 }

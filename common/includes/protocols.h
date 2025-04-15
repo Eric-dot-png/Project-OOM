@@ -46,7 +46,8 @@ enum class Protocol
     BlockUser,
     UnblockUser,
     GetGroupHistory,
-    GetGroupHistorySuccess
+    GetGroupHistorySuccess,
+    LeaveGroup
 };
 
 /*
@@ -483,6 +484,21 @@ namespace Serializers
             return serializeUtil(Protocol::UnblockUser, argv, {"From","To"});
         }
     };
+
+    class LeaveGroup : public AbstractSerializer,
+                        public Singleton<LeaveGroup>
+    {
+        friend class Singleton<LeaveGroup>;
+    private:
+        LeaveGroup() = default;
+    public:
+        QByteArray operator()(const QList<QJsonValue>& argv)
+        {
+            return serializeUtil(Protocol::LeaveGroup, argv, {"Owner","Name",
+                    "User"});
+        }
+    };
+
     // destroy all serializer instances. called in the bottom of both main.cpp
     void destroyInstances();
 };

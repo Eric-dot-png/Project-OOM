@@ -122,6 +122,12 @@ NetworkManager::NetworkManager()
                                    m["Name"].toString(), messages);
         }
     };
+
+    emitMap[Protocol::LeaveGroup] = [&](const QJsonObject & m){
+        emit detectedGroupMemberLeave(m["Owner"].toString(),
+                                      m["Name"].toString(),
+                                      m["User"].toString());
+    };
 }
 
 NetworkManager::~NetworkManager()
@@ -274,6 +280,13 @@ void NetworkManager::groupHistory(const QString & owner,
                                   const qint64 current_amount) const
 {
     writeToServer(Protocol::GetGroupHistory, {owner, name, current_amount});
+}
+
+void NetworkManager::forwardLeaveGroup(const QString & owner,
+                                       const QString & name,
+                                       const QString & u) const
+{
+    writeToServer(Protocol::LeaveGroup, {owner, name, u});
 }
 
 void NetworkManager::writeToServer(Protocol type,

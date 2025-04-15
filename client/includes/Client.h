@@ -87,6 +87,7 @@ public:
                                  const QString & name) const;
     void extendGroupHistory(const QString & owner,
                             const QString & name) const;
+    void leaveGroup(const QString & owner, const QString & name);
                                                        
 public slots:
     // must be in loggedin state
@@ -134,6 +135,9 @@ private slots: // these are functions that are connected to signals
     void handleMoreMsgs(const QString& user, const QJsonArray & messages);
     void handleGroupHistoryFound(const QString & owner, const QString & name,
                                  const QJsonArray & messages);
+    void handleDetectedGroupMemberLeave(const QString & owner,
+                                        const QString & name,
+                                        const QString & user);
 private:
     Client();
     ~Client();

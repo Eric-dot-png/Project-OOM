@@ -88,12 +88,17 @@ public:
     bool addGroupMember(int groupId, const QString & mem);
     bool addGroupMember(const QString & owner, const QString & name,
                         const QString & mem);
+    //returns 1 if member removed from group
+    bool removeGroupMember(int groupId, const QString & u);
+    bool removeGroupMember(const QString & owner, const QString & name,
+                           const QString & u);
     //returns 1 if group deleted
     //bool deleteGroup(const QString & u, const QString & name);
     //Returns groups
     QJsonArray getGroups(const QString & u);
     //Returns list of group members
     QStringList getGroupMembers(const QString & owner, const QString & name);
+    QStringList getGroupMembers(int groupId);
     
 private:
     dbHandler();

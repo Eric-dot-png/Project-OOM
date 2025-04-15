@@ -85,13 +85,19 @@ Client::Client()
         emit createGroupSucceed(name, members);
     });
 
-    connect(nw, &NetworkManager::createGroupFail, this, [&](const QString & err) {
+    connect(nw, &NetworkManager::createGroupFail, this,
+            [&](const QString & err) {
         emit createGroupDeny(err);
     });
 
-    connect(nw, &NetworkManager::detectedGroupMessage, this, &Client::handleGroupMessage);
+    connect(nw, &NetworkManager::detectedGroupMessage, this,
+            &Client::handleGroupMessage);
 
-    connect(nw, &NetworkManager::groupHistoryFound, this, &Client::handleGroupHistoryFound);
+    connect(nw, &NetworkManager::groupHistoryFound, this,
+            &Client::handleGroupHistoryFound);
+
+    connect(nw, &NetworkManager::detectedGroupMemberLeave, this,
+            &Client::handleDetectedGroupMemberLeave);
     
     connect(qApp, &QCoreApplication::aboutToQuit, this, &Client::logout);
 }
@@ -486,6 +492,13 @@ void Client::handleGroupHistoryFound(const QString & owner,
     }
 }
 
+void Client::handleDetectedGroupMemberLeave(const QString & owner,
+                                            const QString & name,
+                                            const QString & user)
+{
+    chats[groupKey(owner, name)]->removeMember(user);
+}
+
 void Client::createGroup(const QString & name, const QStringList & members) const
 {
     nw->forwardCreateGroup(current_user.get_username(), name, members);
@@ -525,6 +538,21 @@ void Client::extendGroupHistory(const QString & owner,
     auto g = chats.find(groupKey(owner, name));
     if(g != chats.end())
         nw->groupHistory(owner, name, g->second->size());
+}
+
+void Client::leaveGroup(const QString & owner, const QString & name)
+{
+    auto g = chats.find(groupKey(owner, name));
+    if(g != chats.end())
+    {
+        if(g->second->owner() == current_user.get_username())
+        {
+            qDebug() << "You made this bed, now lie in it";
+            return;
+        }
+        chats.erase(g);
+        nw->forwardLeaveGroup(owner, name, current_user.get_username());
+    }
 }
 
 QString Client::dmKey(const QString& user) const

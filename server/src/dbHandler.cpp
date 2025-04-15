@@ -689,6 +689,30 @@ bool dbHandler::addGroupMember(const QString & owner, const QString & name,
     return addGroupMember(id, mem);
 }
 
+bool dbHandler::removeGroupMember(int groupId, const QString & u)
+{
+    std::stringstream ss;
+    ss << "delete from GroupMember where groupId=" << groupId << " and user='"
+       << u.toStdString() << "'";
+    if(mysql_query(connection, ss.str().c_str()))
+    {
+        qDebug() << ss.str().c_str();
+        qDebug() << "Couldn't remove group membership"
+                 << mysql_error(connection);
+        return 0;
+    }
+    return 1;
+}
+
+bool dbHandler::removeGroupMember(const QString & owner, const QString & name,
+                                  const QString & u)
+{
+    int id = getGroupId(owner, name);
+    if(id == -1)
+        return 0;
+    return addGroupMember(id, u);
+}
+
 //returns groups of user in Owner:Name format
 QJsonArray dbHandler::getGroups(const QString & u)
 {
@@ -712,7 +736,8 @@ QJsonArray dbHandler::getGroups(const QString & u)
     {
         ret.push_back(QJsonObject({
                     {"Owner", row[0]},
-                    {"Name", row[1]}
+                    {"Name", row[1]},
+                    {"Members", QJsonArray::fromStringList(getGroupMembers(QString(row[0]), QString(row[1])))}
                 }));
         row = mysql_fetch_row(result);
     }
@@ -724,18 +749,20 @@ QJsonArray dbHandler::getGroups(const QString & u)
 QStringList dbHandler::getGroupMembers(const QString & owner,
                                        const QString & name)
 {
-    MYSQL_RES * result;
-    MYSQL_ROW row;
-    QStringList ret;
-
     //select groupid
     int id = getGroupId(owner, name);
     if(id == -1)
         return {};
-    
-    //select members
+    return getGroupMembers(id);
+}
+
+QStringList dbHandler::getGroupMembers(int groupId)
+{
+    MYSQL_RES * result;
+    MYSQL_ROW row;
+    QStringList ret;
     std::stringstream ss;
-    ss << "select user from GroupMember where groupId=" << id;
+    ss << "select user from GroupMember where groupId=" << groupId;
     if (mysql_query(connection, ss.str().c_str()))
     {
         qDebug() << "select fail in getGroupMembers()";
@@ -744,7 +771,6 @@ QStringList dbHandler::getGroupMembers(const QString & owner,
     
     result = mysql_store_result(connection);
     row = mysql_fetch_row(result);
-    // Each row is one group
     while (row != NULL)
     {
         ret.push_back(row[0]);

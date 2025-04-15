@@ -60,6 +60,7 @@ private:
     void groupMessage(const QStringList & args);
     void viewGroup(const QStringList & args);
     void extendGroup(const QStringList & args);
+    void leaveGroup(const QStringList & args);
     
 private:
     

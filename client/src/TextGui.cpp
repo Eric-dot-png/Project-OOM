@@ -120,6 +120,11 @@ TextGui::TextGui()
         std::bind(&TextGui::extendGroup, this, std::placeholders::_1),
         {"Group Owner", "Group Name"}, "Extends group message history"
     };
+
+    commandMap["leaveGroup"] = {
+        std::bind(&TextGui::leaveGroup, this, std::placeholders::_1),
+        {"Group Owner", "Group Name"}, "Removes self from group"
+    };
     
     // welcome message
     connect(client,&Client::connectedToServer,this,&TextGui::welcomeMessage);
@@ -344,4 +349,9 @@ void TextGui::viewGroup(const QStringList & args)
 void TextGui::extendGroup(const QStringList & args)
 {
     client->extendGroupHistory(args[0], args[1]);
+}
+
+void TextGui::leaveGroup(const QStringList & args)
+{
+    client->leaveGroup(args[0], args[1]);
 }
