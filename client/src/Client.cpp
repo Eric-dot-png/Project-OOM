@@ -509,7 +509,7 @@ ChatObject * Client::getGroupHistory(const QString & owner,
     if (pair != chats.end())
     {
         if(pair->second->size() == 0)
-            nw->groupHistory(owner, name);
+            nw->groupHistory(owner, name, 0);
         else
             return pair->second;
     }
@@ -517,6 +517,14 @@ ChatObject * Client::getGroupHistory(const QString & owner,
         qDebug() << "ERROR: WHAT ARE YOU DOING??";
     
     return NULL;
+}
+
+void Client::extendGroupHistory(const QString & owner,
+                                const QString & name) const
+{
+    auto g = chats.find(groupKey(owner, name));
+    if(g != chats.end())
+        nw->groupHistory(owner, name, g->second->size());
 }
 
 QString Client::dmKey(const QString& user) const

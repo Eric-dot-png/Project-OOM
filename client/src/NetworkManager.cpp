@@ -270,9 +270,10 @@ void NetworkManager::forwardUnblock(const QString& to, const QString& from)
 }
 
 void NetworkManager::groupHistory(const QString & owner,
-                                  const QString & name) const
+                                  const QString & name,
+                                  const qint64 current_amount) const
 {
-    writeToServer(Protocol::GetGroupHistory, {owner, name});
+    writeToServer(Protocol::GetGroupHistory, {owner, name, current_amount});
 }
 
 void NetworkManager::writeToServer(Protocol type,

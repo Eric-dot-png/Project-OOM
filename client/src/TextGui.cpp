@@ -115,6 +115,11 @@ TextGui::TextGui()
         std::bind(&TextGui::viewGroup, this, std::placeholders::_1),
         {"Group Owner", "Group Name"}, "Shows group message history"
     };
+
+    commandMap["extendGroup"] = {
+        std::bind(&TextGui::extendGroup, this, std::placeholders::_1),
+        {"Group Owner", "Group Name"}, "Extends group message history"
+    };
     
     // welcome message
     connect(client,&Client::connectedToServer,this,&TextGui::welcomeMessage);
@@ -334,4 +339,9 @@ void TextGui::viewGroup(const QStringList & args)
                  << m.get_msg() << '\n';
         }
     }
+}
+
+void TextGui::extendGroup(const QStringList & args)
+{
+    client->extendGroupHistory(args[0], args[1]);
 }

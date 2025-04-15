@@ -41,10 +41,10 @@ bool TcpBuffer::readyRead() const
 QByteArray TcpBuffer::read()
 {
     QByteArray ret = data_.left(expectedSize_);
-    if (ret.size() > expectedSize)
+    if (ret.size() > expectedSize_)
     {
         qDebug() << "Warning: Buffer is returing" << ret
-                 << "but discarding" << data_.mid(expectedSize);
+                 << "but discarding" << data_.mid(expectedSize_);
     }
      // clear the buffer
     data_ = QByteArray();

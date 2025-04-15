@@ -488,7 +488,8 @@ void Server::handleBlockUser(const QJsonObject& m)
 void Server::handleGetGroupHistory(QTcpSocket * client, const QJsonObject & m)
 {
     QJsonArray messages = db->getGroupMessages(m["Owner"].toString(),
-                                               m["Name"].toString());
+                                               m["Name"].toString(),
+                                               m["CurrSize"].toInt());
     writeToSocket(client, Protocol::GetGroupHistorySuccess,
                   {m["Owner"].toString(), m["Name"].toString(), messages});
 }

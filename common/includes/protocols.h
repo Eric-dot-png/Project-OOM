@@ -441,7 +441,7 @@ namespace Serializers
         QByteArray operator()(const QList<QJsonValue>& argv)
         {
             return serializeUtil(Protocol::GetGroupHistory,
-                                 argv, {"Owner","Name"});
+                                 argv, {"Owner","Name","CurrSize"});
         }
     };
 

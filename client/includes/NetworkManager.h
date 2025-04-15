@@ -72,7 +72,8 @@ public:
     
     void forwardBlock(const QString& to, const QString& from);
     void forwardUnblock(const QString& to, const QString& from);
-    void groupHistory(const QString & owner, const QString & name) const;
+    void groupHistory(const QString & owner, const QString & name,
+                      const qint64 current_amount) const;
     
 signals:
     void connected();

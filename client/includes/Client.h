@@ -85,6 +85,9 @@ public:
                       const QString & message);
     ChatObject * getGroupHistory(const QString & owner,
                                  const QString & name) const;
+    void extendGroupHistory(const QString & owner,
+                            const QString & name) const;
+                                                       
 public slots:
     // must be in loggedin state
     // puts the client into connected state
