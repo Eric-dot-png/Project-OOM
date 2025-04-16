@@ -48,6 +48,7 @@ namespace Serializers
         GetGroupHistory::destroyInstance();
         GetGroupHistorySuccess::destroyInstance();
         LeaveGroup::destroyInstance();
+        AddGroupMember::destroyInstance();
     }
 
 };

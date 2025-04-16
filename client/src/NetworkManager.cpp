@@ -100,7 +100,7 @@ NetworkManager::NetworkManager()
         QStringList members;
         for(const auto & member : memArray)
             members.append(member.toString());
-        emit createGroupPass(m["Owner"].toString(), m["GroupName"].toString(),
+        emit createGroupPass(m["Owner"].toString(), m["Name"].toString(),
                              members);
     };
     
@@ -127,6 +127,12 @@ NetworkManager::NetworkManager()
         emit detectedGroupMemberLeave(m["Owner"].toString(),
                                       m["Name"].toString(),
                                       m["User"].toString());
+    };
+
+    emitMap[Protocol::AddGroupMember] = [&](const QJsonObject & m){
+        emit detectedAddGroupMember(m["Owner"].toString(),
+                                    m["Name"].toString(),
+                                    m["User"].toString());
     };
 }
 
@@ -287,6 +293,13 @@ void NetworkManager::forwardLeaveGroup(const QString & owner,
                                        const QString & u) const
 {
     writeToServer(Protocol::LeaveGroup, {owner, name, u});
+}
+
+void NetworkManager::forwardAddGroupMember(const QString & owner,
+                                           const QString & name,
+                                           const QString & u) const
+{
+    writeToServer(Protocol::AddGroupMember, {owner, name, u});
 }
 
 void NetworkManager::writeToServer(Protocol type,

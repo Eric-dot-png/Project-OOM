@@ -47,7 +47,8 @@ enum class Protocol
     UnblockUser,
     GetGroupHistory,
     GetGroupHistorySuccess,
-    LeaveGroup
+    LeaveGroup,
+    AddGroupMember
 };
 
 /*
@@ -386,7 +387,7 @@ namespace Serializers
         QByteArray operator()(const QList<QJsonValue>& argv)
         {
             return serializeUtil(Protocol::CreateGroupRequest,
-                                 argv, {"Username", "GroupName", "Members"});
+                                 argv, {"Owner", "Name", "Members"});
         }
     };
 
@@ -400,7 +401,7 @@ namespace Serializers
         QByteArray operator()(const QList<QJsonValue>& argv)
         {
             return serializeUtil(Protocol::CreateGroupAccept,
-                                 argv, {"Username", "GroupName", "Members"});
+                                 argv, {"Owner", "Name", "Members"});
         }
     };
 
@@ -414,7 +415,7 @@ namespace Serializers
         QByteArray operator()(const QList<QJsonValue>& argv)
         {
             return serializeUtil(Protocol::CreateGroupFail,
-                                 argv, {"Username", "GroupName", "Message"});
+                                 argv, {"Owner", "Name", "Message"});
         }
     };
 
@@ -496,6 +497,20 @@ namespace Serializers
         {
             return serializeUtil(Protocol::LeaveGroup, argv, {"Owner","Name",
                     "User"});
+        }
+    };
+
+    class AddGroupMember : public AbstractSerializer,
+                           public Singleton<AddGroupMember>
+    {
+        friend class Singleton<AddGroupMember>;
+    private:
+        AddGroupMember() = default;
+    public:
+        QByteArray operator()(const QList<QJsonValue>& argv)
+        {
+            return serializeUtil(Protocol::AddGroupMember, argv, {"Owner",
+                    "Name", "User"});
         }
     };
 

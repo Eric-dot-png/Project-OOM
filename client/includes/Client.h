@@ -88,7 +88,8 @@ public:
     void extendGroupHistory(const QString & owner,
                             const QString & name) const;
     void leaveGroup(const QString & owner, const QString & name);
-                                                       
+    void addGroupMember(const QString & owner, const QString & name,
+                        const QString & user);
 public slots:
     // must be in loggedin state
     // puts the client into connected state
@@ -113,12 +114,14 @@ signals:
     void friendAccepted(const QString& from);
     
     void extendMsgSucceed(const QString& user,const QJsonArray & msgs);
-    void createGroupSucceed(const QString & name,
+    void createGroupSucceed(const QString & owner, const QString & name,
                             const QStringList & members);
     void createGroupDeny(const QString & err);
     void recievedGroupMessage(const QString & owner, const QString & name,
                               const QString & from, const QString & message);
-                                                                            
+    void GroupMemberAdded(const QString & owner, const QString & name,
+                          const QString & user);
+                                               
 private slots: // these are functions that are connected to signals
     void initializeSession(const QString& username,
                            const QStringList& friends,

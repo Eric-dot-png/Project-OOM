@@ -208,6 +208,11 @@ void Server::handleBufferReadyRead(QTcpSocket * client,const QByteArray& data)
                 handleLeaveGroup(m, data);
                 break;
             }
+            case Protocol::AddGroupMember:
+            {
+                handleAddGroupMember(m, data);
+                break;
+            }
             default:
             {
                 // Handle unexpected protocol types
@@ -504,6 +509,22 @@ void Server::handleLeaveGroup(const QJsonObject & m, const QByteArray & data)
     int groupId = db->getGroupId(m["Owner"].toString(), m["Name"].toString());
     db->removeGroupMember(groupId, m["User"].toString());
     QStringList members = db->getGroupMembers(groupId);
+    for(QString mem : members)
+        writeToUserRaw(mem, data);
+}
+
+void Server::handleAddGroupMember(const QJsonObject & m,
+                                  const QByteArray & data)
+{
+    QStringList members = db->getGroupMembers(m["Owner"].toString(),
+                                              m["Name"].toString());
+    db->addGroupMember(m["Owner"].toString(), m["Name"].toString(),
+                       m["User"].toString());
+    auto pair = onlineUserMap.find(m["Name"].toString());
+    if(pair != onlineUserMap.end())
+        writeToSocket(pair->second, Protocol::CreateGroupRequest,
+                      {m["Owner"].toString(), m["Name"].toString(),
+                       QJsonArray::fromStringList(members)});
     for(QString mem : members)
         writeToUserRaw(mem, data);
 }

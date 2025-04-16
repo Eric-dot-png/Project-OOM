@@ -63,6 +63,7 @@ private:
     void handleBlockUser(const QJsonObject&); 
     void handleGetGroupHistory(QTcpSocket *, const QJsonObject &);
     void handleLeaveGroup(const QJsonObject &, const QByteArray &);
+    void handleAddGroupMember(const QJsonObject &, const QByteArray &);
     
     static Server * instance;
 

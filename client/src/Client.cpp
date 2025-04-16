@@ -82,7 +82,7 @@ Client::Client()
         for(const QString & s : members)
             m.insert(s);
         initializeGroups(owner, name, m, {});
-        emit createGroupSucceed(name, members);
+        emit createGroupSucceed(owner, name, members);
     });
 
     connect(nw, &NetworkManager::createGroupFail, this,
@@ -98,6 +98,15 @@ Client::Client()
 
     connect(nw, &NetworkManager::detectedGroupMemberLeave, this,
             &Client::handleDetectedGroupMemberLeave);
+
+    connect(nw, &NetworkManager::detectedAddGroupMember, this,
+            [&](const QString & owner, const QString & name,
+                const QString & user) {
+                auto pair = chats.find(groupKey(owner, name));
+                if(pair != chats.end())
+                    pair->second->addMember(user);
+                emit GroupMemberAdded(owner, name, user);
+            });
     
     connect(qApp, &QCoreApplication::aboutToQuit, this, &Client::logout);
 }
@@ -552,6 +561,25 @@ void Client::leaveGroup(const QString & owner, const QString & name)
         }
         chats.erase(g);
         nw->forwardLeaveGroup(owner, name, current_user.get_username());
+    }
+}
+
+void Client::addGroupMember(const QString & owner, const QString & name,
+                            const QString & user)
+{
+    if(owner != current_user.get_username())
+    {
+        qDebug() << "You are not the owner of this group.";
+        return;
+    }
+    auto g = chats.find(groupKey(owner, name));
+    if(g != chats.end())
+    {
+        if(g->second->getMembers().count(user) == 0)
+        {
+            g->second->addMember(user);
+            nw->forwardAddGroupMember(owner, name, user);
+        }
     }
 }
 

@@ -61,6 +61,7 @@ private:
     void viewGroup(const QStringList & args);
     void extendGroup(const QStringList & args);
     void leaveGroup(const QStringList & args);
+    void addGroupMember(const QStringList & args);
     
 private:
     
