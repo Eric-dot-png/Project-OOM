@@ -780,3 +780,26 @@ QStringList dbHandler::getGroupMembers(int groupId)
 
     return ret;
 }
+
+bool dbHandler::changeGroupOwner(int groupId, const QString & user)
+{
+    std::stringstream ss;
+    ss << "update GroupInfo set owner='" << user.toStdString()
+       << "' where id=" << groupId;
+    if(mysql_query(connection, ss.str().c_str()))
+    {
+        qDebug() << ss.str().c_str();
+        qDebug() << "could not change owner" << mysql_error(connection);
+        return 0;
+    }
+    return 1;
+}
+
+bool dbHandler::changeGroupOwner(const QString & owner, const QString & name,
+                                 const QString & user)
+{
+    int id = getGroupId(owner, name);
+    if(id == -1)
+        return 0;
+    return changeGroupOwner(id, user);
+}

@@ -107,6 +107,20 @@ Client::Client()
                     pair->second->addMember(user);
                 emit GroupMemberAdded(owner, name, user);
             });
+
+    connect(nw, &NetworkManager::detectedGroupTransfer, this,
+            [&](const QString & owner, const QString & name,
+                const QString & user) {
+                auto pair = chats.find(groupKey(owner, name));
+                if(pair != chats.end())
+                {
+                    ChatObject * c = pair->second;
+                    c->setOwner(user);
+                    chats.erase(pair);
+                    chats[groupKey(user, name)] = c;
+                }
+                emit GroupTransferred(owner, name, user);
+            });
     
     connect(qApp, &QCoreApplication::aboutToQuit, this, &Client::logout);
 }
@@ -453,12 +467,8 @@ void Client::initializeGroups(const QString & owner, const QString & name,
 void Client::handleDM(const QString& user, const QString& msg)
 {
     Message m(user, current_user.get_username(), msg);
-    if (chats.find(dmKey(user)) == chats.end())
-    {
-        chats[dmKey(user)] = new DirectMessage(current_user.get_username(),
-                                               user);
-    }
-    chats[dmKey(user)]->prepend(m);
+    if (chats.find(dmKey(user)) != chats.end())
+        chats[dmKey(user)]->prepend(m);
     emit recievedDM(user,msg);
 }
 
@@ -580,6 +590,27 @@ void Client::addGroupMember(const QString & owner, const QString & name,
             g->second->addMember(user);
             nw->forwardAddGroupMember(owner, name, user);
         }
+    }
+}
+
+void Client::transferGroupOwnership(const QString & owner,
+                                    const QString & name,
+                                    const QString & user)
+{
+    if(owner != current_user.get_username())
+    {
+        qDebug() << "You are not the owner of this group.";
+        return;
+    }
+    auto g = chats.find(groupKey(owner, name));
+    if(g != chats.end())
+    {
+        if(g->second->getMembers().count(user) == 0)
+        {
+            qDebug() << "User must be a group member";
+            return;
+        }
+        nw->transferGroupRequest(owner, name, user);
     }
 }
 

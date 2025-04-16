@@ -213,6 +213,11 @@ void Server::handleBufferReadyRead(QTcpSocket * client,const QByteArray& data)
                 handleAddGroupMember(m, data);
                 break;
             }
+            case Protocol::TransferGroup:
+            {
+                handleTransferGroup(m, data);
+                break;
+            }
             default:
             {
                 // Handle unexpected protocol types
@@ -525,6 +530,18 @@ void Server::handleAddGroupMember(const QJsonObject & m,
         writeToSocket(pair->second, Protocol::CreateGroupRequest,
                       {m["Owner"].toString(), m["Name"].toString(),
                        QJsonArray::fromStringList(members)});
+    for(QString mem : members)
+        writeToUserRaw(mem, data);
+}
+
+void Server::handleTransferGroup(const QJsonObject & m,
+                                 const QByteArray & data)
+{
+    if(!db->changeGroupOwner(m["Owner"].toString(), m["Name"].toString(),
+                             m["User"].toString()))
+        return;
+    QStringList members = db->getGroupMembers(m["User"].toString(),
+                                              m["Name"].toString());
     for(QString mem : members)
         writeToUserRaw(mem, data);
 }

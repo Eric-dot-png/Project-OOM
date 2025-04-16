@@ -134,6 +134,12 @@ NetworkManager::NetworkManager()
                                     m["Name"].toString(),
                                     m["User"].toString());
     };
+
+    emitMap[Protocol::TransferGroup] = [&](const QJsonObject & m){
+        emit detectedGroupTransfer(m["Owner"].toString(),
+                                   m["Name"].toString(),
+                                   m["User"].toString());
+    };
 }
 
 NetworkManager::~NetworkManager()
@@ -300,6 +306,13 @@ void NetworkManager::forwardAddGroupMember(const QString & owner,
                                            const QString & u) const
 {
     writeToServer(Protocol::AddGroupMember, {owner, name, u});
+}
+
+void NetworkManager::transferGroupRequest(const QString & owner,
+                                          const QString & name,
+                                          const QString & u) const
+{
+    writeToServer(Protocol::TransferGroup, {owner, name, u});
 }
 
 void NetworkManager::writeToServer(Protocol type,

@@ -99,7 +99,10 @@ public:
     //Returns list of group members
     QStringList getGroupMembers(const QString & owner, const QString & name);
     QStringList getGroupMembers(int groupId);
-    
+    //Returns 1 if owner changed
+    bool changeGroupOwner(int groupId, const QString & user);
+    bool changeGroupOwner(const QString & owner, const QString & name,
+                          const QString & user);
 private:
     dbHandler();
     ~dbHandler();

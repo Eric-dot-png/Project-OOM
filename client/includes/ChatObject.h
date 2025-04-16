@@ -50,6 +50,8 @@ public:
     virtual void rename(const QString& new_name) { name_ = new_name; }
 
     virtual const QString& owner() const { return owner_; }
+
+    virtual const void setOwner(const QString & u) { owner_ = u; }
     
     const QString& name() const { return name_; }
     

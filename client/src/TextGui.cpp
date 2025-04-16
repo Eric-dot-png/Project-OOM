@@ -130,6 +130,11 @@ TextGui::TextGui()
         std::bind(&TextGui::addGroupMember, this, std::placeholders::_1),
         {"Group Owner", "Group Name", "User"}, "Adds user to a group(must be owner)"
     };
+
+    commandMap["transferGroup"] = {
+        std::bind(&TextGui::transferGroup, this, std::placeholders::_1),
+        {"Group Owner", "Group Name", "User"}, "Transfers group ownership to user(must be owner)"
+    };
     
     // welcome message
     connect(client,&Client::connectedToServer,this,&TextGui::welcomeMessage);
@@ -364,4 +369,9 @@ void TextGui::leaveGroup(const QStringList & args)
 void TextGui::addGroupMember(const QStringList & args)
 {
     client->addGroupMember(args[0], args[1], args[2]);
+}
+
+void TextGui::transferGroup(const QStringList & args)
+{
+    client->transferGroupOwnership(args[0], args[1], args[2]);
 }

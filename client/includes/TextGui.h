@@ -62,6 +62,7 @@ private:
     void extendGroup(const QStringList & args);
     void leaveGroup(const QStringList & args);
     void addGroupMember(const QStringList & args);
+    void transferGroup(const QStringList & args);
     
 private:
     

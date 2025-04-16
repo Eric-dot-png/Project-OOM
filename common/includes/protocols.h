@@ -48,7 +48,8 @@ enum class Protocol
     GetGroupHistory,
     GetGroupHistorySuccess,
     LeaveGroup,
-    AddGroupMember
+    AddGroupMember,
+    TransferGroup
 };
 
 /*
@@ -510,6 +511,20 @@ namespace Serializers
         QByteArray operator()(const QList<QJsonValue>& argv)
         {
             return serializeUtil(Protocol::AddGroupMember, argv, {"Owner",
+                    "Name", "User"});
+        }
+    };
+
+    class TransferGroup : public AbstractSerializer,
+                          public Singleton<TransferGroup>
+    {
+        friend class Singleton<TransferGroup>;
+    private:
+        TransferGroup() = default;
+    public:
+        QByteArray operator()(const QList<QJsonValue>& argv)
+        {
+            return serializeUtil(Protocol::TransferGroup, argv, {"Owner",
                     "Name", "User"});
         }
     };

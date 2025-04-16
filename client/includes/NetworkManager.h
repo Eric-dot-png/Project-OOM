@@ -78,6 +78,8 @@ public:
                            const QString & u) const;
     void forwardAddGroupMember(const QString & owner, const QString & name,
                                const QString & u) const;
+    void transferGroupRequest(const QString & owner, const QString & name,
+                              const QString & u) const;
     
 signals:
     void connected();
@@ -110,6 +112,8 @@ signals:
                                   const QString & user);
     void detectedAddGroupMember(const QString & owner, const QString & name,
                                 const QString & user);
+    void detectedGroupTransfer(const QString & owner, const QString & name,
+                               const QString & user);
     
 private:
     QTcpSocket * socket;
