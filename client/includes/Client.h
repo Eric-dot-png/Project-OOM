@@ -92,7 +92,8 @@ public:
                         const QString & user);
     void transferGroupOwnership(const QString & owner, const QString & name,
                                 const QString & user);
-                                             
+    void deleteGroup(const QString & owner, const QString & name);
+                                                                 
 public slots:
     // must be in loggedin state
     // puts the client into connected state
@@ -126,7 +127,8 @@ signals:
                           const QString & user);
     void GroupTransferred(const QString & owner, const QString & name,
                           const QString & user);
-
+    void GroupDeleted(const QString & owner, const QString & name);
+                                                                  
 private slots: // these are functions that are connected to signals
     void initializeSession(const QString& username,
                            const QStringList& friends,

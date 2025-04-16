@@ -93,7 +93,8 @@ public:
     bool removeGroupMember(const QString & owner, const QString & name,
                            const QString & u);
     //returns 1 if group deleted
-    //bool deleteGroup(const QString & u, const QString & name);
+    bool deleteGroup(int groupId);
+    bool deleteGroup(const QString & u, const QString & name);
     //Returns groups
     QJsonArray getGroups(const QString & u);
     //Returns list of group members

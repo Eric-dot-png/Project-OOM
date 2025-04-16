@@ -713,6 +713,41 @@ bool dbHandler::removeGroupMember(const QString & owner, const QString & name,
     return addGroupMember(id, u);
 }
 
+bool dbHandler::deleteGroup(int groupId)
+{
+    std::stringstream ss;
+    mysql_query(connection, "start transaction");
+    
+    ss << "update GroupInfo set deleted=1 where id=" << groupId;
+    if(mysql_query(connection, ss.str().c_str()))
+    {
+        qDebug() << ss.str().c_str();
+        qDebug() << "Could not delete group: " << mysql_error(connection);
+        mysql_query(connection, "rollback");
+        return 0;
+    }
+    ss.str("");
+    ss.clear();
+
+    ss << "update GroupMessage set deletedmsg=1 where groupId=" << groupId;
+    if(mysql_query(connection, ss.str().c_str()))
+    {
+        qDebug() << ss.str().c_str();
+        qDebug() << "Could not delete group messages";
+        mysql_query(connection, "rollback");
+        return 0;
+    }
+
+    mysql_query(connection, "commit");
+    return 1;
+}
+
+bool dbHandler::deleteGroup(const QString & owner, const QString & name)
+{
+    int id = getGroupId(owner, name);
+    return deleteGroup(id);
+}
+
 //returns groups of user in Owner:Name format
 QJsonArray dbHandler::getGroups(const QString & u)
 {
@@ -721,7 +756,7 @@ QJsonArray dbHandler::getGroups(const QString & u)
     
     std::stringstream ss;
     ss << "select owner, name from GroupInfo join GroupMember on id=groupId "
-       << "where user='" << u.toStdString() << "'";
+       << "where user='" << u.toStdString() << "' and not deleted";
     if (mysql_query(connection, ss.str().c_str()))
     {
         qDebug() << "select fail in getGroups()";

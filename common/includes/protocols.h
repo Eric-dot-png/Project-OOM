@@ -49,7 +49,8 @@ enum class Protocol
     GetGroupHistorySuccess,
     LeaveGroup,
     AddGroupMember,
-    TransferGroup
+    TransferGroup,
+    DeleteGroup
 };
 
 /*
@@ -526,6 +527,20 @@ namespace Serializers
         {
             return serializeUtil(Protocol::TransferGroup, argv, {"Owner",
                     "Name", "User"});
+        }
+    };
+
+    class DeleteGroup : public AbstractSerializer,
+                          public Singleton<DeleteGroup>
+    {
+        friend class Singleton<DeleteGroup>;
+    private:
+        DeleteGroup() = default;
+    public:
+        QByteArray operator()(const QList<QJsonValue>& argv)
+        {
+            return serializeUtil(Protocol::DeleteGroup, argv, {"Owner",
+                    "Name"});
         }
     };
 

@@ -50,6 +50,7 @@ namespace Serializers
         LeaveGroup::destroyInstance();
         AddGroupMember::destroyInstance();
         TransferGroup::destroyInstance();
+        DeleteGroup::destroyInstance();
     }
 
 };

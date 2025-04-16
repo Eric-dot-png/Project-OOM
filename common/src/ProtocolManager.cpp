@@ -45,7 +45,8 @@ std::unordered_map<Protocol,
     {Protocol::GetGroupHistorySuccess, Serializers::GetGroupHistorySuccess::getInstance()},
     {Protocol::LeaveGroup, Serializers::LeaveGroup::getInstance()},
     {Protocol::AddGroupMember, Serializers::AddGroupMember::getInstance()},
-    {Protocol::TransferGroup, Serializers::TransferGroup::getInstance()}
+    {Protocol::TransferGroup, Serializers::TransferGroup::getInstance()},
+    {Protocol::DeleteGroup, Serializers::DeleteGroup::getInstance()}
 };
 
 QByteArray ProtocolManager::serialize(Protocol t, const QList<QJsonValue>& v)

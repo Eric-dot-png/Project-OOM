@@ -65,6 +65,7 @@ private:
     void handleLeaveGroup(const QJsonObject &, const QByteArray &);
     void handleAddGroupMember(const QJsonObject &, const QByteArray &);
     void handleTransferGroup(const QJsonObject &, const QByteArray &);
+    void handleDeleteGroup(const QJsonObject &, const QByteArray &);
     
     static Server * instance;
 

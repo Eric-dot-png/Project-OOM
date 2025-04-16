@@ -121,6 +121,17 @@ Client::Client()
                 }
                 emit GroupTransferred(owner, name, user);
             });
+
+    connect(nw, &NetworkManager::detectedGroupDelete, this,
+            [&](const QString & owner, const QString & name) {
+                auto pair = chats.find(groupKey(owner, name));
+                if(pair != chats.end())
+                {
+                    delete pair->second;
+                    chats.erase(pair);
+                }
+                emit GroupDeleted(owner, name);
+            });
     
     connect(qApp, &QCoreApplication::aboutToQuit, this, &Client::logout);
 }
@@ -612,6 +623,18 @@ void Client::transferGroupOwnership(const QString & owner,
         }
         nw->transferGroupRequest(owner, name, user);
     }
+}
+
+void Client::deleteGroup(const QString & owner, const QString & name)
+{
+    if(owner != current_user.get_username())
+    {
+        qDebug() << "You are not the owner of this group.";
+        return;
+    }
+    auto g = chats.find(groupKey(owner, name));
+    if(g != chats.end())
+        nw->forwardDeleteGroup(owner, name);
 }
 
 QString Client::dmKey(const QString& user) const

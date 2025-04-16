@@ -140,6 +140,11 @@ NetworkManager::NetworkManager()
                                    m["Name"].toString(),
                                    m["User"].toString());
     };
+
+    emitMap[Protocol::DeleteGroup] = [&](const QJsonObject &m){
+        emit detectedGroupDelete(m["Owner"].toString(),
+                                 m["Name"].toString());
+    };
 }
 
 NetworkManager::~NetworkManager()
@@ -313,6 +318,12 @@ void NetworkManager::transferGroupRequest(const QString & owner,
                                           const QString & u) const
 {
     writeToServer(Protocol::TransferGroup, {owner, name, u});
+}
+
+void NetworkManager::forwardDeleteGroup(const QString & owner,
+                                        const QString & name) const
+{
+    writeToServer(Protocol::DeleteGroup, {owner, name});
 }
 
 void NetworkManager::writeToServer(Protocol type,

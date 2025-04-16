@@ -80,6 +80,8 @@ public:
                                const QString & u) const;
     void transferGroupRequest(const QString & owner, const QString & name,
                               const QString & u) const;
+    void forwardDeleteGroup(const QString & owner,
+                            const QString & name) const;
     
 signals:
     void connected();
@@ -114,6 +116,7 @@ signals:
                                 const QString & user);
     void detectedGroupTransfer(const QString & owner, const QString & name,
                                const QString & user);
+    void detectedGroupDelete(const QString & owner, const QString & name);
     
 private:
     QTcpSocket * socket;

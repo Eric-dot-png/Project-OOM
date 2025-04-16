@@ -218,6 +218,11 @@ void Server::handleBufferReadyRead(QTcpSocket * client,const QByteArray& data)
                 handleTransferGroup(m, data);
                 break;
             }
+            case Protocol::DeleteGroup:
+            {
+                handleDeleteGroup(m, data);
+                break;
+            }
             default:
             {
                 // Handle unexpected protocol types
@@ -514,7 +519,7 @@ void Server::handleLeaveGroup(const QJsonObject & m, const QByteArray & data)
     int groupId = db->getGroupId(m["Owner"].toString(), m["Name"].toString());
     db->removeGroupMember(groupId, m["User"].toString());
     QStringList members = db->getGroupMembers(groupId);
-    for(QString mem : members)
+    for(QString & mem : members)
         writeToUserRaw(mem, data);
 }
 
@@ -542,6 +547,18 @@ void Server::handleTransferGroup(const QJsonObject & m,
         return;
     QStringList members = db->getGroupMembers(m["User"].toString(),
                                               m["Name"].toString());
-    for(QString mem : members)
+    for(QString & mem : members)
         writeToUserRaw(mem, data);
+}
+
+void Server::handleDeleteGroup(const QJsonObject & m,
+                               const QByteArray & data)
+{
+    QStringList members = db->getGroupMembers(m["Owner"].toString(),
+                                              m["Name"].toString());
+    if(db->deleteGroup(m["Owner"].toString(), m["Name"].toString()))
+    {
+        for(QString & mem : members)
+            writeToUserRaw(mem, data);
+    }
 }
