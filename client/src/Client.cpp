@@ -54,6 +54,11 @@ Client::Client()
     connect(nw, &NetworkManager::detectedFriendReq, this, [&](const QString& u){
         friendlist.recieveRequest(u);
         current_user.addFriendRequest(u);
+        if(blocklist.isBlocked(u))
+        {
+            denyFriend(u);
+            return;
+        }
         emit recievedFriendRequest(u);
     });
 
@@ -346,6 +351,8 @@ void Client::block(const User& u)
 {
     if (state == ClientState::LoggedIn)
     {
+        if(blocklist.isBlocked(u.get_username()))
+            return;
         blocklist.add(u.get_username());
         nw->forwardBlock(u.get_username(), current_user.get_username());
     }
@@ -359,6 +366,8 @@ void Client::unblock(const User& u)
 {
     if (state == ClientState::LoggedIn)
     {
+        if(!blocklist.isBlocked(u.get_username()))
+            return;
         blocklist.remove(u.get_username());
         nw->forwardUnblock(u.get_username(), current_user.get_username());
     }
@@ -419,6 +428,8 @@ void Client::initializeSession(const QString& user,
 
     friendlist = FriendList(frs, {}, fs);
     
+    blocklist = BlockList(blocks);
+    
     for(const QJsonValue & v : groups)
     {
         QJsonArray memarray = v["Members"].toArray();
@@ -428,8 +439,6 @@ void Client::initializeSession(const QString& user,
         initializeGroups(v["Owner"].toString(), v["Name"].toString(),
                          members, {});
     }
-    
-    blocklist = BlockList(blocks);
     
     emit loginSuccess();
     qDebug() << "Session initialized.";
@@ -469,7 +478,8 @@ void Client::initializeGroups(const QString & owner, const QString & name,
         for(const QJsonValue & msg : messages)
         {
             Message m(msg["From"].toString(), name, msg["Message"].toString());
-            chats[groupKey(owner, name)]->sendMessage(m);
+            if(!blocklist.isBlocked(msg["From"].toString()))
+                chats[groupKey(owner, name)]->sendMessage(m);
         }
         qDebug() << "Group initialized";
     }
@@ -477,6 +487,8 @@ void Client::initializeGroups(const QString & owner, const QString & name,
 
 void Client::handleDM(const QString& user, const QString& msg)
 {
+    if(blocklist.isBlocked(user))
+        return;
     Message m(user, current_user.get_username(), msg);
     if (chats.find(dmKey(user)) != chats.end())
         chats[dmKey(user)]->prepend(m);
@@ -486,6 +498,8 @@ void Client::handleDM(const QString& user, const QString& msg)
 void Client::handleGroupMessage(const QString & owner, const QString & name,
                                 const QString & from, const QString & message)
 {
+    if(blocklist.isBlocked(from))
+        return;
     if(chats.find(groupKey(owner, name)) != chats.end())
     {
         Message m(from, name, message);
@@ -499,6 +513,8 @@ void Client::handleMoreMsgs(const QString& user, const QJsonArray & messages)
     QList<Message> l = {};
     for (const QJsonValue& msg : messages)
     {
+        if(blocklist.isBlocked(msg["From"].toString()))
+            continue;
         Message m(msg["From"].toString(),
                   msg["To"].toString(),
                   msg["Message"].toString());
@@ -517,6 +533,8 @@ void Client::handleGroupHistoryFound(const QString & owner,
     for(const QJsonValue & msg : messages)
     {
         qDebug() << "adding group message";
+        if(blocklist.isBlocked(msg["From"].toString()))
+            continue;
         Message m(msg["From"].toString(), name, msg["Message"].toString());
         chats[groupKey(owner, name)]->sendMessage(m);
     }
