@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     
     declareOOMtypes();
 
-    bool textMode = true; // text gui or not
+    bool textMode = false; // text gui or not
     
     //Main app
     QApplication app(argc, argv);
@@ -78,6 +78,7 @@ int main(int argc, char *argv[])
         OOMWidget::setClient(c);
         
         mainWidget = new OOMWidget();
+        mainWidget->setWindowTitle("Project OOM");
         mainWidget->startApp();
     }
     

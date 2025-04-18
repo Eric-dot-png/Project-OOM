@@ -14,9 +14,9 @@ Client::Client()
         state = ClientState::Disconnected;
         emit disconnectedFromServer();
     });
-    
+
     connect(nw,&NetworkManager::loginValid, this, &Client::initializeSession);
-    
+
     connect(nw, &NetworkManager::loginInvalid, this, [&](){
         state = ClientState::Connected;
         qDebug() << "Client : Entered Connected State";
@@ -27,7 +27,7 @@ Client::Client()
         state = ClientState::Connected;
         emit accountNotCreated();
     });
-    
+
     connect(nw, &NetworkManager::accSetupPass, this, [&](const QString& usr,
                                                          const QString& pwd){
         current_user = User(usr,pwd);
@@ -38,19 +38,19 @@ Client::Client()
         state = ClientState::Connected;
         emit accountAuthenticated();
     });
-    
+
     connect(nw, &NetworkManager::accAuthFail, this, [&](){
         emit accountAuthenticationFail();
     });
-    
+
     connect(nw, &NetworkManager::userDNE, this, [&](const QString& u){
         emit discoverUserFail(u);
     });
-    
+
     connect(nw, &NetworkManager::pmHistoryFound,this,&Client::initializeDMs);
-    
+
     connect(nw, &NetworkManager::detectedPM, this, &Client::handleDM);
-    
+
     connect(nw, &NetworkManager::detectedFriendReq, this, [&](const QString& u){
         friendlist.recieveRequest(u);
         current_user.addFriendRequest(u);
@@ -73,7 +73,7 @@ Client::Client()
         // do nothing (remove from outgoing friendrequest?)
         friendlist.requestDenied(u);
     });
-    
+
     connect(nw, &NetworkManager::detectedFriendRM, this, [&](const QString& u){
         current_user.removeFriend(u);
         friendlist.unfriend(u);
@@ -113,6 +113,7 @@ Client::Client()
                 emit GroupMemberAdded(owner, name, user);
             });
 
+
     connect(nw, &NetworkManager::detectedGroupTransfer, this,
             [&](const QString & owner, const QString & name,
                 const QString & user) {
@@ -137,7 +138,7 @@ Client::Client()
                 }
                 emit GroupDeleted(owner, name);
             });
-    
+
     connect(qApp, &QCoreApplication::aboutToQuit, this, &Client::logout);
 }
 
@@ -257,7 +258,7 @@ void Client::privateMessage(const User& u, const QString& message)
     {
         qDebug() << "sending private message...";
         nw->forwardPM(u.get_username(), current_user.get_username(), message);
-        
+
         if (chats.find(dmKey(u)) != chats.end())
         {
             Message m(current_user.get_username(), u.get_username(), message);
@@ -281,7 +282,7 @@ void Client::friendRequest(const User& u)
     }
     else
     {
-        qDebug() << "Can't Friend Request. current state:" << static_cast<int>(state); 
+        qDebug() << "Can't Friend Request. current state:" << static_cast<int>(state);
     }
 }
 
@@ -299,7 +300,7 @@ void Client::acceptFriend(const User& u)
     }
     else if (state != ClientState::LoggedIn)
     {
-        qDebug() << "Can't Accept Friend Request. current state:" << static_cast<int>(state); 
+        qDebug() << "Can't Accept Friend Request. current state:" << static_cast<int>(state);
     }
     else
     {
@@ -319,7 +320,7 @@ void Client::denyFriend(const User& u)
     }
     else if (state != ClientState::LoggedIn)
     {
-        qDebug() << "Can't Deny Friend Request. current state:" << static_cast<int>(state); 
+        qDebug() << "Can't Deny Friend Request. current state:" << static_cast<int>(state);
     }
     else
     {
@@ -409,7 +410,8 @@ const ChatObject * Client::getDMsWith(const QString& u) const
     if (pair != chats.end()) return pair->second;
     else
     {
-        throw std::runtime_error("Client getDM ERROR: User not discovered."); 
+        return nullptr; //probably bad I do a nullptr check to see if discovered or not in privateMessages
+        //throw std::runtime_error("Client getDM ERROR: User not discovered.");
     }
 }
 
@@ -429,7 +431,7 @@ void Client::initializeSession(const QString& user,
     friendlist = FriendList(frs, {}, fs);
     
     blocklist = BlockList(blocks);
-    
+
     for(const QJsonValue & v : groups)
     {
         QJsonArray memarray = v["Members"].toArray();
@@ -439,7 +441,7 @@ void Client::initializeSession(const QString& user,
         initializeGroups(v["Owner"].toString(), v["Name"].toString(),
                          members, {});
     }
-    
+
     emit loginSuccess();
     qDebug() << "Session initialized.";
 }
@@ -490,8 +492,10 @@ void Client::handleDM(const QString& user, const QString& msg)
     if(blocklist.isBlocked(user))
         return;
     Message m(user, current_user.get_username(), msg);
+
     if (chats.find(dmKey(user)) != chats.end())
         chats[dmKey(user)]->prepend(m);
+
     emit recievedDM(user,msg);
 }
 
@@ -576,7 +580,7 @@ ChatObject * Client::getGroupHistory(const QString & owner,
     }
     else
         qDebug() << "ERROR: WHAT ARE YOU DOING??";
-    
+
     return NULL;
 }
 

@@ -22,7 +22,7 @@
   <widget class="QTextEdit" name="textEdit">
    <property name="geometry">
     <rect>
-     <x>350</x>
+     <x>190</x>
      <y>550</y>
      <width>481</width>
      <height>41</height>
@@ -32,7 +32,7 @@
   <widget class="OOMTextBrowser" name="textBrowser">
    <property name="geometry">
     <rect>
-     <x>350</x>
+     <x>190</x>
      <y>160</y>
      <width>481</width>
      <height>371</height>
@@ -42,7 +42,7 @@
   <widget class="QLabel" name="friendNameLabel">
    <property name="geometry">
     <rect>
-     <x>350</x>
+     <x>190</x>
      <y>117</y>
      <width>441</width>
      <height>41</height>
@@ -55,8 +55,8 @@
   <widget class="QComboBox" name="friendCombobox">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>10</y>
+     <x>20</x>
+     <y>150</y>
      <width>151</width>
      <height>26</height>
     </rect>
@@ -71,7 +71,7 @@
   <widget class="QLineEdit" name="searchUserTextbox">
    <property name="geometry">
     <rect>
-     <x>460</x>
+     <x>300</x>
      <y>50</y>
      <width>113</width>
      <height>26</height>
@@ -81,7 +81,7 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>350</x>
+     <x>190</x>
      <y>50</y>
      <width>101</width>
      <height>20</height>
@@ -94,7 +94,7 @@
   <widget class="QLabel" name="userNotFoundLabel">
    <property name="geometry">
     <rect>
-     <x>580</x>
+     <x>420</x>
      <y>10</y>
      <width>211</width>
      <height>101</height>
@@ -110,7 +110,7 @@
   <widget class="QLabel" name="currentUser">
    <property name="geometry">
     <rect>
-     <x>350</x>
+     <x>190</x>
      <y>17</y>
      <width>101</width>
      <height>21</height>
@@ -123,23 +123,10 @@
   <widget class="QListView" name="friendView">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>50</y>
-     <width>141</width>
-     <height>561</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QListView" name="serverView">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="geometry">
-    <rect>
      <x>30</x>
-     <y>50</y>
-     <width>101</width>
-     <height>561</height>
+     <y>190</y>
+     <width>141</width>
+     <height>281</height>
     </rect>
    </property>
   </widget>
@@ -159,7 +146,7 @@
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
-     <x>800</x>
+     <x>700</x>
      <y>0</y>
      <width>191</width>
      <height>131</height>
@@ -208,7 +195,7 @@
   <widget class="QPushButton" name="addFriendButton">
    <property name="geometry">
     <rect>
-     <x>350</x>
+     <x>190</x>
      <y>90</y>
      <width>91</width>
      <height>26</height>
@@ -244,14 +231,43 @@
   <widget class="QLabel" name="loadingLabel">
    <property name="geometry">
     <rect>
-     <x>840</x>
-     <y>150</y>
+     <x>690</x>
+     <y>550</y>
      <width>45</width>
      <height>45</height>
     </rect>
    </property>
    <property name="text">
     <string/>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="createGroupButton">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>480</y>
+     <width>101</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Create Group</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="groupErrorLabel">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>520</y>
+     <width>101</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
    </property>
   </widget>
  </widget>

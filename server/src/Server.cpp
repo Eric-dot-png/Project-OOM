@@ -436,7 +436,7 @@ void Server::handleCreateGroupRequest(QTcpSocket * client,
                                       const QJsonObject & m,
                                       const QByteArray & data)
 {
-    QString owner = m["Username"].toString();
+    QString owner = m["Owner"].toString();
     QString name = m["Name"].toString();
     bool avail = db->availGroup(owner, name);
     if(avail)

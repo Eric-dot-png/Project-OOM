@@ -17,6 +17,7 @@
 #include "Client.h"
 #include "ui_privatemessages.h"
 #include "dmlistmodel.h"
+#include "groupdialog.h"
 
 /*
  *  QT does not natively allow pressing enter to submit a textbox.
@@ -61,8 +62,10 @@ private:
     Ui::PrivateMessages *ui;
     EnterKeyFilter *enterFilter;
     DMListModel *messagingList;
-    
+
     User currentlyMessaging; // defaults to guest (DNE)
+
+    groupDialog *groupPopup;
     bool loadMoreMessagesFlag;
 
     QString formatClientMessage();
@@ -76,7 +79,12 @@ private:
     void sendFriendRequest();
     void receivedMessage(QString from, QString msg);
     void showAddFriendButton();
-    
+
+    //void showEvent(QShowEvent *event);
+
+    void createGroup(const QString& owner, const QStringList& members);
+
+
     bool eventFilter(QObject *, QEvent *);
 };
 

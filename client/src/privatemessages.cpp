@@ -16,6 +16,7 @@
 #include <QTextBrowser>
 #include <QScrollBar>
 #include <QMovie>
+#include <QMenu>
 
 // OOM includes
 #include "OOMTextBrowser.h"
@@ -25,6 +26,7 @@
 #include "message.h"
 #include "ChatObject.h"
 
+
 // Constructor for PrivateMessages. Sets up UI elements, signals, and slots.
 PrivateMessages::PrivateMessages(QWidget *parent)
     : OOMWidget(parent), ui(new Ui::PrivateMessages),
@@ -33,6 +35,7 @@ PrivateMessages::PrivateMessages(QWidget *parent)
 {
     ui->setupUi(this);                  // Sets up the UI from the .ui file
     ui->friendNameLabel->clear();       // Clears label that shows who the user is currently messaging
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
 
     // Model to display the list of users the client is messaging
     ui->friendView->setModel(messagingList);
@@ -49,8 +52,12 @@ PrivateMessages::PrivateMessages(QWidget *parent)
     // hide the addFriend button by default
     ui->addFriendButton->hide();
 
+
     // Setup Client and UI
     connectClient();
+
+    groupPopup = new groupDialog(this);
+
     connectUI();
 
     loadMoreMessagesFlag = false;
@@ -77,14 +84,26 @@ void PrivateMessages::connectClient()
     // If searching for a user succeeds, load the conversation with that user
     connect(client, &Client::discoverUserSucceed, this, [=](const QString& username, const QJsonArray & messageJsonList){
         ui->userNotFoundLabel->clear();
-        
+
+        QAbstractItemModel *model = ui->friendView->model();
+
+        for (int row = 0; row < model->rowCount(); row++)
+        {
+            QModelIndex index = model->index(row, 0);
+            QString itemText = model->data(index, Qt::DisplayRole).toString().section(':', 0, 0);
+
+            if (itemText == username)
+            {
+                openDM(index);
+            }
+        }
         
         // Update the user we are currently messaging
         currentlyMessaging = User(username);
         ui->friendNameLabel->setText("Now messaging: " + currentlyMessaging.get_username());
 
         // Add the found user to the messaging list
-        messagingList->addUserToDMList(currentlyMessaging);
+        messagingList->addUserToDMList(currentlyMessaging.get_username());
         QScrollBar* sb = ui->textBrowser->verticalScrollBar();
 
         // Populate the text browser with the returned messages (server history)
@@ -96,7 +115,7 @@ void PrivateMessages::connectClient()
             QString msg = obj["Message"].toString();
 
             ui->textBrowser->append(QString("[%1]: %2").arg(from, msg));
-            messagingList->messageReceived(currentlyMessaging, Message(from, to, msg));
+            messagingList->messageReceived(currentlyMessaging.get_username(), Message(from, to, msg));
 
         }
 
@@ -127,11 +146,16 @@ void PrivateMessages::connectClient()
     connect(client, &Client::loginSuccess, this, [=]() {
         ui->currentUser->setText(client->getUser().get_username());
     });
+
+    connect(client, &Client::recievedFriendRemove, this, [=](){
+        showAddFriendButton();
+    });
 }
 
 // All connect() functions for user/ui interaction
 void PrivateMessages::connectUI()
 {
+
     // Connect the custom Enter key press signal to the onEnterKeyPressed slot
     connect(enterFilter, &EnterKeyFilter::enterPressed, this, &PrivateMessages::onEnterKeyPressed);
 
@@ -252,6 +276,42 @@ void PrivateMessages::connectUI()
             }
         }
     });
+
+    //BUTTON:
+    //CreateGroup
+    connect(ui->createGroupButton, &QPushButton::clicked, this, [=](){
+        if (!groupPopup)
+            groupPopup = new groupDialog(this);
+        groupPopup->show(); // emits groupMembersSelected
+        groupPopup->raise();
+        groupPopup->activateWindow();
+    });
+
+    connect(groupPopup, &groupDialog::groupMembersSelected, this, [=](const QString& groupName, const QStringList& groupMembers){
+        qDebug() << "groupMembers returned, groupName" << groupName;
+        for (auto const &m : groupMembers)
+            qDebug() << m;
+
+        client->createGroup(groupName, groupMembers);
+    });
+
+    connect(client, &Client::createGroupSucceed, this, [=](const QString& owner, const QString& groupName, const QStringList& members){
+        qDebug() << "createGroupSucceed";
+        messagingList->addGroupToDMList(owner, groupName, members);
+    });
+
+    connect(client, &Client::createGroupDeny, this, [=](const QString& err){
+        qDebug() << "Group not created, error: " << err;
+        ui->groupErrorLabel->setText("Couldn't create group!");
+    });
+
+}
+
+// BUTTON:
+// Called when the CreateGroupButton is clicked
+void PrivateMessages::createGroup(const QString& owner, const QStringList& members)
+{
+    client->createGroup(owner, members);
 }
 
 
@@ -326,6 +386,10 @@ void PrivateMessages::onEnterKeyPressed()
     messagingList->messageReceived(currentlyMessaging.get_username(), msg);
 
     // Send the message to the server
+    QModelIndex i = ui->friendView->currentIndex();
+    if (i.data(Qt::UserRole + 3) == true)
+        //TODO: Should work? Will find out!
+        client->messageGroup(i.data(Qt::UserRole+4).toString(), i.data(Qt::UserRole+1).toString(), msgContent);
     client->privateMessage(currentlyMessaging.get_username(), msg.get_msg());
     ui->textBrowser->verticalScrollBar()->setValue(ui->textBrowser->verticalScrollBar()->maximum());
 }
@@ -345,6 +409,7 @@ void PrivateMessages::setupFriends()
     {
         // do something with outgoing here...
     }
+
 }
 
 // Called when a message arrives from the server. If the user is currently being messaged,
@@ -357,12 +422,12 @@ void PrivateMessages::receivedMessage(QString from, QString amsg)
     if (from == currentlyMessaging.get_username())
     {
         ui->textBrowser->appendMessage(msg, 0);
-        messagingList->messageReceived(User(from), msg);
+        messagingList->messageReceived(from, msg);
     }
     else
     {
         // Otherwise, store it in the message list so it can be viewed later
-        messagingList->messageReceived(User(from), msg);
+        messagingList->messageReceived(from, msg);
     }
 }
 
@@ -370,6 +435,19 @@ void PrivateMessages::receivedMessage(QString from, QString amsg)
 // and populates the text browser with existing message history.
 void PrivateMessages::openDM(const QModelIndex &index)
 {
+    qDebug() << "Person Clicked, getting name from dmlist...";
+    QString t = index.data(Qt::UserRole + 1).toString();
+
+    auto dm = client->getDMsWith(t);
+    if (!dm) {
+        qDebug() << "No DM found with user: " << t;
+        client->discover(User(t));
+        return;
+    }
+
+    qDebug() << "Somehow going past...";
+
+
     loadMoreMessagesFlag = false;
     if (!index.isValid())
     {
@@ -384,8 +462,10 @@ void PrivateMessages::openDM(const QModelIndex &index)
         return;
     }
 
+
+
     // Retrieve the User object from the model
-    currentlyMessaging = userData.value<User>();
+    currentlyMessaging = User(userData.value<QString>());
 
     ui->friendNameLabel->setText("Now messaging: " + currentlyMessaging.get_username());
     showAddFriendButton();
@@ -434,6 +514,47 @@ bool PrivateMessages::eventFilter(QObject *watched, QEvent *event)
             if (index.isValid())
             {
                 qDebug() << "Right clicked on item: " << index.data().toString();
+                QMenu menu;
+                QAction *messageAction = menu.addAction("Open DM");
+                QAction *blockAction = menu.addAction("Block person");
+                QAction *removeFriendAction;
+                QAction *addFriendAction;
+
+                QString user = index.data().toString().section(':', 0, 0);
+                if (client->getUser().getFriendsList().contains(user))
+                {
+                    removeFriendAction = menu.addAction("Remove friend");
+                }
+                else
+                {
+                    addFriendAction = menu.addAction("Add friend");
+                }
+
+                QAction *selected = menu.exec(mouseEvent->globalPos());
+
+                if (selected == messageAction)
+                {
+                    openDM(index);
+                }
+                else if (selected == blockAction)
+                {
+                    client->block(User(user));
+                }
+
+                if (removeFriendAction != NULL)
+                {
+                    if (selected == removeFriendAction)
+                        client->removeFriend(User(user));  
+
+                }
+                if (addFriendAction != NULL)
+                {
+                    if (selected == addFriendAction)
+                        client->friendRequest(User(user));
+                }
+
+
+
             }
             return true;
         }

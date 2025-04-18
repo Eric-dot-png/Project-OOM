@@ -8,7 +8,10 @@
 #include "oomwidget.h"
 
 struct DMData {
-    User user;
+    bool isGroup;
+    QString groupName; //user or groupname
+    QStringList members; //? dont think this is needed
+    QString owner;
     QList<Message> messageHistory; // not used
 };
 
@@ -23,15 +26,18 @@ public:
 
     QVariant data(const QModelIndex& index, int role) const override;
 
-    void messageReceived(const User& user, const Message msg);
+    void messageReceived(const QString& user, const Message msg);
 
-    QList<Message> getMessageHistory(const User &user) const;
+    QList<Message> getMessageHistory(const QString &user) const;
 
-    void addUserToDMList(const User &user);
+    void addUserToDMList(const QString &user);
+    void addGroupToDMList(const QString& owner, const QString& groupName, const QStringList& members);
+
+    bool isGroup(DMData dm);
 
 private:
-    QList<User> dmList;
-    QHash<User, DMData> dmMap;
+    QList<QString> dmList;
+    QHash<QString, DMData> dmMap;
     OOMWidget* oomWidget;
 };
 
